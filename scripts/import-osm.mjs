@@ -11,6 +11,7 @@
 // házsorában lévő helyek se vesszenek el; ezek „inMvp: false” jelölést kapnak.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { classify, toCsv } from "./classify-places.mjs";
 
 const OUT = process.argv[2] ?? "data";
 
@@ -175,18 +176,9 @@ if (existsSync(`${OUT}/places.web.json`)) {
   places.sort((a, b) => Number(b.osm.inMvp) - Number(a.osm.inMvp) || a.name.localeCompare(b.name, "hu"));
 }
 
+places = classify(places, POLY);
 mkdirSync(OUT, { recursive: true });
 writeFileSync(`${OUT}/places.osm.json`, JSON.stringify(places, null, 2) + "\n");
-
-const esc = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
-const csv = [
-  ["név", "típus", "cím", "lat", "lng", "négyszögön belül", "nyitvatartás (OSM)", "weboldal", "telefon", "forrás", "link"].join(","),
-  ...places.map((p) =>
-    [p.name, p.osm.amenity, p.address, p.location.lat, p.location.lng, p.osm.inMvp ? "igen" : "nem (szomszédos)", p.osm.openingHours, p.osm.website, p.osm.phone, p.osm.source, p.osmId ? `https://www.openstreetmap.org/${p.osmId}` : ""]
-      .map(esc)
-      .join(","),
-  ),
-].join("\n");
-writeFileSync(`${OUT}/places.osm.csv`, csv + "\n");
+writeFileSync(`${OUT}/places.osm.csv`, toCsv(places));
 
 console.log(`${places.length} hely (${places.filter((p) => p.osm.inMvp).length} a négyszögön belül) → ${OUT}/`);

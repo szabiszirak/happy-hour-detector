@@ -18,7 +18,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -40,7 +41,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -62,7 +64,8 @@
       "website": "",
       "phone": "+36 20 927 3916;+36 20 383 8289",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -84,7 +87,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -106,7 +110,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -128,7 +133,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": true
     }
   },
   {
@@ -152,7 +158,8 @@
       "website": "https://barcraft.hu/ice/",
       "phone": "+36 30 502 2464",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -174,7 +181,8 @@
       "website": "https://berliner.hu/",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -198,7 +206,8 @@
       "website": "",
       "phone": "+36 1 218 0127",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -220,7 +229,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -242,7 +252,8 @@
       "website": "https://bluelagoontikibar.ewk.hu/",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -264,7 +275,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -286,7 +298,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -308,7 +321,8 @@
       "website": "http://www.corvinuscafe.com/",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -330,7 +344,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -352,7 +367,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -373,7 +389,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": true
     }
   },
   {
@@ -395,7 +412,8 @@
       "website": "",
       "phone": "",
       "brewery": "various",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -417,7 +435,8 @@
       "website": "https://gravitybp.com/",
       "phone": "+36 30 144 8404",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -439,7 +458,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -463,29 +483,8 @@
       "website": "https://budapest.harats.com/en/budapesht/",
       "phone": "+36 30 670 2011",
       "brewery": "",
-      "inMvp": true
-    }
-  },
-  {
-    "id": "osm-node-12093728319",
-    "osmId": "node/12093728319",
-    "name": "Inga Kultúrkávézó",
-    "address": "1094 Budapest, Tűzoltó utca 2",
-    "location": {
-      "lat": 47.484574,
-      "lng": 19.070075
-    },
-    "vibes": [],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "cafe",
-      "source": "osm",
-      "openingHours": "Mo-Th,Su 12:00-23:00; Fr-Sa 12:00-24:00",
-      "website": "https://ingacafe.hu",
-      "phone": "+36 70 207 2757",
-      "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -506,7 +505,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": true
     }
   },
   {
@@ -527,7 +527,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": true
     }
   },
   {
@@ -549,7 +550,8 @@
       "website": "",
       "phone": "+36 1 700 0789",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -571,7 +573,8 @@
       "website": "",
       "phone": "+36 70 4157835",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -593,7 +596,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -615,7 +619,8 @@
       "website": "http://opusjazzclub.hu/",
       "phone": "+36 1 216 7894",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": true
     }
   },
   {
@@ -637,7 +642,8 @@
       "website": "http://www.orfeusz98pub.hu",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -659,29 +665,8 @@
       "website": "http://paristexaskavehaz.hu",
       "phone": "",
       "brewery": "",
-      "inMvp": true
-    }
-  },
-  {
-    "id": "osm-node-2452317439",
-    "osmId": "node/2452317439",
-    "name": "PHỞ 18 - Phở & Sushi Bar",
-    "address": "",
-    "location": {
-      "lat": 47.487828,
-      "lng": 19.062962
-    },
-    "vibes": [],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "restaurant",
-      "source": "osm",
-      "openingHours": "",
-      "website": "",
-      "phone": "",
-      "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -702,7 +687,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": true
     }
   },
   {
@@ -724,7 +710,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -746,29 +733,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
-    }
-  },
-  {
-    "id": "osm-node-6285765746",
-    "osmId": "node/6285765746",
-    "name": "Tényleg Espresso Bar",
-    "address": "1093 Budapest, Lónyay utca 39",
-    "location": {
-      "lat": 47.48297,
-      "lng": 19.064366
-    },
-    "vibes": [],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "cafe",
-      "source": "osm",
-      "openingHours": "Mo-Fr 08:00-17:00; Sa 10:00-14:00",
-      "website": "",
-      "phone": "",
-      "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -790,29 +756,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": true
-    }
-  },
-  {
-    "id": "osm-node-11640752821",
-    "osmId": "node/11640752821",
-    "name": "Wokzilla sushi & wok bar",
-    "address": "1092 Budapest, Ráday utca 33/a",
-    "location": {
-      "lat": 47.485247,
-      "lng": 19.0646
-    },
-    "vibes": [],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "restaurant",
-      "source": "osm",
-      "openingHours": "Mo-Su,PH 11:00-22:00",
-      "website": "https://wokzilla.hu/",
-      "phone": "+36 70 330 4572",
-      "brewery": "",
-      "inMvp": true
+      "inMvp": true,
+      "checkNeeded": false
     }
   },
   {
@@ -836,7 +781,8 @@
       "website": "http://allinpub.hu/",
       "phone": "+36 (30) 355 4152",
       "brewery": "",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": false
     }
   },
   {
@@ -858,7 +804,8 @@
       "website": "https://bacchusbp.com/",
       "phone": "+36309260628",
       "brewery": "",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": true
     }
   },
   {
@@ -880,7 +827,8 @@
       "website": "https://boardgamecafe.hu/",
       "phone": "+36 70 469 9474",
       "brewery": "",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": true
     }
   },
   {
@@ -902,7 +850,8 @@
       "website": "",
       "phone": "+36 1 267 0276",
       "brewery": "",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": true
     }
   },
   {
@@ -924,7 +873,8 @@
       "website": "",
       "phone": "",
       "brewery": "",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": false
     }
   },
   {
@@ -946,7 +896,8 @@
       "website": "",
       "phone": "+36 30 754 0066",
       "brewery": "",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": false
     }
   },
   {
@@ -970,7 +921,31 @@
       "website": "https://www.illegal.co.hu/",
       "phone": "",
       "brewery": "",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": false
+    }
+  },
+  {
+    "id": "osm-node-12093728319",
+    "osmId": "node/12093728319",
+    "name": "Inga Kultúrkávézó",
+    "address": "1094 Budapest, Tűzoltó utca 2",
+    "location": {
+      "lat": 47.484574,
+      "lng": 19.070075
+    },
+    "vibes": [],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "cafe",
+      "source": "osm",
+      "openingHours": "Mo-Th,Su 12:00-23:00; Fr-Sa 12:00-24:00",
+      "website": "https://ingacafe.hu",
+      "phone": "+36 70 207 2757",
+      "brewery": "",
+      "inMvp": false,
+      "checkNeeded": true
     }
   },
   {
@@ -992,7 +967,8 @@
       "website": "",
       "phone": "",
       "brewery": "Heineken;Königsburg",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": false
     }
   },
   {
@@ -1014,31 +990,8 @@
       "website": "https://9kert.hu/muzeumpub/",
       "phone": "+36 30 2882 267",
       "brewery": "",
-      "inMvp": false
-    }
-  },
-  {
-    "id": "osm-node-560864836",
-    "osmId": "node/560864836",
-    "name": "Okiko Sushi Thai Bar",
-    "address": "1094 Budapest, Tompa utca 7",
-    "location": {
-      "lat": 47.48275,
-      "lng": 19.06968
-    },
-    "vibes": [
-      "garden"
-    ],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "restaurant",
-      "source": "osm",
-      "openingHours": "Mo-Su 12:00-22:30",
-      "website": "",
-      "phone": "+36 1 400 7534",
-      "brewery": "",
-      "inMvp": false
+      "inMvp": false,
+      "checkNeeded": false
     }
   }
 ]
