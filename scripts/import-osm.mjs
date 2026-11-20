@@ -60,19 +60,25 @@ out center tags;
 
 const ENDPOINTS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
 let json;
-for (const url of ENDPOINTS) {
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": "happy-hour-detector-import/0.1" },
-      body: new URLSearchParams({ data: query }),
-    });
-    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    json = await res.json();
-    break;
-  } catch (e) {
-    console.error(`Overpass hiba (${url}): ${e.message}`);
+// Az Overpass néha túlterhelt (502/504): több próbálkozás, növekvő várakozással.
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+outer: for (let attempt = 1; attempt <= 4; attempt++) {
+  for (const url of ENDPOINTS) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": "happy-hour-detector/0.1" },
+        body: new URLSearchParams({ data: query }),
+      });
+      const text = await res.text();
+      if (!res.ok || !text.startsWith("{")) throw new Error(`${res.status}: ${text.slice(0, 120)}`);
+      json = JSON.parse(text);
+      break outer;
+    } catch (e) {
+      console.error(`Overpass hiba (${attempt}. kör, ${url}): ${e.message}`);
+    }
   }
+  await sleep(attempt * 20_000);
 }
 if (!json) process.exit(1);
 
