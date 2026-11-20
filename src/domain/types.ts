@@ -60,6 +60,20 @@ export interface Sponsorship {
 
 export type Vibe = "chill" | "party" | "garden" | "sport";
 
+/** Forrásból (OpenStreetMap / web) jövő kiegészítő adatok. */
+export interface PlaceInfo {
+  /** Hely típusa: pub, bar, restaurant, cafe, nightclub… */
+  kind?: string;
+  /** OSM opening_hours formátum, pl. "Mo-Fr 16:00-24:00". */
+  openingHours?: string;
+  website?: string;
+  phone?: string;
+  /** "osm" vagy "web: <forrás>" */
+  source?: string;
+  /** Ellenőrizni kell, hogy létezik-e / tényleg bár-e. */
+  checkNeeded?: boolean;
+}
+
 export interface Place {
   id: string;
   name: string;
@@ -70,6 +84,7 @@ export interface Place {
   /** OpenStreetMap azonosító (ha onnan importáltuk). */
   osmId?: string;
   vibes: Vibe[];
+  info?: PlaceInfo;
   drinks: Drink[];
   happyHours: HappyHourSlot[];
   sponsored?: Sponsorship;

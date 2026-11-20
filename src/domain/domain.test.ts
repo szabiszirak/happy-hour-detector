@@ -5,7 +5,7 @@ import { cheapestBeer, currentPrice, pricePerLiter } from "./pricing";
 import { applyVote, extractPrice, reportStatus } from "./reports";
 import { activeSponsored, DEFAULT_FILTER, searchDrinks } from "./search";
 import { matchScore } from "./match";
-import { seedPlaces } from "../data/seed";
+import { seedPlaces } from "./fixtures";
 import type { Place, Report } from "./types";
 
 // 2026-11-20 péntek
@@ -119,5 +119,57 @@ describe("MatchScore", () => {
     const bar = matchScore(places.find((p) => p.id === "p8")!, profile, fri(20));
     expect(soror).toBeGreaterThan(bar);
     expect(soror).toBe(100);
+  });
+});
+
+import { formatOpeningHours, openState, parseOpeningHours } from "./openingHours";
+import { seedPlaces as realPlaces } from "../data/seed";
+
+describe("nyitvatartás (OSM opening_hours)", () => {
+  // 2026-11-20 péntek, 2026-11-21 szombat
+  it("egyszerű hétköznapi sáv", () => {
+    expect(openState("Mo-Fr 16:00-24:00", fri(17))).toMatchObject({ kind: "open", closesAt: "00:00" });
+    expect(openState("Mo-Fr 16:00-24:00", fri(10))).toMatchObject({ kind: "closed", opensAt: "16:00", opensToday: true });
+    expect(openState("Mo-Fr 16:00-24:00", sat(12))).toMatchObject({ kind: "closed", opensToday: false });
+  });
+  it("éjfélen átnyúló sáv a következő napra is érvényes", () => {
+    expect(openState("Mo-Th 16:00-01:00, Fr,Sa 16:00-02:00, Su 16:00-24:00", sat(1, 30))).toMatchObject({ kind: "open", closesAt: "02:00" });
+    expect(openState("Su-Tu 14:00-00:00; We-Sa 14:00-02:00", fri(23))).toMatchObject({ kind: "open", closesAt: "02:00" });
+  });
+  it("éjfélkor folytatódó sávok összefűzése (P 16–24 + Szo 00–02)", () => {
+    const s = "Mo-Fr 16:00-24:00; Sa 00:00-02:00,16:00-24:00; Su 00:00-02:00";
+    expect(openState(s, fri(23, 30))).toMatchObject({ kind: "open", closesAt: "02:00" });
+    expect(openState(s, sat(1))).toMatchObject({ kind: "open", closesAt: "02:00" });
+    expect(openState(s, sat(3))).toMatchObject({ kind: "closed", opensAt: "16:00" });
+  });
+  it("napmegjelölés nélkül minden nap; 24/7; ismeretlen", () => {
+    expect(openState("14:00-24:00", sat(15)).kind).toBe("open");
+    expect(openState("24/7", sat(4)).kind).toBe("open");
+    expect(openState(undefined, sat(4)).kind).toBe("unknown");
+    expect(openState("by appointment", sat(4)).kind).toBe("unknown");
+  });
+  it("a későbbi szabály felülírja a korábbit, PH off kimarad", () => {
+    expect(parseOpeningHours("Mo-Su 11:00-23:00; Fr,Sa 11:00-24:00; PH off")![4]).toEqual([[660, 1440]]);
+  });
+  it("magyar megjelenítés", () => {
+    expect(formatOpeningHours("Mo-Fr 16:00-24:00; Sa 17:00-02:00")).toBe("H–P 16:00–24:00 · Szo 17:00–02:00");
+  });
+  it("a valódi helyek összes nyitvatartása értelmezhető", () => {
+    for (const p of realPlaces()) {
+      if (!p.info?.openingHours) continue;
+      expect(parseOpeningHours(p.info.openingHours), `${p.name}: ${p.info.openingHours}`).not.toBeNull();
+    }
+  });
+});
+
+describe("valódi helyek", () => {
+  it("33 hely, mind az MVP-négyszögben, árak és HH nélkül", () => {
+    const ps = realPlaces();
+    expect(ps.length).toBe(33);
+    for (const p of ps) {
+      expect(isInsidePolygon(p.location, MVP_POLYGON), p.name).toBe(true);
+      expect(p.drinks).toEqual([]);
+      expect(p.sponsored).toBeUndefined();
+    }
   });
 });

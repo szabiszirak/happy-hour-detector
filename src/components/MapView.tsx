@@ -5,12 +5,13 @@ import { useApp } from "../context";
 import { MVP_CORNERS, MVP_POLYGON } from "../domain/geo";
 import { happyHourStatus } from "../domain/happyHour";
 import { cheapestBeer, formatFt } from "../domain/pricing";
+import { openState } from "../domain/openingHours";
 import { DANUBE, STREETS } from "./baseMap";
 
 const TILE_URL = (import.meta.env.VITE_TILE_URL as string | undefined) || "";
 const TILE_ATTR = (import.meta.env.VITE_TILE_ATTRIBUTION as string | undefined) || "";
 
-export const MARKER_COLORS = { active: "#f5a623", upcoming: "#7fb3ff", none: "#8a7f76" };
+export const MARKER_COLORS = { active: "#f5a623", open: "#5fd38d", closed: "#8a7f76" };
 
 interface Props {
   highlightIds?: Set<string>;
@@ -32,7 +33,7 @@ export function MapView({ highlightIds, pickMode, onPick }: Props) {
     if (!el.current || map.current) return;
     const m = L.map(el.current, { zoomControl: false, attributionControl: Boolean(TILE_URL) });
     L.control.zoom({ position: "bottomright" }).addTo(m);
-    m.fitBounds(L.latLngBounds(MVP_POLYGON.map((p) => [p.lat, p.lng] as [number, number])), { padding: [24, 24] });
+    m.fitBounds(L.latLngBounds(MVP_POLYGON.map((p) => [p.lat, p.lng] as [number, number])), { padding: [10, 10] });
 
     if (TILE_URL) {
       L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19, subdomains: "abcd" }).addTo(m);
@@ -77,18 +78,19 @@ export function MapView({ highlightIds, pickMode, onPick }: Props) {
     if (!g) return;
     g.clearLayers();
     for (const p of places) {
-      const st = happyHourStatus(p, now).kind;
+      const hh = happyHourStatus(p, now).kind;
+      const open = openState(p.info?.openingHours, now).kind;
       const beer = cheapestBeer(p, now);
       const dim = highlightIds && !highlightIds.has(p.id);
-      const label = beer ? formatFt(beer.price).replace(" Ft", "") : "–";
-      const icon = L.divIcon({
-        className: "",
-        html: `<div class="pin pin-${st}${p.sponsored && p.sponsored.until > now.getTime() ? " pin-sponsored" : ""}${dim ? " pin-dim" : ""}">
-                 ${st === "active" ? "<span class='pin-dot'></span>" : ""}${label}
-               </div>`,
-        iconSize: [0, 0],
-      });
-      L.marker([p.location.lat, p.location.lng], { icon, title: p.name, zIndexOffset: st === "active" ? 500 : 0 })
+      const state = hh === "active" ? "active" : open === "open" ? "open" : "closed";
+      const sponsored = p.sponsored && p.sponsored.until > now.getTime() ? " pin-sponsored" : "";
+      // Ár csak akkor kerül a jelölőre, ha van adat; különben kis pötty a hely állapotának színével.
+      const html = beer
+        ? `<div class="pin pin-${state}${sponsored}${dim ? " pin-dim" : ""}">${state === "active" ? "<span class='pin-dot'></span>" : ""}${formatFt(beer.price).replace(" Ft", "")}</div>`
+        : `<div class="dot dot-${state}${sponsored}${dim ? " pin-dim" : ""}"></div>`;
+      const icon = L.divIcon({ className: "", html, iconSize: [0, 0] });
+      L.marker([p.location.lat, p.location.lng], { icon, title: p.name, zIndexOffset: state === "active" ? 500 : state === "open" ? 200 : 0 })
+        .bindTooltip(p.name, { direction: "top", offset: [0, beer ? -26 : -8], className: "pin-label" })
         .on("click", () => openPlace(p.id))
         .addTo(g);
     }

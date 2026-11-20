@@ -9,11 +9,11 @@ import { happyHourStatus } from "./domain/happyHour";
 import { PRICE_BAND_LABELS, TASTE_LABELS, type AppUser, type LatLng, type Place, type Report, type TasteProfile } from "./domain/types";
 import { LoginScreen, Onboarding } from "./components/Onboarding";
 import { MapView, MARKER_COLORS } from "./components/MapView";
-import { DrinksTab, HappyHourTab } from "./components/Lists";
+import { DrinksTab, HappyHourTab, PlacesTab } from "./components/Lists";
 import { PlaceSheet } from "./components/PlaceSheet";
 import { PlaceEditor } from "./components/PlaceEditor";
 
-type Tab = "hh" | "drinks";
+type Tab = "places" | "hh" | "drinks";
 type PickPurpose = "position" | "newPlace" | null;
 
 const DAY_NAMES = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
@@ -79,7 +79,7 @@ export default function App() {
 function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUser; profile: TasteProfile; onEditProfile: () => void }) {
   const [places, setPlaces] = useState<Place[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
-  const [tab, setTab] = useState<Tab>("hh");
+  const [tab, setTab] = useState<Tab>("places");
   const [filter, setFilter] = useState<DrinkFilter>(DEFAULT_FILTER);
   const [pos, setPos] = useState<LatLng>(DEFAULT_POSITION);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -108,6 +108,7 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
   const ctx: AppCtx = { repo, user, profile, places, reports, now, pos, setPos, openPlace, toast };
 
   const highlight = useMemo(() => {
+    if (tab === "places") return undefined;
     if (tab === "hh") return new Set(places.filter((p) => happyHourStatus(p, now).kind !== "none").map((p) => p.id));
     return new Set(searchDrinks(places, filter, pos, now, profile).map((o) => o.place.id));
   }, [tab, places, filter, pos, now, profile]);
@@ -219,10 +220,10 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
                 <i style={{ background: MARKER_COLORS.active }} /> HH most
               </span>
               <span>
-                <i style={{ background: MARKER_COLORS.upcoming }} /> hamarosan
+                <i style={{ background: MARKER_COLORS.open }} /> nyitva
               </span>
               <span>
-                <i style={{ background: MARKER_COLORS.none }} /> nincs
+                <i style={{ background: MARKER_COLORS.closed }} /> zárva / ismeretlen
               </span>
             </div>
           </div>
@@ -248,6 +249,9 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
               {sim && <span className="muted small">szimulált időpont</span>}
             </div>
             <nav className="tabs" role="tablist">
+              <button role="tab" aria-selected={tab === "places"} className={tab === "places" ? "on" : ""} onClick={() => setTab("places")}>
+                📍 Kocsmák
+              </button>
               <button role="tab" aria-selected={tab === "hh"} className={tab === "hh" ? "on" : ""} onClick={() => setTab("hh")}>
                 🍻 Happy Hour
               </button>
@@ -255,10 +259,11 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
                 🍺 Piák &amp; árak
               </button>
             </nav>
-            {tab === "hh" ? <HappyHourTab /> : <DrinksTab filter={filter} setFilter={setFilter} />}
+            {tab === "places" ? <PlacesTab /> : tab === "hh" ? <HappyHourTab /> : <DrinksTab filter={filter} setFilter={setFilter} />}
             {repo.mode === "demo" && (
               <p className="fine pad">
-                Demó: a helyek és az árak kitaláltak, az adatok csak ebben a böngészőben tárolódnak.
+                A helyek valódiak (© OpenStreetMap közreműködők + webes források), árak és happy hour időpontok még nincsenek.
+                Demó mód: amit felviszel, csak ebben a böngészőben tárolódik.
               </p>
             )}
           </main>

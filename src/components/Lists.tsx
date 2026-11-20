@@ -1,12 +1,14 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useApp } from "../context";
 import { formatDistance, walkMinutes } from "../domain/geo";
-import { describeDays, formatMinutes } from "../domain/happyHour";
+import { describeDays, formatMinutes, happyHourStatus } from "../domain/happyHour";
 import { cheapestBeer, formatFt, formatVolume } from "../domain/pricing";
 import { reportStatus, timeAgo } from "../domain/reports";
 import { activeSponsored, happyHourList, searchDrinks, type DrinkFilter, type SortKey } from "../domain/search";
 import { matchScore } from "../domain/match";
 import { STYLE_LABELS, type DrinkStyle, type Place } from "../domain/types";
+import { openState, type OpenState } from "../domain/openingHours";
+import { distanceM } from "../domain/geo";
 
 export function SponsoredBlock() {
   const { places, now, openPlace } = useApp();
@@ -38,10 +40,20 @@ export function HappyHourTab() {
   const live = reports.filter((r) => reportStatus(r, real) !== "expired").slice(0, 3);
   const active = list.filter((e) => e.status.kind === "active");
   const upcoming = list.filter((e) => e.status.kind === "upcoming");
+  const anyHH = places.some((p) => p.happyHours.length > 0);
 
   return (
     <div className="tab-body">
       <SponsoredBlock />
+      {!anyHH && (
+        <div className="empty-card">
+          <strong>Még egyetlen helynél sincs megadott happy hour.</strong>
+          <span>
+            Tudsz egyet? Nyisd meg a helyet a <b>Kocsmák</b> fülön vagy a térképen, és a <b>Szerkesztés</b> gombbal add meg. Ahogy
+            bekerülnek az időpontok, itt látszik, hol zajlik most.
+          </span>
+        </div>
+      )}
       {live.length > 0 && (
         <section>
           <h3 className="sec">📣 Friss a közösségtől</h3>
@@ -63,7 +75,7 @@ export function HappyHourTab() {
       )}
       <section>
         <h3 className="sec">🍻 Most zajlik ({active.length})</h3>
-        {active.length === 0 && <p className="empty">Épp sehol nincs happy hour a környéken.</p>}
+        {anyHH && active.length === 0 && <p className="empty">Épp sehol nincs happy hour a környéken.</p>}
         {active.map((e) => (
           <HHCard key={e.place.id} place={e.place} distance={e.distance} status={e.status} />
         ))}
@@ -76,7 +88,7 @@ export function HappyHourTab() {
           ))}
         </section>
       )}
-      <section>
+      {anyHH && <section>
         <h3 className="sec">📅 Összes happy hour a környéken</h3>
         <div className="schedule">
           {places
@@ -91,7 +103,7 @@ export function HappyHourTab() {
               </button>
             ))}
         </div>
-      </section>
+      </section>}
     </div>
   );
 }
@@ -217,7 +229,18 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
       <p className="muted small result-count">
         {res.length} találat · organikus sorrend, fizetéssel nem befolyásolható
       </p>
-      {res.length === 0 && <p className="empty">Nincs találat ezekkel a szűrőkkel. Lazíts egy kicsit a feltételeken!</p>}
+      {res.length === 0 && !places.some((p) => p.drinks.length > 0) && (
+        <div className="empty-card">
+          <strong>Még nincsenek árak.</strong>
+          <span>
+            A helyek valódiak, az itallapjuk még üres. Ha tudod, mennyi egy korsó valahol, nyisd meg a helyet, és a{" "}
+            <b>Szerkesztés</b> gombbal vidd fel – ettől kezdve itt kereshető.
+          </span>
+        </div>
+      )}
+      {res.length === 0 && places.some((p) => p.drinks.length > 0) && (
+        <p className="empty">Nincs találat ezekkel a szűrőkkel. Lazíts egy kicsit a feltételeken!</p>
+      )}
       <ol className="offers">
         {res.slice(0, 60).map((o, i) => (
           <li key={`${o.place.id}-${o.drink.id}`}>
@@ -238,6 +261,104 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
           </li>
         ))}
       </ol>
+    </div>
+  );
+}
+
+export function OpenBadge({ state }: { state: OpenState }) {
+  if (state.kind === "open")
+    return <span className="open-badge open">Nyitva {state.closesAt}-ig</span>;
+  if (state.kind === "closed")
+    return <span className="open-badge closed">{state.opensToday && state.opensAt ? `Zárva · nyit ${state.opensAt}` : "Ma már zárva"}</span>;
+  return <span className="open-badge unknown">Nyitvatartás ismeretlen</span>;
+}
+
+const KIND_LABELS: Record<string, string> = {
+  pub: "Kocsma",
+  bar: "Bár",
+  restaurant: "Étterem-bár",
+  cafe: "Kávézó-bár",
+  nightclub: "Klub",
+  biergarten: "Sörkert",
+  brewery: "Főzde",
+};
+export const kindLabel = (k?: string) => (k ? KIND_LABELS[k] ?? k : "");
+
+type PlaceSort = "distance" | "name";
+
+/** „Kocsmák” fül: az összes hely az MVP-területen, távolság szerint. */
+export function PlacesTab() {
+  const { places, now, pos, openPlace } = useApp();
+  const [q, setQ] = useState("");
+  const [openOnly, setOpenOnly] = useState(false);
+  const [sort, setSort] = useState<PlaceSort>("distance");
+  const norm = (s: string) => s.toLocaleLowerCase("hu-HU").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  const rows = useMemo(() => {
+    const nq = norm(q.trim());
+    return places
+      .map((p) => ({ p, d: distanceM(pos, p.location), st: openState(p.info?.openingHours, now) }))
+      .filter(({ p }) => !nq || norm(`${p.name} ${p.address}`).includes(nq))
+      .filter(({ st }) => !openOnly || st.kind === "open")
+      .sort((a, b) => (sort === "name" ? a.p.name.localeCompare(b.p.name, "hu") : a.d - b.d));
+  }, [places, pos, now, q, openOnly, sort]);
+  const openCount = useMemo(() => places.filter((p) => openState(p.info?.openingHours, now).kind === "open").length, [places, now]);
+
+  return (
+    <div className="tab-body">
+      <div className="filters">
+        <input className="search" placeholder="Hely vagy utca keresése…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="filter-row">
+          <label className="check">
+            <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} />
+            Csak a most nyitvák ({openCount})
+          </label>
+          <label>
+            Rendezés
+            <select value={sort} onChange={(e) => setSort(e.target.value as PlaceSort)}>
+              <option value="distance">Távolság</option>
+              <option value="name">Név</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <SponsoredBlock />
+      <p className="muted small result-count">
+        {rows.length} hely a Fővám tér – Kálvin tér – Corvin negyed – Boráros tér négyszögben
+      </p>
+      <ul className="place-list">
+        {rows.map(({ p, d, st }) => {
+          const beer = cheapestBeer(p, now);
+          const hh = happyHourStatus(p, now);
+          return (
+            <li key={p.id}>
+              <button className="place-row" onClick={() => openPlace(p.id)}>
+                <span className="place-main">
+                  <strong>{p.name}</strong>
+                  <span className="muted small">
+                    {kindLabel(p.info?.kind)} · {p.address.replace(/^\d{4} Budapest, /, "").replace(/^Budapest, /, "")} · {formatDistance(d)}
+                  </span>
+                  <span className="place-tags">
+                    <OpenBadge state={st} />
+                    {hh.kind === "active" && <span className="tag-hh">HH most</span>}
+                    {p.info?.checkNeeded && <span className="tag-check">ellenőrizendő</span>}
+                  </span>
+                </span>
+                <span className="place-side">
+                  {beer ? (
+                    <>
+                      <strong>{formatFt(beer.price)}</strong>
+                      <span className="muted small">{beer.drink.name}</span>
+                    </>
+                  ) : (
+                    <span className="no-data">nincs még ár</span>
+                  )}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

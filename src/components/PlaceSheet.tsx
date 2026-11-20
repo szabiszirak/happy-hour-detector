@@ -7,6 +7,8 @@ import { extractPrice, REPORT_STATUS_LABELS, REPORT_TTL_MS, reportStatus, timeAg
 import { matchScore } from "../domain/match";
 import { STYLE_LABELS, VIBE_LABELS, type Place } from "../domain/types";
 import { PlaceEditor } from "./PlaceEditor";
+import { formatOpeningHours, openState } from "../domain/openingHours";
+import { kindLabel, OpenBadge } from "./Lists";
 
 export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => void }) {
   const { repo, user, profile, reports, now, pos, toast } = useApp();
@@ -63,7 +65,11 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
         </div>
 
         <div className="sheet-badges">
-          <span className={`match ${match >= 80 ? "hi" : match >= 50 ? "mid" : "lo"}`}>{match}%-ban passzol az ízlésedhez</span>
+          <OpenBadge state={openState(place.info?.openingHours, now)} />
+          {place.info?.kind && <span className="vibe">{kindLabel(place.info.kind)}</span>}
+          {place.drinks.length > 0 && (
+            <span className={`match ${match >= 80 ? "hi" : match >= 50 ? "mid" : "lo"}`}>{match}%-ban passzol az ízlésedhez</span>
+          )}
           {place.vibes.map((v) => (
             <span key={v} className="vibe">
               {VIBE_LABELS[v]}
@@ -71,6 +77,46 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
           ))}
         </div>
         {sponsored && <p className="sponsored-line">{place.sponsored!.tagline}</p>}
+
+        <dl className="facts">
+          {place.info?.openingHours && (
+            <>
+              <dt>Nyitvatartás</dt>
+              <dd>{formatOpeningHours(place.info.openingHours)}</dd>
+            </>
+          )}
+          {place.info?.website && (
+            <>
+              <dt>Weboldal</dt>
+              <dd>
+                <a href={place.info.website} target="_blank" rel="noreferrer">
+                  {place.info.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                </a>
+              </dd>
+            </>
+          )}
+          {place.info?.phone && (
+            <>
+              <dt>Telefon</dt>
+              <dd>{place.info.phone}</dd>
+            </>
+          )}
+          <dt>Forrás</dt>
+          <dd>
+            {place.osmId ? (
+              <a href={`https://www.openstreetmap.org/${place.osmId}`} target="_blank" rel="noreferrer">
+                © OpenStreetMap közreműködők
+              </a>
+            ) : (
+              place.info?.source?.replace(/^web: /, "web: ") ?? "felhasználói beküldés"
+            )}
+          </dd>
+        </dl>
+        {place.info?.checkNeeded && (
+          <p className="check-note">
+            ⚠️ Ellenőrizendő: webes forrásból vagy étterem/kávézóként van nyilvántartva. Ha jártál itt, erősítsd meg, hogy kocsmaként működik!
+          </p>
+        )}
 
         <section>
           <h3 className="sec">Happy Hour</h3>
@@ -91,6 +137,9 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
 
         <section>
           <h3 className="sec">Itallap</h3>
+          {place.drinks.length === 0 && (
+            <p className="empty">Még nincs itt ár. Tudod, mennyi egy korsó? A Szerkesztés gombbal felviheted.</p>
+          )}
           <table className="drinks">
             <tbody>
               {place.drinks.map((d) => {

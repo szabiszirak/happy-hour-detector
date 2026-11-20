@@ -10,7 +10,9 @@ Első terület: **Budapest, Fővám tér – Kálvin tér – Corvin negyed – 
 | Funkció | Hol a kódban |
 |---|---|
 | Google-fiókos belépés + 2 kérdéses ízlésprofil | `src/auth/auth.ts`, `src/components/Onboarding.tsx` |
-| Térkép a kocsmákkal, happy hour állapot szerint színezve | `src/components/MapView.tsx` |
+| Térkép a kocsmákkal: happy hour most / nyitva / zárva szerint színezve | `src/components/MapView.tsx` |
+| **Kocsmák** fül: a 33 valódi hely távolság szerint, kereséssel, „most nyitva” szűrővel | `src/components/Lists.tsx` |
+| Nyitvatartás az OSM `opening_hours` mezőből (éjfélen átnyúló sávokkal) | `src/domain/openingHours.ts` |
 | **Happy Hour** fül: most zajlik / hamarosan indul / heti menetrend, visszaszámlálóval | `src/components/Lists.tsx` |
 | **Piák & árak** fül: szűrő italstílusra, márkára, max. árra, távolságra, „csak HH”-ra; rendezés Ft/liter, ár, távolság, ízlés szerint | `src/domain/search.ts` |
 | Ízlés MatchScore (%) minden helynél | `src/domain/match.ts` |
@@ -28,7 +30,11 @@ Első terület: **Budapest, Fővám tér – Kálvin tér – Corvin negyed – 
 ## Élő demó
 
 **https://szabiszirak.github.io/happy-hour-detector/** – minden `main`-re feltöltött változás után automatikusan frissül
-(`.github/workflows/deploy-pages.yml`: tesztek → build → közzététel). Demó módban fut, kitalált adatokkal.
+(`.github/workflows/deploy-pages.yml`: tesztek → build → közzététel).
+
+A térképen és a **Kocsmák** listában a négyszög **33 valódi helye** látszik (OpenStreetMap + webes kiegészítés,
+`data/places.osm.json`), nyitvatartással. Árak és happy hour időpontok még nincsenek – ezeket az appban lehet felvinni.
+Demó módban fut: amit felviszel, az csak a saját böngésződben tárolódik (közös adatbázishoz Firebase kell).
 
 ## Futtatás
 

@@ -1,17 +1,20 @@
 import type { LatLng } from "./types";
 
-/** Az MVP-terület sarkai: Fővám tér → Kálvin tér → Corvin negyed → Boráros tér. */
+/**
+ * Az MVP-terület sarkai: Fővám tér → Kálvin tér → Corvin negyed → Boráros tér.
+ * A koordináták az OpenStreetMap-ből jönnek (data/corners.json, scripts/osm-corners.mjs).
+ */
 export const MVP_CORNERS: { name: string; at: LatLng }[] = [
-  { name: "Fővám tér", at: { lat: 47.4872, lng: 19.0582 } },
-  { name: "Kálvin tér", at: { lat: 47.4895, lng: 19.0617 } },
-  { name: "Corvin negyed", at: { lat: 47.4857, lng: 19.0707 } },
-  { name: "Boráros tér", at: { lat: 47.4812, lng: 19.0652 } },
+  { name: "Fővám tér", at: { lat: 47.486455, lng: 19.057664 } },
+  { name: "Kálvin tér", at: { lat: 47.489432, lng: 19.061488 } },
+  { name: "Corvin negyed", at: { lat: 47.485546, lng: 19.070905 } },
+  { name: "Boráros tér", at: { lat: 47.480488, lng: 19.067308 } },
 ];
 
 export const MVP_POLYGON: LatLng[] = MVP_CORNERS.map((c) => c.at);
 
 /** Alapértelmezett „saját hely”, amíg a felhasználó nem ad meg mást. */
-export const DEFAULT_POSITION: LatLng = { lat: 47.4891, lng: 19.0621 }; // Kálvin tér
+export const DEFAULT_POSITION: LatLng = { lat: 47.4888, lng: 19.0622 }; // Kálvin tér, a Ráday utca torkolata
 
 const R = 6371000;
 const toRad = (d: number) => (d * Math.PI) / 180;

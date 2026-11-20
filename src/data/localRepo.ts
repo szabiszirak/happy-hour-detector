@@ -3,7 +3,7 @@ import { applyVote } from "../domain/reports";
 import type { Repo, Unsubscribe } from "./repo";
 import { seedPlaces, seedReports } from "./seed";
 
-const KEY = "hhd.demo.v1";
+const KEY = "hhd.demo.v2"; // v2: valódi helyek (v1 a kitalált demó volt)
 
 interface State {
   places: Place[];
