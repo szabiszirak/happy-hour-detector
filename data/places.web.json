@@ -1,0 +1,6 @@
+[
+  { "name": "GoSip Bar", "address": "Lónyay utca 28", "kind": "bar", "source": "intravel.net" },
+  { "name": "Púder Bárszínház", "address": "Ráday utca 8", "kind": "bar", "source": "hungaryunlocked.com, welovebudapest.com" },
+  { "name": "Jaffa", "address": "Ráday utca 39", "kind": "bar", "source": "inyourpocket.com" },
+  { "name": "Jedermann Café", "address": "Ráday utca 58", "kind": "bar", "source": "welovebudapest.com, offbeatbudapest.com" }
+]

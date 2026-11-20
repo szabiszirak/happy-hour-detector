@@ -54,10 +54,20 @@ const query = `
 (
   nwr["amenity"~"^(${AMENITIES})$"](poly:"${polyStr}");
   nwr["craft"="brewery"](poly:"${polyStr}");
+  nwr["amenity"~"^(cafe|restaurant)$"](poly:"${polyStr}");
 );
 out center tags;
 `;
 
+// Kávézók, éttermek közül csak azok kellenek, amelyek bárként is működnek.
+const BARLIKE_NAME = /(b[aá]r\b|bar\b|pub\b|s[öo]r|bor[oó]z|kocsma|tap\s?house|taproom|csapsz|pince|presszó|brewing|wine|jazz)/i;
+const isBarLike = (t) =>
+  ["pub", "bar", "biergarten", "nightclub"].includes(t.amenity) ||
+  t.craft === "brewery" ||
+  t.bar === "yes" ||
+  t["drink:beer"] === "yes" || t["drink:wine"] === "yes" || t["drink:cocktail"] === "yes" ||
+  Boolean(t.brewery) ||
+  BARLIKE_NAME.test(t.name ?? "");
 const ENDPOINTS = [
   "https://overpass-api.de/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
@@ -95,8 +105,8 @@ const VIBES = (t) => {
   return v;
 };
 
-const places = json.elements
-  .filter((e) => e.tags?.name)
+let places = json.elements
+  .filter((e) => e.tags?.name && isBarLike(e.tags))
   .map((e) => {
     const t = e.tags;
     const lat = +(e.lat ?? e.center?.lat).toFixed(6);
@@ -115,6 +125,7 @@ const places = json.elements
       // OSM-ből jövő kiegészítő adatok (nem kötelezőek az apphoz)
       osm: {
         amenity: t.amenity ?? (t.craft === "brewery" ? "brewery" : ""),
+        source: "osm",
         openingHours: t.opening_hours ?? "",
         website: t.website ?? t["contact:website"] ?? "",
         phone: t.phone ?? t["contact:phone"] ?? "",
@@ -133,14 +144,45 @@ const places = json.elements
   })
   .sort((a, b) => Number(b.osm.inMvp) - Number(a.osm.inMvp) || a.name.localeCompare(b.name, "hu"));
 
+// Webes kiegészítés: ismert helyek, amelyek az OSM-ben hiányoznak vagy nem bárként szerepelnek.
+// Forrás: data/places.web.json ({name, address, source}); a koordinátát a Nominatim adja.
+const norm = (x) => x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+if (existsSync(`${OUT}/places.web.json`)) {
+  const extra = JSON.parse(readFileSync(`${OUT}/places.web.json`, "utf8"));
+  for (const x of extra) {
+    if (places.some((p) => norm(p.name).includes(norm(x.name)) || norm(x.name).includes(norm(p.name)))) continue;
+    await sleep(1200); // Nominatim: max. 1 kérés/mp
+    const q = new URLSearchParams({ q: `${x.address}, Budapest, Hungary`, format: "json", limit: "1" });
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?${q}`, { headers: { "User-Agent": "happy-hour-detector/0.1" } });
+      const [hit] = await r.json();
+      if (!hit) { console.error(`Nem található cím: ${x.address}`); continue; }
+      const lat = +(+hit.lat).toFixed(6), lng = +(+hit.lon).toFixed(6);
+      places.push({
+        id: `web-${norm(x.name)}`,
+        name: x.name,
+        address: x.address,
+        location: { lat, lng },
+        vibes: [],
+        drinks: [],
+        happyHours: [],
+        osm: { amenity: x.kind ?? "bar", source: `web: ${x.source}`, openingHours: "", website: x.website ?? "", phone: "", brewery: "", inMvp: inside({ lat, lng }, POLY) },
+      });
+    } catch (e) {
+      console.error(`Geokódolási hiba (${x.name}): ${e.message}`);
+    }
+  }
+  places.sort((a, b) => Number(b.osm.inMvp) - Number(a.osm.inMvp) || a.name.localeCompare(b.name, "hu"));
+}
+
 mkdirSync(OUT, { recursive: true });
 writeFileSync(`${OUT}/places.osm.json`, JSON.stringify(places, null, 2) + "\n");
 
 const esc = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
 const csv = [
-  ["név", "típus", "cím", "lat", "lng", "négyszögön belül", "nyitvatartás (OSM)", "weboldal", "telefon", "osm"].join(","),
+  ["név", "típus", "cím", "lat", "lng", "négyszögön belül", "nyitvatartás (OSM)", "weboldal", "telefon", "forrás", "link"].join(","),
   ...places.map((p) =>
-    [p.name, p.osm.amenity, p.address, p.location.lat, p.location.lng, p.osm.inMvp ? "igen" : "határon", p.osm.openingHours, p.osm.website, p.osm.phone, `https://www.openstreetmap.org/${p.osmId}`]
+    [p.name, p.osm.amenity, p.address, p.location.lat, p.location.lng, p.osm.inMvp ? "igen" : "nem (szomszédos)", p.osm.openingHours, p.osm.website, p.osm.phone, p.osm.source, p.osmId ? `https://www.openstreetmap.org/${p.osmId}` : ""]
       .map(esc)
       .join(","),
   ),
