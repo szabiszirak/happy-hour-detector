@@ -1,5 +1,68 @@
 [
   {
+    "id": "osm-node-2766675225",
+    "osmId": "node/2766675225",
+    "name": "2k bár",
+    "address": "1092 Budapest, Ferenc körút 24",
+    "location": {
+      "lat": 47.483419,
+      "lng": 19.068749
+    },
+    "vibes": [],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "pub",
+      "openingHours": "Su,Mo 11:00-24:00, Tu,We 11:00-01:00, Th-Sa 11:00-02:00",
+      "website": "",
+      "phone": "",
+      "brewery": "",
+      "inMvp": true
+    }
+  },
+  {
+    "id": "osm-node-1232883691",
+    "osmId": "node/1232883691",
+    "name": "6:3",
+    "address": "1093 Budapest, Lónyay utca 62",
+    "location": {
+      "lat": 47.481465,
+      "lng": 19.066666
+    },
+    "vibes": [],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "pub",
+      "openingHours": "Su-Th 09:00-00:00; Fr-Sa 09:00-02:00",
+      "website": "",
+      "phone": "",
+      "brewery": "",
+      "inMvp": true
+    }
+  },
+  {
+    "id": "osm-node-7174910272",
+    "osmId": "node/7174910272",
+    "name": "Africafe",
+    "address": "1092 Budapest, Kinizsi utca 2-6",
+    "location": {
+      "lat": 47.483888,
+      "lng": 19.061993
+    },
+    "vibes": [],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "pub",
+      "openingHours": "Mo-Fr 18:00-23:00",
+      "website": "",
+      "phone": "+36 20 927 3916;+36 20 383 8289",
+      "brewery": "",
+      "inMvp": true
+    }
+  },
+  {
     "id": "osm-node-2663224111",
     "osmId": "node/2663224111",
     "name": "AFTER STUDIO Cafe (ZEROOM)",
@@ -37,6 +100,29 @@
       "openingHours": "Mo-Fr 16:00-24:00; Sa 00:00-02:00,16:00-24:00; Su 00:00-02:00",
       "website": "",
       "phone": "",
+      "brewery": "",
+      "inMvp": true
+    }
+  },
+  {
+    "id": "osm-node-4290484184",
+    "osmId": "node/4290484184",
+    "name": "BarCraft Esport Bár",
+    "address": "1092 Budapest, Ferenc körút 34",
+    "location": {
+      "lat": 47.484375,
+      "lng": 19.069137
+    },
+    "vibes": [
+      "sport"
+    ],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "bar",
+      "openingHours": "14:00-24:00",
+      "website": "https://barcraft.hu/ice/",
+      "phone": "+36 30 502 2464",
       "brewery": "",
       "inMvp": true
     }
@@ -81,6 +167,27 @@
       "openingHours": "Mo-Su 10:00-04:00",
       "website": "",
       "phone": "+36 1 218 0127",
+      "brewery": "",
+      "inMvp": true
+    }
+  },
+  {
+    "id": "osm-node-7023835994",
+    "osmId": "node/7023835994",
+    "name": "BlastBeat Bar (BBB)",
+    "address": "1093 Budapest, Czuczor utca 1",
+    "location": {
+      "lat": 47.484573,
+      "lng": 19.061099
+    },
+    "vibes": [],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "bar",
+      "openingHours": "17:00-24:00",
+      "website": "",
+      "phone": "",
       "brewery": "",
       "inMvp": true
     }
@@ -143,6 +250,27 @@
       "amenity": "pub",
       "openingHours": "Mo-We 16:00-01:00; Th-Sa 16:00-02:00",
       "website": "",
+      "phone": "",
+      "brewery": "",
+      "inMvp": true
+    }
+  },
+  {
+    "id": "osm-node-2663224110",
+    "osmId": "node/2663224110",
+    "name": "Corvinus Cafe",
+    "address": "1093 Budapest, Czuczor utca 3",
+    "location": {
+      "lat": 47.484598,
+      "lng": 19.061187
+    },
+    "vibes": [],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "pub",
+      "openingHours": "Mo-Th 09:30-02:00; Fr-Sa 09:30-03:00; Su 17:00-24:00",
+      "website": "http://www.corvinuscafe.com/",
       "phone": "",
       "brewery": "",
       "inMvp": true
@@ -228,6 +356,27 @@
       "openingHours": "Mo-We 16:00-23:00; Th-Fr 16:00-00:00; Sa 13:00-01:00; PH off",
       "website": "https://gravitybp.com/",
       "phone": "+36 30 144 8404",
+      "brewery": "",
+      "inMvp": true
+    }
+  },
+  {
+    "id": "osm-node-2784876374",
+    "osmId": "node/2784876374",
+    "name": "Hanrah Live Music Club",
+    "address": "1092 Budapest, Ferenc körút 20",
+    "location": {
+      "lat": 47.482812,
+      "lng": 19.068491
+    },
+    "vibes": [],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "pub",
+      "openingHours": "",
+      "website": "",
+      "phone": "",
       "brewery": "",
       "inMvp": true
     }
@@ -403,24 +552,24 @@
     }
   },
   {
-    "id": "osm-node-7174910272",
-    "osmId": "node/7174910272",
-    "name": "Africafe",
-    "address": "1092 Budapest, Kinizsi utca 2-6",
+    "id": "osm-node-2766675239",
+    "osmId": "node/2766675239",
+    "name": "Virus Cafe",
+    "address": "1092 Budapest, Ferenc körút 32",
     "location": {
-      "lat": 47.483888,
-      "lng": 19.061993
+      "lat": 47.484188,
+      "lng": 19.069045
     },
     "vibes": [],
     "drinks": [],
     "happyHours": [],
     "osm": {
       "amenity": "pub",
-      "openingHours": "Mo-Fr 18:00-23:00",
+      "openingHours": "Mo-Th 16:00-01:00, Fr,Sa 16:00-02:00, Su 16:00-24:00",
       "website": "",
-      "phone": "+36 20 927 3916;+36 20 383 8289",
+      "phone": "",
       "brewery": "",
-      "inMvp": false
+      "inMvp": true
     }
   },
   {
@@ -442,71 +591,6 @@
       "openingHours": "Mo-We 09:00-24:00; Th-Fr 09:00-02:00; Sa 16:00-02:00; Su 16:00-23:00",
       "website": "http://allinpub.hu/",
       "phone": "+36 (30) 355 4152",
-      "brewery": "",
-      "inMvp": false
-    }
-  },
-  {
-    "id": "osm-node-4290484184",
-    "osmId": "node/4290484184",
-    "name": "BarCraft Esport Bár",
-    "address": "1092 Budapest, Ferenc körút 34",
-    "location": {
-      "lat": 47.484375,
-      "lng": 19.069137
-    },
-    "vibes": [
-      "sport"
-    ],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "bar",
-      "openingHours": "14:00-24:00",
-      "website": "https://barcraft.hu/ice/",
-      "phone": "+36 30 502 2464",
-      "brewery": "",
-      "inMvp": false
-    }
-  },
-  {
-    "id": "osm-node-7023835994",
-    "osmId": "node/7023835994",
-    "name": "BlastBeat Bar (BBB)",
-    "address": "1093 Budapest, Czuczor utca 1",
-    "location": {
-      "lat": 47.484573,
-      "lng": 19.061099
-    },
-    "vibes": [],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "bar",
-      "openingHours": "17:00-24:00",
-      "website": "",
-      "phone": "",
-      "brewery": "",
-      "inMvp": false
-    }
-  },
-  {
-    "id": "osm-node-2663224110",
-    "osmId": "node/2663224110",
-    "name": "Corvinus Cafe",
-    "address": "1093 Budapest, Czuczor utca 3",
-    "location": {
-      "lat": 47.484598,
-      "lng": 19.061187
-    },
-    "vibes": [],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "pub",
-      "openingHours": "Mo-Th 09:30-02:00; Fr-Sa 09:30-03:00; Su 17:00-24:00",
-      "website": "http://www.corvinuscafe.com/",
-      "phone": "",
       "brewery": "",
       "inMvp": false
     }
@@ -554,6 +638,50 @@
     }
   },
   {
+    "id": "osm-node-418029723",
+    "osmId": "node/418029723",
+    "name": "Illegal mimi",
+    "address": "1094 Budapest, Tompa utca 8",
+    "location": {
+      "lat": 47.483054,
+      "lng": 19.069427
+    },
+    "vibes": [
+      "garden"
+    ],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "pub",
+      "openingHours": "We-Sa 16:00-02:00",
+      "website": "https://www.illegal.co.hu/",
+      "phone": "",
+      "brewery": "",
+      "inMvp": false
+    }
+  },
+  {
+    "id": "osm-node-2568821506",
+    "osmId": "node/2568821506",
+    "name": "Jolly presszó",
+    "address": "1095 Budapest, Boráros tér 1",
+    "location": {
+      "lat": 47.480843,
+      "lng": 19.066204
+    },
+    "vibes": [],
+    "drinks": [],
+    "happyHours": [],
+    "osm": {
+      "amenity": "pub",
+      "openingHours": "Mo-Fr 05:00-22:00; Sa-Su 06:00-22:00",
+      "website": "",
+      "phone": "",
+      "brewery": "Heineken;Königsburg",
+      "inMvp": false
+    }
+  },
+  {
     "id": "osm-node-2340691112",
     "osmId": "node/2340691112",
     "name": "Múzeum Pub",
@@ -570,27 +698,6 @@
       "openingHours": "",
       "website": "https://9kert.hu/muzeumpub/",
       "phone": "+36 30 2882 267",
-      "brewery": "",
-      "inMvp": false
-    }
-  },
-  {
-    "id": "osm-node-2766675239",
-    "osmId": "node/2766675239",
-    "name": "Virus Cafe",
-    "address": "1092 Budapest, Ferenc körút 32",
-    "location": {
-      "lat": 47.484188,
-      "lng": 19.069045
-    },
-    "vibes": [],
-    "drinks": [],
-    "happyHours": [],
-    "osm": {
-      "amenity": "pub",
-      "openingHours": "Mo-Th 16:00-01:00, Fr,Sa 16:00-02:00, Su 16:00-24:00",
-      "website": "",
-      "phone": "",
       "brewery": "",
       "inMvp": false
     }
