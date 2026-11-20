@@ -1,1 +1,73 @@
-# happy-hour-detector
+# Happy Hour Detector – MVP
+
+Térképes webapp, amely megmutatja, hol van most happy hour, és hol a legolcsóbb egy adott ital.
+Első terület: **Budapest, Fővám tér – Kálvin tér – Corvin negyed – Boráros tér négyszöge**.
+
+Ötlettár és döntések: Google Docs – *Happy Hour Detector – Ötlettár*.
+
+## Mit tud az MVP
+
+| Funkció | Hol a kódban |
+|---|---|
+| Google-fiókos belépés + 2 kérdéses ízlésprofil | `src/auth/auth.ts`, `src/components/Onboarding.tsx` |
+| Térkép a kocsmákkal, happy hour állapot szerint színezve | `src/components/MapView.tsx` |
+| **Happy Hour** fül: most zajlik / hamarosan indul / heti menetrend, visszaszámlálóval | `src/components/Lists.tsx` |
+| **Piák & árak** fül: szűrő italstílusra, márkára, max. árra, távolságra, „csak HH”-ra; rendezés Ft/liter, ár, távolság, ízlés szerint | `src/domain/search.ts` |
+| Ízlés MatchScore (%) minden helynél | `src/domain/match.ts` |
+| Waze-féle bejelentések: 12 óra után lejárnak, megerősíthetők/cáfolhatók | `src/domain/reports.ts`, `PlaceSheet.tsx` |
+| „Stimmel” gomb az árakhoz (1 kattintásos ár-megerősítés) | `PlaceSheet.tsx` |
+| Bárki szerkesztheti a hely adatait (HH sávok, itallap, árak), új helyet is be lehet küldeni | `PlaceEditor.tsx` |
+| Szponzorált helyek külön blokkban, címkével – a rangsort nem befolyásolják | `activeSponsored()` + teszt |
+| Idő-szimuláció a demóhoz („mi van pénteken 17:30-kor?”) | `App.tsx` |
+
+## Két üzemmód
+
+- **Demó mód** (alapértelmezett, nincs szükség semmilyen fiókra): kitalált helyek és árak, az adatok a böngészőben tárolódnak, a belépés szimulált.
+- **Éles mód**: ha a `.env.local`-ban megvannak a Firebase-kulcsok, valódi Google-belépés és közös Firestore-adatbázis – mindenki ugyanazt látja.
+
+## Futtatás
+
+```bash
+npm install
+npm run dev          # fejlesztői szerver: http://localhost:5173
+npm test             # üzleti logika tesztjei (happy hour idősávok, árak, kereső, bejelentések)
+npm run build        # éles build a dist/ mappába
+npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutatóhoz
+```
+
+## Éles mód beállítása (Firebase)
+
+1. <https://console.firebase.google.com> → új projekt.
+2. **Authentication → Sign-in method → Google** bekapcsolása.
+3. **Firestore Database** létrehozása (régió: `europe-central2`, Varsó).
+4. **Project settings → Your apps → Web app** → a konfigurációs értékeket másold a `.env.local`-ba (minta: `.env.example`).
+5. A `firestore.rules` tartalmát töltsd fel a Firestore → Rules fülre.
+6. Kezdő helyek feltöltése: `node scripts/import-osm.mjs > places.osm.json`, majd importálás a `places` gyűjteménybe.
+7. Térkép: a `VITE_TILE_URL` megadásával valódi csempés térkép jelenik meg (enélkül a beépített vázlatos alaptérkép).
+8. Hosting: `npm run build`, majd Firebase Hosting / Netlify / Vercel.
+
+## Adatforrások – fontos
+
+- **Helyek**: OpenStreetMap-import (`scripts/import-osm.mjs`), ezek szabadon tárolhatók (ODbL, hivatkozással).
+- **Google**: a Google Places adataiból tartósan csak a `place_id` tárolható (`googlePlaceId` mező) – az útvonal gomb ezzel nyitja meg a helyet a Google Térképen.
+- **Árak és happy hour időpontok**: saját begyűjtés (a módszer az ötlettárban nyitott kérdés). Az appban szerkeszthetők.
+
+## Felépítés
+
+```
+src/
+  domain/      üzleti logika, UI nélkül, tesztelve (types, geo, happyHour, pricing, search, match, reports)
+  data/        adatréteg: Repo interfész, LocalRepo (demó), FirebaseRepo (éles), demó adatok
+  auth/        belépés: demó vagy Firebase Google
+  components/  felület: térkép, fülek, adatlap, szerkesztő, onboarding
+firestore.rules  jogosultságok (szponzorációt csak admin állíthat)
+scripts/         OSM-import
+```
+
+## Következő lépések (javaslat)
+
+1. Firebase projekt létrehozása → éles mód, első zárt teszt Kristófékkal.
+2. Valós helyek importja az MVP-négyszögből + árak begyűjtése (döntés kell a módszerről).
+3. Kocsmáros „Ez az én helyem” igénylés és admin felület a szponzorációhoz.
+4. Jelvények (Árvadász, Kocsmamester) a már gyűjtött megerősítésekből.
+5. Jogi kör: ÁSZF, adatvédelem (ízlésprofil = személyes adat), 18+ korhatár, alkoholreklám-szabályok.

@@ -1,0 +1,45 @@
+rules_version = '2';
+// Happy Hour Detector – Firestore jogosultságok (MVP)
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+
+    // Helyek: bárki (belépve) olvashat és szerkeszthet – Waze-elv.
+    // A szponzorációt csak admin állíthatja (fizetős szolgáltatás).
+    match /places/{placeId} {
+      allow read: if signedIn();
+      function validPlace() {
+        return request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.drinks is list
+          && request.resource.data.happyHours is list;
+      }
+      allow create: if signedIn() && validPlace()
+        && (isAdmin() || !('sponsored' in request.resource.data));
+      allow update: if signedIn() && validPlace()
+        && (isAdmin() || request.resource.data.get('sponsored', null) == resource.data.get('sponsored', null));
+      allow delete: if isAdmin();
+    }
+
+    // Bejelentések: saját néven lehet létrehozni; mások csak szavazni tudnak (confirms/denies).
+    match /reports/{reportId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 280
+        && request.resource.data.confirms.size() == 0
+        && request.resource.data.denies.size() == 0;
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['confirms', 'denies'])
+        && request.auth.uid != resource.data.userId;
+      allow delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
+    }
+
+    // Felhasználói profil (ízlésprofil): csak a saját.
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+  }
+}
