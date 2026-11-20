@@ -25,6 +25,11 @@ Első terület: **Budapest, Fővám tér – Kálvin tér – Corvin negyed – 
 - **Demó mód** (alapértelmezett, nincs szükség semmilyen fiókra): kitalált helyek és árak, az adatok a böngészőben tárolódnak, a belépés szimulált.
 - **Éles mód**: ha a `.env.local`-ban megvannak a Firebase-kulcsok, valódi Google-belépés és közös Firestore-adatbázis – mindenki ugyanazt látja.
 
+## Élő demó
+
+**https://szabiszirak.github.io/happy-hour-detector/** – minden `main`-re feltöltött változás után automatikusan frissül
+(`.github/workflows/deploy-pages.yml`: tesztek → build → közzététel). Demó módban fut, kitalált adatokkal.
+
 ## Futtatás
 
 ```bash

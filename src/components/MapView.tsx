@@ -35,7 +35,7 @@ export function MapView({ highlightIds, pickMode, onPick }: Props) {
     m.fitBounds(L.latLngBounds(MVP_POLYGON.map((p) => [p.lat, p.lng] as [number, number])), { padding: [24, 24] });
 
     if (TILE_URL) {
-      L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19 }).addTo(m);
+      L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19, subdomains: "abcd" }).addTo(m);
     } else {
       // vázlatos alaptérkép
       L.polygon(DANUBE, { stroke: false, fillColor: "#1f3a4d", fillOpacity: 0.9, interactive: false }).addTo(m);
