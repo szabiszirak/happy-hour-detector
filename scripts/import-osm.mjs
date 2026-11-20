@@ -58,7 +58,12 @@ const query = `
 out center tags;
 `;
 
-const ENDPOINTS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
+const ENDPOINTS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+];
 let json;
 // Az Overpass néha túlterhelt (502/504): több próbálkozás, növekvő várakozással.
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

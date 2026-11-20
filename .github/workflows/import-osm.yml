@@ -22,7 +22,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node scripts/osm-corners.mjs data
+      - name: Sarkok frissítése (ha nem megy, a meglévő data/corners.json marad)
+        run: node scripts/osm-corners.mjs data
+        continue-on-error: true
       - run: node scripts/import-osm.mjs data
       - name: Eredmény commitolása
         run: |

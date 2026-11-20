@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Fővám tér",
+    "lat": 47.486455,
+    "lng": 19.057664,
+    "elements": 26
+  },
+  {
+    "name": "Kálvin tér",
+    "lat": 47.489432,
+    "lng": 19.061488,
+    "elements": 21
+  },
+  {
+    "name": "Corvin negyed",
+    "lat": 47.485546,
+    "lng": 19.070905,
+    "elements": 5
+  },
+  {
+    "name": "Boráros tér",
+    "lat": 47.480488,
+    "lng": 19.067308,
+    "elements": 21
+  }
+]
