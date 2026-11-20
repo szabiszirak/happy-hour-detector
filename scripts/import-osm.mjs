@@ -7,26 +7,29 @@
 // Kimenet:
 //   data/places.osm.json  – Place[] (src/domain/types.ts), üres itallappal és HH-listával
 //   data/places.osm.csv   – ugyanez táblázatként, átnézéshez
-// A négyszöget ~60 méteres pufferrel kérdezzük le, hogy a határoló körutak/terek túloldali
+// A négyszöget ~80 méteres pufferrel kérdezzük le, hogy a határoló körutak/terek túloldali
 // házsorában lévő helyek se vesszenek el; ezek „inMvp: false” jelölést kapnak.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const OUT = process.argv[2] ?? "data";
 
-const CORNERS = [
-  ["Fővám tér", 47.4872, 19.0582],
-  ["Kálvin tér", 47.4895, 19.0617],
-  ["Corvin negyed", 47.4857, 19.0707],
-  ["Boráros tér", 47.4812, 19.0652],
-];
+// Sarkok: ha van data/corners.json (scripts/osm-corners.mjs), azt használjuk.
+const CORNERS = existsSync(`${OUT}/corners.json`)
+  ? JSON.parse(readFileSync(`${OUT}/corners.json`, "utf8")).map((c) => [c.name, c.lat, c.lng])
+  : [
+      ["Fővám tér", 47.4872, 19.0582],
+      ["Kálvin tér", 47.4895, 19.0617],
+      ["Corvin negyed", 47.4857, 19.0707],
+      ["Boráros tér", 47.4812, 19.0652],
+    ];
 const POLY = CORNERS.map(([, lat, lng]) => ({ lat, lng }));
 
 // sokszög kitolása a középpontból kb. 60 méterrel
 const c = POLY.reduce((a, p) => ({ lat: a.lat + p.lat / POLY.length, lng: a.lng + p.lng / POLY.length }), { lat: 0, lng: 0 });
 const M_PER_LAT = 111_320;
 const M_PER_LNG = 111_320 * Math.cos((c.lat * Math.PI) / 180);
-const BUFFER_M = 60;
+const BUFFER_M = 80;
 const BUFFERED = POLY.map((p) => {
   const dy = (p.lat - c.lat) * M_PER_LAT;
   const dx = (p.lng - c.lng) * M_PER_LNG;
