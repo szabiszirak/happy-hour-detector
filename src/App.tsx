@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { auth } from "./auth/auth";
 import { createRepo } from "./data";
 import type { Repo } from "./data/repo";
 import { Ctx, type AppCtx } from "./context";
-import { DEFAULT_POSITION, isInsidePolygon, MVP_POLYGON } from "./domain/geo";
+import { DEFAULT_POSITION, formatDistance, isInsidePolygon, MVP_POLYGON } from "./domain/geo";
+import { classifyError, classifyFix, type GeoStatus } from "./domain/location";
 import { DEFAULT_FILTER, searchDrinks, type DrinkFilter } from "./domain/search";
 import { happyHourStatus } from "./domain/happyHour";
 import { PRICE_BAND_LABELS, TASTE_LABELS, type AppUser, type LatLng, type Place, type Report, type TasteProfile } from "./domain/types";
@@ -89,6 +90,11 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
   const [tick, setTick] = useState(0);
   const [menu, setMenu] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [geo, setGeo] = useState<GeoStatus>({ kind: "idle" });
+  const [recenterKey, setRecenterKey] = useState(0);
+  const followRef = useRef(true); // kézi megadás után nem írjuk felül a GPS-szel
+  const watchRef = useRef<number | null>(null);
+  const firstFixRef = useRef(true);
 
   useEffect(() => repo.subscribePlaces(setPlaces), [repo]);
   useEffect(() => repo.subscribeReports(setReports), [repo]);
@@ -113,27 +119,67 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
     return new Set(searchDrinks(places, filter, pos, now, profile).map((o) => o.place.id));
   }, [tab, places, filter, pos, now, profile]);
 
-  const locate = () => {
+  /** Helymeghatározás indítása: a böngésző ilyenkor kér engedélyt (első alkalommal). */
+  const startWatch = useCallback(() => {
     if (!("geolocation" in navigator)) {
+      setGeo({ kind: "unavailable" });
+      return;
+    }
+    if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
+    setGeo({ kind: "asking" });
+    firstFixRef.current = true;
+    try {
+      watchRef.current = navigator.geolocation.watchPosition(
+        (g) => {
+          const fix = { lat: g.coords.latitude, lng: g.coords.longitude };
+          const { usePosition, status } = classifyFix(fix, Math.round(g.coords.accuracy));
+          if (!followRef.current) return; // kézzel megadott hely marad
+          setGeo(status);
+          if (usePosition) {
+            setPos(fix);
+            if (firstFixRef.current) setRecenterKey((k) => k + 1); // első találatnál a térkép odaugrik
+          }
+          firstFixRef.current = false;
+        },
+        (err) => setGeo(classifyError(err.code)),
+        { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 },
+      );
+    } catch {
+      setGeo({ kind: "unavailable" });
+    }
+  }, []);
+
+  // Megnyitáskor elkérjük a helyet, és séta közben követjük.
+  useEffect(() => {
+    startWatch();
+    return () => {
+      if (watchRef.current !== null) navigator.geolocation?.clearWatch(watchRef.current);
+    };
+  }, [startWatch]);
+
+  /** 📍 gomb: követés vissza + a térkép a helyedre ugrik; letiltás esetén kézi megadás. */
+  const locate = () => {
+    if (geo.kind === "denied") {
+      toast("A helyhozzáférés le van tiltva. A böngésző címsorában (🔒) engedélyezheted – addig koppints a térképre, hol vagy.");
       setPick("position");
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (g) => {
-        setPos({ lat: g.coords.latitude, lng: g.coords.longitude });
-        toast("Megvan a helyed.");
-      },
-      () => {
-        setPick("position");
-        toast("Nem érem el a helymeghatározást – koppints a térképre, hol vagy.");
-      },
-      { timeout: 6000 },
-    );
+    if (geo.kind === "unavailable") {
+      followRef.current = true;
+      startWatch();
+      setPick("position");
+      return;
+    }
+    followRef.current = true;
+    if (geo.kind === "tracking") setRecenterKey((k) => k + 1);
+    else startWatch();
   };
 
   const onPick = (lat: number, lng: number) => {
     if (pick === "position") {
+      followRef.current = false;
       setPos({ lat, lng });
+      setGeo({ kind: "manual" });
       toast("Helyed beállítva.");
     } else if (pick === "newPlace") {
       if (!isInsidePolygon({ lat, lng }, MVP_POLYGON)) {
@@ -198,7 +244,14 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
 
         <div className="layout">
           <div className="map-col">
-            <MapView highlightIds={highlight} pickMode={pick !== null} onPick={onPick} />
+            <MapView
+              highlightIds={highlight}
+              pickMode={pick !== null}
+              onPick={onPick}
+              accuracy={geo.kind === "tracking" ? geo.accuracy : undefined}
+              recenterKey={recenterKey}
+            />
+            <GeoChip geo={geo} onClick={locate} />
             {pick && (
               <div className="pick-banner">
                 {pick === "position" ? "Koppints oda, ahol most vagy" : "Koppints a térképen az új hely helyére"}
@@ -274,5 +327,41 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
         {toastMsg && <div className="toast">{toastMsg}</div>}
       </div>
     </Ctx.Provider>
+  );
+}
+
+/** Állapotjelző a térkép tetején: hol tart a helymeghatározás. */
+function GeoChip({ geo, onClick }: { geo: GeoStatus; onClick: () => void }) {
+  let text: string | null = null;
+  let tone = "";
+  switch (geo.kind) {
+    case "asking":
+      text = "📍 Helyed meghatározása…";
+      break;
+    case "tracking":
+      text = `📍 Követünk · ±${geo.accuracy} m`;
+      tone = "ok";
+      break;
+    case "faraway":
+      text = `Messze vagy (${formatDistance(geo.distance)}) · a Kálvin térhez mérünk`;
+      tone = "warn";
+      break;
+    case "manual":
+      text = "📍 Kézzel megadott hely · követés bekapcsolása";
+      break;
+    case "denied":
+      text = "Helyhozzáférés letiltva – koppints ide";
+      tone = "warn";
+      break;
+    case "unavailable":
+      text = "Nem érem el a helyed – koppints ide";
+      tone = "warn";
+      break;
+  }
+  if (!text) return null;
+  return (
+    <button className={`geo-chip ${tone}`} onClick={onClick}>
+      {text}
+    </button>
   );
 }

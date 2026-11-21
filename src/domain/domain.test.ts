@@ -173,3 +173,21 @@ describe("valódi helyek", () => {
     }
   });
 });
+
+import { classifyError, classifyFix } from "./location";
+
+describe("helymeghatározás", () => {
+  it("a környéken (Ráday utca) követjük a valódi helyet", () => {
+    expect(classifyFix({ lat: 47.4867, lng: 19.0636 }, 20)).toEqual({ usePosition: true, status: { kind: "tracking", accuracy: 20 } });
+  });
+  it("messziről (Óbuda) nem használjuk, hanem jelezzük", () => {
+    const r = classifyFix({ lat: 47.541, lng: 19.035 }, 30);
+    expect(r.usePosition).toBe(false);
+    expect(r.status.kind).toBe("faraway");
+  });
+  it("letiltás vs. egyéb hiba", () => {
+    expect(classifyError(1).kind).toBe("denied");
+    expect(classifyError(2).kind).toBe("unavailable");
+    expect(classifyError(3).kind).toBe("unavailable");
+  });
+});

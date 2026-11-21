@@ -17,14 +17,19 @@ interface Props {
   highlightIds?: Set<string>;
   pickMode: boolean;
   onPick: (lat: number, lng: number) => void;
+  /** GPS pontosság méterben – halvány kör a helyed körül. */
+  accuracy?: number;
+  /** Ha nő, a térkép a helyedre ugrik. */
+  recenterKey?: number;
 }
 
-export function MapView({ highlightIds, pickMode, onPick }: Props) {
+export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey = 0 }: Props) {
   const { places, now, pos, openPlace } = useApp();
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.LayerGroup | null>(null);
   const me = useRef<L.CircleMarker | null>(null);
+  const acc = useRef<L.Circle | null>(null);
   const pickRef = useRef({ pickMode, onPick });
   pickRef.current = { pickMode, onPick };
 
@@ -111,7 +116,33 @@ export function MapView({ highlightIds, pickMode, onPick }: Props) {
         .bindTooltip("Itt vagy", { direction: "top", offset: [0, -8] })
         .addTo(m);
     } else me.current.setLatLng([pos.lat, pos.lng]);
-  }, [pos]);
+
+    // pontossági kör
+    if (accuracy && accuracy > 0) {
+      if (!acc.current)
+        acc.current = L.circle([pos.lat, pos.lng], {
+          radius: accuracy,
+          color: "#3d8bff",
+          weight: 1,
+          fillColor: "#3d8bff",
+          fillOpacity: 0.12,
+          interactive: false,
+        }).addTo(m);
+      else acc.current.setLatLng([pos.lat, pos.lng]).setRadius(accuracy);
+    } else if (acc.current) {
+      acc.current.remove();
+      acc.current = null;
+    }
+  }, [pos, accuracy]);
+
+  // a térkép a helyedre ugrik (első GPS-találat, vagy a 📍 gomb)
+  const posRef = useRef(pos);
+  posRef.current = pos;
+  useEffect(() => {
+    const m = map.current;
+    if (!m || recenterKey === 0) return;
+    m.setView([posRef.current.lat, posRef.current.lng], Math.max(m.getZoom(), 16), { animate: true });
+  }, [recenterKey]);
 
   useEffect(() => {
     el.current?.classList.toggle("picking", pickMode);
