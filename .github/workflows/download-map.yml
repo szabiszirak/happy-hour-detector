@@ -1,0 +1,36 @@
+name: Térkép letöltése (kis MVP-kivágás)
+
+# A négyszög környékének kis térképfájlja a repóba kerül (public/map/mvp.pmtiles),
+# hogy fejlesztés és tesztek közben is legyen valódi térkép. Egész Budapest térképét
+# a deploy-pages.yml tölti le minden közzétételkor (az nem kerül a gitbe).
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/download-map.sh
+      - .github/workflows/download-map.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: MVP-kivágás letöltése
+        run: bash scripts/download-map.sh public/map mvp
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Eredmény commitolása
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add public/map/
+          if git diff --cached --quiet; then
+            echo "Nincs változás."
+          else
+            git commit -m "Térkép: MVP-kivágás frissítése (Protomaps / OpenStreetMap)"
+            git push
+          fi

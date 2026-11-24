@@ -11,6 +11,7 @@ Első terület: **Budapest, Fővám tér – Kálvin tér – Corvin negyed – 
 |---|---|
 | Google-fiókos belépés + 2 kérdéses ízlésprofil | `src/auth/auth.ts`, `src/components/Onboarding.tsx` |
 | Térkép a kocsmákkal: happy hour most / nyitva / zárva szerint színezve | `src/components/MapView.tsx` |
+| Egész Budapest saját hosztolású vektoros térképe (Protomaps PMTiles, OSM), kocsmanevek nagy nagyításon | `src/components/baseLayer.ts`, `scripts/download-map.sh` |
 | **Kocsmák** fül: a 33 valódi hely távolság szerint, kereséssel, „most nyitva” szűrővel | `src/components/Lists.tsx` |
 | Nyitvatartás az OSM `opening_hours` mezőből (éjfélen átnyúló sávokkal) | `src/domain/openingHours.ts` |
 | **Happy Hour** fül: most zajlik / hamarosan indul / heti menetrend, visszaszámlálóval | `src/components/Lists.tsx` |
@@ -54,7 +55,7 @@ npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutat�
 4. **Project settings → Your apps → Web app** → a konfigurációs értékeket másold a `.env.local`-ba (minta: `.env.example`).
 5. A `firestore.rules` tartalmát töltsd fel a Firestore → Rules fülre.
 6. Kezdő helyek feltöltése: `node scripts/import-osm.mjs > places.osm.json`, majd importálás a `places` gyűjteménybe.
-7. Térkép: a `VITE_TILE_URL` megadásával valódi csempés térkép jelenik meg (enélkül a beépített vázlatos alaptérkép).
+7. Térkép: egész Budapest vektoros térképe (Protomaps, OpenStreetMap-adatok) – `bash scripts/download-map.sh public/map budapest` letölti a `public/map/budapest.pmtiles` fájlba (a GitHub Pages deploy ezt automatikusan, hetente frissítve teszi meg).
 8. Hosting: `npm run build`, majd Firebase Hosting / Netlify / Vercel.
 
 ## Adatforrások – fontos

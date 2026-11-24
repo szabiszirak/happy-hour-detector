@@ -9,8 +9,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@protomaps/basemaps": "^5.7.2",
     "firebase": "^13.4.0",
     "leaflet": "^1.9.4",
+    "protomaps-leaflet": "^5.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

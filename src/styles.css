@@ -303,3 +303,12 @@ table.drinks td.num > * { display: block; }
 .geo-chip.ok { border-color: rgba(61, 139, 255, 0.6); }
 .geo-chip.warn { border-color: rgba(232, 197, 71, 0.6); color: var(--gold); }
 @media (max-width: 600px) { .geo-chip { max-width: calc(100% - 80px); } }
+
+/* ---------- valódi alaptérkép (Protomaps) ---------- */
+.leaflet-container .leaflet-control-attribution { background: rgba(21, 16, 13, 0.75); color: var(--muted); font-size: 10.5px; }
+.leaflet-container .leaflet-control-attribution a { color: var(--muted); }
+.dot { position: relative; }
+.dot-name { display: none; position: absolute; left: 16px; top: 50%; transform: translateY(-50%); white-space: nowrap;
+  font-size: 11.5px; font-weight: 700; color: #f4ece4; text-shadow: 0 0 3px #000, 0 0 6px #000; pointer-events: none; }
+.zoom-names .dot-name { display: block; }
+.map-note { bottom: 8px; left: auto; right: 54px; }

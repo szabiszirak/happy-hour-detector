@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useApp } from "../context";
@@ -6,10 +6,10 @@ import { MVP_CORNERS, MVP_POLYGON } from "../domain/geo";
 import { happyHourStatus } from "../domain/happyHour";
 import { cheapestBeer, formatFt } from "../domain/pricing";
 import { openState } from "../domain/openingHours";
-import { DANUBE, STREETS } from "./baseMap";
+import { addBaseLayer, type BaseKind } from "./baseLayer";
 
-const TILE_URL = (import.meta.env.VITE_TILE_URL as string | undefined) || "";
-const TILE_ATTR = (import.meta.env.VITE_TILE_ATTRIBUTION as string | undefined) || "";
+/** Ettől a nagyítástól a kocsmák neve is kiíródik a jelölők mellé. */
+const NAME_ZOOM = 17;
 
 export const MARKER_COLORS = { active: "#f5a623", open: "#5fd38d", closed: "#8a7f76" };
 
@@ -30,31 +30,26 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
   const markers = useRef<L.LayerGroup | null>(null);
   const me = useRef<L.CircleMarker | null>(null);
   const acc = useRef<L.Circle | null>(null);
+  const [base, setBase] = useState<BaseKind | null>(null);
   const pickRef = useRef({ pickMode, onPick });
   pickRef.current = { pickMode, onPick };
 
   // térkép létrehozása egyszer
   useEffect(() => {
     if (!el.current || map.current) return;
-    const m = L.map(el.current, { zoomControl: false, attributionControl: Boolean(TILE_URL) });
+    const m = L.map(el.current, { zoomControl: false, attributionControl: true });
+    m.attributionControl.setPrefix(false);
     L.control.zoom({ position: "bottomright" }).addTo(m);
     m.fitBounds(L.latLngBounds(MVP_POLYGON.map((p) => [p.lat, p.lng] as [number, number])), { padding: [10, 10] });
 
-    if (TILE_URL) {
-      L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19, subdomains: "abcd" }).addTo(m);
-    } else {
-      // vázlatos alaptérkép
-      L.polygon(DANUBE, { stroke: false, fillColor: "#1f3a4d", fillOpacity: 0.9, interactive: false }).addTo(m);
-      for (const s of STREETS) {
-        const line = L.polyline(s.path, {
-          color: s.kind === "major" ? "#5a4a3e" : s.kind === "bridge" ? "#6d7c87" : "#40352d",
-          weight: s.kind === "major" ? 7 : 4,
-          lineCap: "round",
-          interactive: false,
-        }).addTo(m);
-        line.bindTooltip(s.name, { permanent: true, direction: "center", className: "street-label" });
-      }
-    }
+    // alaptérkép: letöltött Budapest-térkép → MVP-kivágás → csempeszerver → vázlat
+    let alive = true;
+    addBaseLayer(m).then((k) => alive && setBase(k));
+
+    // kocsmanevek nagy nagyításon
+    const syncZoomClass = () => el.current?.classList.toggle("zoom-names", m.getZoom() >= NAME_ZOOM);
+    m.on("zoomend", syncZoomClass);
+    syncZoomClass();
 
     L.polygon(
       MVP_POLYGON.map((p) => [p.lat, p.lng] as [number, number]),
@@ -72,6 +67,7 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
     });
     map.current = m;
     return () => {
+      alive = false;
       m.remove();
       map.current = null;
     };
@@ -92,7 +88,7 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
       // Ár csak akkor kerül a jelölőre, ha van adat; különben kis pötty a hely állapotának színével.
       const html = beer
         ? `<div class="pin pin-${state}${sponsored}${dim ? " pin-dim" : ""}">${state === "active" ? "<span class='pin-dot'></span>" : ""}${formatFt(beer.price).replace(" Ft", "")}</div>`
-        : `<div class="dot dot-${state}${sponsored}${dim ? " pin-dim" : ""}"></div>`;
+        : `<div class="dot dot-${state}${sponsored}${dim ? " pin-dim" : ""}"><span class="dot-name">${escapeHtml(p.name)}</span></div>`;
       const icon = L.divIcon({ className: "", html, iconSize: [0, 0] });
       L.marker([p.location.lat, p.location.lng], { icon, title: p.name, zIndexOffset: state === "active" ? 500 : state === "open" ? 200 : 0 })
         .bindTooltip(p.name, { direction: "top", offset: [0, beer ? -26 : -8], className: "pin-label" })
@@ -151,7 +147,12 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
   return (
     <div className="map-wrap">
       <div ref={el} className="map" />
-      {!TILE_URL && <div className="map-note">Vázlatos alaptérkép (demó)</div>}
+      {base === "sketch" && <div className="map-note">Vázlatos alaptérkép (demó)</div>}
+      {base === "mvp" && <div className="map-note">Térkép: csak a négyszög környéke</div>}
     </div>
   );
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }

@@ -28,10 +28,33 @@ jobs:
       - run: npm test
       - name: Build
         run: npm run build
+      # Egész Budapest vektoros térképe (Protomaps / OpenStreetMap), hetente frissítve.
+      - name: Térkép hete
+        id: week
+        run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+      - name: Budapest-térkép gyorsítótárból
+        id: mapcache
+        uses: actions/cache/restore@v4
+        with:
+          path: map-cache
+          key: budapest-pmtiles-${{ steps.week.outputs.week }}
+      - name: Budapest-térkép letöltése
+        if: steps.mapcache.outputs.cache-hit != 'true'
+        run: bash scripts/download-map.sh map-cache budapest
+        continue-on-error: true # ha nem sikerül, az app a kis MVP-kivágásra vált
         env:
-          # Sötét alaptérkép a demóhoz (OpenStreetMap-adatok, CARTO csempék).
-          VITE_TILE_URL: https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png
-          VITE_TILE_ATTRIBUTION: © OpenStreetMap közreműködők © CARTO
+          GH_TOKEN: ${{ github.token }}
+      - name: Budapest-térkép mentése a gyorsítótárba
+        if: steps.mapcache.outputs.cache-hit != 'true' && hashFiles('map-cache/budapest.pmtiles') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: map-cache
+          key: budapest-pmtiles-${{ steps.week.outputs.week }}
+      - name: Térkép a kiadásba
+        run: |
+          mkdir -p dist/map
+          if [ -f map-cache/budapest.pmtiles ]; then cp map-cache/budapest.pmtiles map-cache/map-source.json dist/map/; fi
+          ls -la dist/map
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
