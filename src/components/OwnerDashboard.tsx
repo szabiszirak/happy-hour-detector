@@ -11,6 +11,7 @@ import {
   type DrinkPromotion,
 } from "../domain/pricing";
 import { timeAgo } from "../domain/reports";
+import { buildOwnerAccount, ownerDashboardState, validateOwnerAccountDraft } from "../domain/account";
 import { PlaceEditor } from "./PlaceEditor";
 
 export function ClaimStatusBadge({ status }: { status: ClaimStatus }) {
@@ -18,10 +19,12 @@ export function ClaimStatusBadge({ status }: { status: ClaimStatus }) {
 }
 
 /** Kocsmáros felület: igénylések állapota, ellenőrzött helyek kezelése, kiemelések. */
-export function OwnerDashboard({ myClaims, onClose }: { myClaims: OwnerClaim[]; onClose: () => void }) {
-  const { user, owners, places, promotions, openPlace } = useApp();
+export function OwnerDashboard({ myClaims, onClose, onPickPlace }: { myClaims: OwnerClaim[]; onClose: () => void; onPickPlace: () => void }) {
+  const { user, owners, places, promotions, openPlace, ownerAccount, caps } = useApp();
   const [editing, setEditing] = useState<Place | null>(null);
-  const mine = places.filter((p) => owners[p.id]?.uid === user.uid);
+  // csak kocsmáros fiókban kezelhető helyek (domain/account.ts capabilities)
+  const mine = places.filter((p) => caps.managedPlaceIds.includes(p.id));
+  const state = ownerDashboardState(user.uid, ownerAccount, myClaims, owners);
   const t = Date.now();
 
   if (editing) return <PlaceEditor place={editing} ownerMode onClose={() => setEditing(null)} />;
@@ -39,10 +42,43 @@ export function OwnerDashboard({ myClaims, onClose }: { myClaims: OwnerClaim[]; 
           </button>
         </div>
 
-        {mine.length === 0 && myClaims.length === 0 && (
-          <p className="empty">
-            Még nincs kocsmáros profilod. Nyisd meg a helyed adatlapját a térképen vagy a listában, és koppints az „Ez az én helyem” gombra.
-          </p>
+        {state === "no-account" && <OwnerAccountCard />}
+
+        {state !== "no-account" && (
+          <ol className="owner-steps" aria-label="A kocsmáros profil lépései">
+            <li className="done">
+              <span>✓</span>Kocsmáros fiók
+            </li>
+            <li className={state === "pick-place" ? "on" : "done"}>
+              <span>{state === "pick-place" ? "2" : "✓"}</span>Hely kiválasztása és igénylése
+            </li>
+            <li className={state === "active" ? "done" : state === "pending" ? "on" : ""}>
+              <span>{state === "active" ? "✓" : "3"}</span>Igazolás
+            </li>
+          </ol>
+        )}
+
+        {state === "pick-place" && (
+          <section className="pick-guide">
+            <h3>Válaszd ki a helyed</h3>
+            <p>
+              Keresd meg a kocsmádat a <b>térképen</b> vagy a <b>Kocsmák</b> listában, nyisd meg az adatlapját, és koppints az{" "}
+              <b>„Ez az én helyem”</b> gombra. Utána 3 lépésben igazolod: vállalkozás adatai → igazolások → beküldés.
+            </p>
+            <button className="btn primary" onClick={onPickPlace}>
+              📍 Hely kiválasztása a térképen / listában
+            </button>
+          </section>
+        )}
+
+        {state === "pending" && (
+          <section className="pick-guide">
+            <h3>Igazolás folyamatban</h3>
+            <p>Az igénylésedet ellenőrizzük. Amíg nincs döntés, a hely adatait még nem szerkesztheted és kiemelést sem kérhetsz.</p>
+            <button className="btn ghost" onClick={onPickPlace}>
+              Másik hely igénylése
+            </button>
+          </section>
         )}
 
         {mine.map((p) => (
@@ -214,5 +250,55 @@ function PromotionManager({ place, promos }: { place: Place; promos: DrinkPromot
       )}
       {err && <p className="field-err">{err}</p>}
     </div>
+  );
+}
+
+/** Kocsmáros fiók létrehozása (egyszer). A fiók önmagában nem ad jogot egy helyhez sem. */
+function OwnerAccountCard() {
+  const { repo, user, toast } = useApp();
+  const [email, setEmail] = useState(user.email ?? "");
+  const [terms, setTerms] = useState(false);
+  const [tried, setTried] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const errors = validateOwnerAccountDraft({ contactEmail: email, acceptTerms: terms });
+
+  const create = async () => {
+    setTried(true);
+    if (Object.keys(errors).length) return;
+    setBusy(true);
+    try {
+      await repo.createOwnerAccount(buildOwnerAccount({ contactEmail: email, acceptTerms: terms }, user.uid, Date.now()));
+      toast("Kocsmáros fiók létrehozva. Most válaszd ki a helyed!");
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Nem sikerült.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="owner-card account-card">
+      <h3>Kocsmáros fiók létrehozása</h3>
+      <p className="muted small">
+        Egyszer kell beállítani. Utána kiválaszthatod a helyed, és igényelheted („Ez az én helyem”). A hely adatait és a kiemeléseket csak az
+        igazolás után kezelheted.
+      </p>
+      <label className={`field ${tried && errors.contactEmail ? "invalid" : ""}`}>
+        <span>Kapcsolattartó e-mail</span>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="kocsma@pelda.hu" />
+        {tried && errors.contactEmail && <em className="field-err">{errors.contactEmail}</em>}
+      </label>
+      <label className="consent">
+        <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
+        <span>
+          Elfogadom a kocsmárosi feltételeket: csak valós adatot adok meg a helyemről, a fizetős kiemelés „Szponzorált” jelöléssel jelenik
+          meg, és a kocsmák sorrendjét nem befolyásolja.
+        </span>
+      </label>
+      {tried && errors.acceptTerms && <p className="field-err">{errors.acceptTerms}</p>}
+      <button className="btn primary" disabled={busy} onClick={create}>
+        {busy ? "Létrehozás…" : "Kocsmáros fiók létrehozása"}
+      </button>
+    </section>
   );
 }

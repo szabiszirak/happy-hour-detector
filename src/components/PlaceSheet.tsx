@@ -3,7 +3,8 @@ import { useApp } from "../context";
 import { distanceM, formatDistance, walkMinutes } from "../domain/geo";
 import { describeDays, formatMinutes, happyHourStatus, slotMinutesLeft } from "../domain/happyHour";
 import { currentPrice, formatFt, formatVolume, orderPlaceMenu, pricePerLiter } from "../domain/pricing";
-import { canEditPlaceDetails, drinkConfirmation, isVerifiedOwner } from "../domain/ownership";
+import { drinkConfirmation } from "../domain/ownership";
+import { canEditPlaceAs, canManagePlace, claimButtonState, type ClaimButtonState } from "../domain/account";
 import { withinBudget } from "../domain/priceBudget";
 import { extractPrice, REPORT_STATUS_LABELS, REPORT_TTL_MS, reportStatus, timeAgo } from "../domain/reports";
 import { matchScore } from "../domain/match";
@@ -13,7 +14,7 @@ import { formatOpeningHours, openState } from "../domain/openingHours";
 import { kindLabel, OpenBadge } from "./Lists";
 
 export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => void }) {
-  const { repo, user, profile, reports, now, pos, toast, owners, livePromos, myClaims, openClaim } = useApp();
+  const { repo, user, profile, reports, now, pos, toast, owners, livePromos, myClaims, openClaim, accountMode, ownerAccount, openOwnerDashboard } = useApp();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState("");
   const [drinkId, setDrinkId] = useState("");
@@ -23,9 +24,10 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
   const t = Date.now(); // bejelentések, megerősítések: valós idő
   const placeReports = reports.filter((r) => r.placeId === place.id).sort((a, b) => b.createdAt - a.createdAt);
   const owner = owners[place.id];
-  const iAmOwner = isVerifiedOwner(user.uid, place.id, owners);
-  const canEdit = canEditPlaceDetails(user.uid, place.id, owners);
-  const myPending = myClaims.some((c) => c.placeId === place.id && c.status === "pending");
+  // kocsmáros jogok csak kocsmáros fiókban és csak igazolás után (domain/account.ts)
+  const iAmOwner = canManagePlace(accountMode, user.uid, place.id, owners);
+  const canEdit = canEditPlaceAs(accountMode, user.uid, place.id, owners);
+  const claimState = claimButtonState(accountMode, user.uid, ownerAccount, place.id, myClaims, owners);
   const menu = orderPlaceMenu(place, livePromos);
   const mapsUrl = place.googlePlaceId
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.googlePlaceId}`
@@ -274,11 +276,7 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
               ✏️ Szerkesztés
             </button>
           )}
-          {!owner && (
-            <button className="btn ghost" disabled={myPending} onClick={() => openClaim(place.id)}>
-              {myPending ? "🏪 Igénylésed függőben" : "🏪 Ez az én helyem"}
-            </button>
-          )}
+          <ClaimButton state={claimState} onClaim={() => openClaim(place.id)} onDashboard={openOwnerDashboard} />
           <a className="btn ghost" href={mapsUrl} target="_blank" rel="noreferrer">
             Útvonal (Google Térkép)
           </a>
@@ -291,4 +289,39 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
       </div>
     </div>
   );
+}
+
+/** „Ez az én helyem” – csak kocsmáros fiókban (vendég fiókban nem jelenik meg). */
+function ClaimButton({ state, onClaim, onDashboard }: { state: ClaimButtonState; onClaim: () => void; onDashboard: () => void }) {
+  switch (state) {
+    case "hidden":
+      return null;
+    case "claim":
+    case "retry":
+      return (
+        <button className="btn claim-btn" onClick={onClaim}>
+          🏪 Ez az én helyem{state === "retry" ? " – újra" : ""}
+        </button>
+      );
+    case "needs-account":
+      return (
+        <button className="btn claim-btn" onClick={onDashboard}>
+          🏪 Ez az én helyem
+        </button>
+      );
+    case "pending":
+      return (
+        <button className="btn ghost" onClick={onDashboard}>
+          🏪 Igénylésed függőben
+        </button>
+      );
+    case "mine":
+      return (
+        <button className="btn ghost" onClick={onDashboard}>
+          ✓ A te helyed – Kocsmáros felület
+        </button>
+      );
+    case "taken":
+      return <span className="muted small taken-note">Ennek a helynek már van ellenőrzött kocsmárosa.</span>;
+  }
 }

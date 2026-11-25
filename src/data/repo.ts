@@ -1,6 +1,7 @@
 import type { AppUser, Place, PlacePhoto, Report, TasteProfile } from "../domain/types";
 import type { ClaimDocKind, ClaimDocument, OwnerClaim, OwnerIndex, ReviewDecision } from "../domain/ownership";
 import type { DrinkPromotion } from "../domain/pricing";
+import type { OwnerAccount } from "../domain/account";
 
 export type Unsubscribe = () => void;
 
@@ -37,12 +38,16 @@ export interface Repo {
   getProfile(uid: string): Promise<TasteProfile | undefined>;
   saveProfile(uid: string, profile: TasteProfile): Promise<void>;
 
-  // ---- kocsmáros profil ----
+  // ---- kocsmáros fiók és profil ----
+  /** A felhasználó kocsmáros fiókja (users/{uid}.ownerAccount) – `undefined`, ha még nincs. */
+  subscribeOwnerAccount(uid: string, cb: (account: OwnerAccount | undefined) => void): Unsubscribe;
+  createOwnerAccount(account: OwnerAccount): Promise<void>;
   /** Új azonosító igényléshez / kiemeléshez (a feltöltések útvonalához előre kell). */
   newId(kind: "claims" | "promotions"): string;
   subscribeOwners(cb: (owners: OwnerIndex) => void): Unsubscribe;
   subscribeMyClaims(uid: string, cb: (claims: OwnerClaim[]) => void): Unsubscribe;
   uploadClaimDocument(uid: string, claimId: string, file: File, kind: ClaimDocKind): Promise<ClaimDocument>;
+  /** Csak kocsmáros fiókkal (a szabályok is ellenőrzik). */
   submitClaim(claim: OwnerClaim): Promise<void>;
   withdrawClaim(claimId: string, uid: string): Promise<void>;
   /** Csak a hely ellenőrzött kocsmárosa. */

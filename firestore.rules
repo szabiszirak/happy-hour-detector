@@ -49,15 +49,26 @@ service cloud.firestore {
       allow delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
     }
 
-    // Felhasználói profil (ízlésprofil): csak a saját. Az admin jog NEM itt van, hanem az Auth tokenben.
+    // Felhasználói adatok (ízlésprofil, kocsmáros fiók): csak a saját.
+    // A kocsmáros fiók önkiszolgáló és önmagában nem ad jogot a helyekhez (azt az owners/{placeId} adja, amit csak admin ír).
+    // Az admin jog NEM itt van, hanem az Auth tokenben.
     match /users/{uid} {
-      allow read, write: if signedIn() && request.auth.uid == uid;
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if signedIn() && request.auth.uid == uid
+        && (!('ownerAccount' in request.resource.data)
+          || (request.resource.data.ownerAccount.contactEmail is string
+            && request.resource.data.ownerAccount.termsAcceptedAt is number));
+    }
+    function hasOwnerAccount() {
+      return signedIn()
+        && exists(/databases/$(db)/documents/users/$(request.auth.uid))
+        && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.get('ownerAccount', null) != null;
     }
 
     // Kocsmáros hely-igénylés („Ez az én helyem”). Tartalmaz személyes adatot → csak a beküldő és az admin látja.
     match /claims/{claimId} {
       allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
-      allow create: if signedIn()
+      allow create: if hasOwnerAccount()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'pending'
         && !request.resource.data.keys().hasAny(['reviewedAt', 'reviewedBy', 'reviewNote'])

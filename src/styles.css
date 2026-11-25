@@ -522,3 +522,36 @@ tr.promoted .tag-sponsored { display: inline-block; margin-bottom: 2px; }
 .promo-tagline { display: block; font-size: 12.5px; color: var(--warn); }
 .budget-ok { align-self: flex-start; display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--ok); border: 1px solid rgba(45, 212, 191, 0.45); border-radius: 999px; padding: 0 6px; margin-top: 2px; }
 .onb-card .btn.ghost { margin-top: 10px; }
+
+/* ---------- kocsmáros fiók ---------- */
+.mode-chip { margin-left: auto; margin-right: 8px; font-size: 12px; font-weight: 800; color: #fff; background: var(--primary); border: none; border-radius: 999px; padding: 5px 11px; }
+.mode-label { display: inline-block; margin: 4px 0; font-size: 12px; font-weight: 800; border-radius: 999px; padding: 2px 9px; }
+.mode-label.owner { color: #fff; background: var(--primary); }
+.mode-label.guest { color: var(--text); background: var(--card2); }
+.login-owner { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.btn.owner-login { width: 100%; background: var(--card2); border: 1px solid var(--primary-text); color: var(--text); }
+.btn.claim-btn { background: var(--primary); color: #fff; border-color: var(--primary); }
+.taken-note { align-self: center; }
+.owner-steps { list-style: none; padding: 0; margin: 6px 0 12px; display: flex; flex-direction: column; gap: 6px; }
+.owner-steps li { display: flex; gap: 10px; align-items: center; font-size: 13.5px; color: var(--muted); }
+.owner-steps li span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--card2); font-size: 12px; font-weight: 800; flex: none; }
+.owner-steps li.on { color: var(--text); font-weight: 700; }
+.owner-steps li.on span { background: var(--primary); color: #fff; }
+.owner-steps li.done span { background: var(--ok); color: var(--on-accent); }
+.pick-guide { background: var(--card); border: 1px solid var(--primary-text); border-radius: 14px; padding: 14px; margin: 10px 0; }
+.pick-guide h3 { margin: 0 0 6px; }
+.pick-guide p { margin: 0 0 12px; font-size: 14px; }
+.claim-pick-banner { display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 10px 12px; border-radius: 12px; background: var(--primary-soft); border: 1px solid var(--primary-text); font-size: 13.5px; }
+@media (max-width: 520px) {
+  .top .brand .muted.small { display: none; }
+  .top .brand strong { white-space: nowrap; font-size: 15px; }
+  .mode-chip { padding: 4px 9px; font-size: 11px; margin-right: 6px; }
+  .mode-chip-long { display: none; }
+}
+@media (max-width: 520px) {
+  .top .brand { min-width: 0; flex: 1 1 auto; overflow: hidden; }
+  .top .brand > div { min-width: 0; }
+  .top .brand strong { display: block; overflow: hidden; text-overflow: ellipsis; }
+  .top .demo-badge, .top .mode-chip, .top .avatar { flex: none; }
+  .top .mode-chip { margin-left: 6px; }
+}

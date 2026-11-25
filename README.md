@@ -88,6 +88,11 @@ scripts/         OSM-import
 
 ## Kocsmáros profil és ital-kiemelés (éles mód)
 
+- **Fiókok:** egy Google-fiók vendég és kocsmáros fiókként is használható (fiókváltás a menüben, eszközönként megjegyezve).
+  A kocsmáros fiók (`users/{uid}.ownerAccount`: kapcsolattartó e-mail + feltételek elfogadása) önkiszolgáló, és önmagában
+  semmilyen jogot nem ad: „Ez az én helyem” csak kocsmáros fiókban látszik, igényelni csak kocsmáros fiókkal lehet
+  (firestore.rules), szerkeszteni / kiemelést kérni csak kocsmáros fiókban és csak az admin által ellenőrzött helyen.
+
 - **Admin jog:** Firebase Auth custom claim (`admin: true`), csak szerverről állítható, pl. Admin SDK-val:
   `admin.auth().setCustomUserClaims(uid, { admin: true })`. Az app a menüben ekkor mutatja az „Admin – ellenőrzés” felületet.
 - **Igénylés:** `claims/{id}` mindig `pending` állapotban jön létre; jóváhagyáskor az admin írja az `owners/{placeId}` dokumentumot.

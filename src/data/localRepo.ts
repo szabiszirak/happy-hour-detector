@@ -16,6 +16,7 @@ import {
   type Reviewer,
 } from "../domain/ownership";
 import { decidePromotion, type DrinkPromotion } from "../domain/pricing";
+import { parseOwnerAccount, type OwnerAccount } from "../domain/account";
 import type { Repo, ReviewApi, Unsubscribe } from "./repo";
 import { seedPlaces, seedReports } from "./seed";
 import { imagePreview, randomId } from "./imagePreview";
@@ -29,6 +30,7 @@ interface State {
   claims: OwnerClaim[];
   owners: OwnerIndex;
   promotions: DrinkPromotion[];
+  ownerAccounts: Record<string, OwnerAccount>;
 }
 
 /** A demó beépített elbírálója – éles módban nincs ilyen, ott a Firebase `admin` claim kell. */
@@ -46,6 +48,7 @@ function load(): State | null {
       profiles: s.profiles ?? {},
       owners: s.owners ?? {},
       promotions: s.promotions ?? [],
+      ownerAccounts: s.ownerAccounts ?? {},
       // adatvédelem: a döntés után 30 nappal az igazolások előnézete törlődik
       claims: (s.claims ?? []).map((c) => (documentsExpired(c, now) ? { ...c, documents: c.documents.map(({ previewUrl: _p, ...d }) => d) } : c)),
     };
@@ -62,7 +65,7 @@ function persist(s: State) {
   }
 }
 
-const fresh = (): State => ({ places: seedPlaces(), reports: seedReports(), profiles: {}, claims: [], owners: {}, promotions: [] });
+const fresh = (): State => ({ places: seedPlaces(), reports: seedReports(), profiles: {}, claims: [], owners: {}, promotions: [], ownerAccounts: {} });
 
 /** Demó adatréteg: localStorage + memória, azonnali értesítéssel. A jogosultságokat a domain függvényei ellenőrzik. */
 export class LocalRepo implements Repo {
@@ -137,6 +140,15 @@ export class LocalRepo implements Repo {
 
   // ---- kocsmáros profil ----
 
+  subscribeOwnerAccount(uid: string, cb: (a: OwnerAccount | undefined) => void): Unsubscribe {
+    return this.watch(() => this.state.ownerAccounts[uid], (raw) => cb(parseOwnerAccount(raw, uid)));
+  }
+
+  async createOwnerAccount(account: OwnerAccount) {
+    if (!parseOwnerAccount(account, account.uid)) throw new Error("Hiányos kocsmáros fiók.");
+    this.set({ ownerAccounts: { ...this.state.ownerAccounts, [account.uid]: account } });
+  }
+
   newId(kind: "claims" | "promotions") {
     return randomId(kind === "claims" ? "c" : "pr");
   }
@@ -171,6 +183,7 @@ export class LocalRepo implements Repo {
 
   async submitClaim(claim: OwnerClaim) {
     if (claim.status !== "pending" || claim.reviewedBy) throw new Error("Csak függő igénylés küldhető be.");
+    if (!this.state.ownerAccounts[claim.uid]) throw new Error("Helyet igényelni kocsmáros fiókkal lehet.");
     if (this.state.owners[claim.placeId]) throw new Error("Ennek a helynek már van ellenőrzött kocsmárosa.");
     this.set({ claims: [claim, ...this.state.claims.filter((c) => c.id !== claim.id)] });
   }
@@ -229,7 +242,7 @@ export class LocalRepo implements Repo {
   }
 
   async reset() {
-    const profiles = this.state.profiles;
-    this.set({ ...fresh(), profiles });
+    const { profiles, ownerAccounts } = this.state;
+    this.set({ ...fresh(), profiles, ownerAccounts });
   }
 }

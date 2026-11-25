@@ -24,7 +24,7 @@ const UPLOAD_KINDS: ClaimDocKind[] = ["storefront", "receipt", "registry"];
 
 /** „Ez az én helyem” – kocsmáros hely-igénylés 3 lépésben. */
 export function ClaimFlow({ place, myClaims, onClose }: { place: Place; myClaims: OwnerClaim[]; onClose: () => void }) {
-  const { repo, user, owners, toast } = useApp();
+  const { repo, user, owners, toast, caps } = useApp();
   const claimId = useMemo(() => repo.newId("claims"), [repo]);
   const [step, setStep] = useState(0);
   const [d, setD] = useState<ClaimDraft>({ ...EMPTY_DRAFT, contactName: user.displayName });
@@ -102,7 +102,9 @@ export function ClaimFlow({ place, myClaims, onClose }: { place: Place; myClaims
           </button>
         </div>
 
-        {!can.ok ? (
+        {!caps.canClaim ? (
+          <p className="check-note">Helyet igényelni kocsmáros fiókkal lehet – válts kocsmáros fiókra a menüben.</p>
+        ) : !can.ok ? (
           <p className="check-note">{can.reason}</p>
         ) : (
           <>

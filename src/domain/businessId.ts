@@ -52,3 +52,10 @@ export function validatePhone(input: string): IdCheck {
   if (!/^\d{8,9}$/.test(digits)) return { ok: false, error: "Hiányos telefonszám." };
   return { ok: true, normalized: `+36 ${digits}` };
 }
+
+/** E-mail-cím alapellenőrzése (kisbetűsítve, szóköz nélkül). */
+export function validateEmail(input: string): IdCheck {
+  const v = input.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(v)) return { ok: false, error: "Adj meg egy érvényes e-mail-címet." };
+  return { ok: true, normalized: v };
+}

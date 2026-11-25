@@ -15,6 +15,11 @@ import { livePromotionIndex, type DrinkPromotion } from "./domain/pricing";
 import { ClaimFlow } from "./components/ClaimFlow";
 import { OwnerDashboard } from "./components/OwnerDashboard";
 import { ReviewPanel } from "./components/ReviewPanel";
+import { capabilities, type AccountMode, type OwnerAccount } from "./domain/account";
+import { clearAccountMode, loadAccountMode, saveAccountMode } from "./auth/accountMode";
+
+/** Kocsmáros fiókban nincs ízlésprofil-kérdés – semleges profil a listák számításához. */
+const NEUTRAL_PROFILE: TasteProfile = { version: 3, categories: [], prefs: {}, budgets: {}, completedAt: 0 };
 import { LoginScreen, Onboarding } from "./components/Onboarding";
 import { MapView, MARKER_COLORS } from "./components/MapView";
 import { DrinksTab, HappyHourTab, PlacesTab } from "./components/Lists";
@@ -46,6 +51,12 @@ export default function App() {
   const [profile, setProfile] = useState<TasteProfile | null | undefined>(undefined);
   const [editProfile, setEditProfile] = useState(false);
   const [initErr, setInitErr] = useState<string | null>(null);
+  const [accountMode, setAccountModeState] = useState<AccountMode>(loadAccountMode);
+  const [freshLogin, setFreshLogin] = useState(false);
+  const setAccountMode = useCallback((m: AccountMode) => {
+    saveAccountMode(m);
+    setAccountModeState(m);
+  }, []);
 
   useEffect(() => {
     createRepo().then(setRepo).catch((e) => {
@@ -69,21 +80,46 @@ export default function App() {
 
   if (initErr) return <div className="center error">{initErr}</div>;
   if (!repo || user === undefined) return <div className="center muted">Betöltés…</div>;
-  if (!user) return <LoginScreen mode={auth.mode} onLogin={(n) => auth.signInWithGoogle(n)} />;
+  if (!user)
+    return (
+      <LoginScreen
+        mode={auth.mode}
+        onLogin={async (n, m) => {
+          // előbb a fiók, hogy kocsmárosként ne villanjon fel az ízlésprofil-kérdés
+          setAccountMode(m);
+          setFreshLogin(true);
+          await auth.signInWithGoogle(n);
+        }}
+      />
+    );
   if (profile === undefined) return <div className="center muted">Betöltés…</div>;
   const saveProfile = async (p: TasteProfile) => {
     await repo.saveProfile(user.uid, p);
     setProfile(p);
     setEditProfile(false);
   };
-  // első belépés: teljes képernyős kérdések
-  if (!profile) return <Onboarding name={user.displayName} onDone={saveProfile} />;
+  // vendég fiókban az első belépéskor ízlésprofil-kérdések; kocsmáros fiókban nincs rá szükség
+  if (!profile && accountMode === "guest") return <Onboarding name={user.displayName} onDone={saveProfile} />;
 
   return (
     <>
-      <Main repo={repo} user={user} profile={profile} onEditProfile={() => setEditProfile(true)} />
+      <Main
+        repo={repo}
+        user={user}
+        profile={profile ?? NEUTRAL_PROFILE}
+        onEditProfile={() => setEditProfile(true)}
+        accountMode={accountMode}
+        setAccountMode={setAccountMode}
+        openOwnerOnStart={freshLogin && accountMode === "owner"}
+        onSignOut={async () => {
+          clearAccountMode();
+          setAccountModeState("guest");
+          setFreshLogin(false);
+          await auth.signOut();
+        }}
+      />
       {/* módosítás: ablakként a főképernyő fölött, hogy a kör, az időpont és a szűrők megmaradjanak */}
-      {editProfile && (
+      {editProfile && profile && (
         <div className="onb-overlay" role="dialog" aria-label="Ízlésprofil módosítása">
           <Onboarding name={user.displayName} initial={profile} onCancel={() => setEditProfile(false)} onDone={saveProfile} />
         </div>
@@ -92,7 +128,25 @@ export default function App() {
   );
 }
 
-function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUser; profile: TasteProfile; onEditProfile: () => void }) {
+function Main({
+  repo,
+  user,
+  profile,
+  onEditProfile,
+  accountMode,
+  setAccountMode,
+  openOwnerOnStart,
+  onSignOut,
+}: {
+  repo: Repo;
+  user: AppUser;
+  profile: TasteProfile;
+  onEditProfile: () => void;
+  accountMode: AccountMode;
+  setAccountMode: (m: AccountMode) => void;
+  openOwnerOnStart: boolean;
+  onSignOut: () => Promise<void>;
+}) {
   const [places, setPlaces] = useState<Place[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [tab, setTab] = useState<Tab>("places");
@@ -113,7 +167,10 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
   const [promotions, setPromotions] = useState<DrinkPromotion[]>([]);
   const [myClaims, setMyClaims] = useState<OwnerClaim[]>([]);
   const [claimPlaceId, setClaimPlaceId] = useState<string | null>(null);
-  const [ownerOpen, setOwnerOpen] = useState(false);
+  const [ownerOpen, setOwnerOpen] = useState(openOwnerOnStart);
+  const [ownerAccount, setOwnerAccount] = useState<OwnerAccount | undefined>(undefined);
+  /** „Válaszd ki a helyed” sáv a kocsmáros felületről indítva. */
+  const [pickClaim, setPickClaim] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const reviewer = useMemo(() => repo.reviewer(user), [repo, user]);
   const followRef = useRef(true); // kézi megadás után nem írjuk felül a GPS-szel
@@ -125,6 +182,7 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
   useEffect(() => repo.subscribeOwners(setOwners), [repo]);
   useEffect(() => repo.subscribePromotions(user, setPromotions), [repo, user]);
   useEffect(() => repo.subscribeMyClaims(user.uid, setMyClaims), [repo, user.uid]);
+  useEffect(() => repo.subscribeOwnerAccount(user.uid, setOwnerAccount), [repo, user.uid]);
   useEffect(() => {
     const t = setInterval(() => setTick((x) => x + 1), 30000);
     return () => clearInterval(t);
@@ -139,16 +197,28 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
   const openPlace = useCallback((id: string) => setOpenId(id), []);
   const openClaim = useCallback((id: string) => {
     setOpenId(null);
+    setPickClaim(false);
     setClaimPlaceId(id);
   }, []);
+  const openOwnerDashboard = useCallback(() => {
+    setOpenId(null);
+    setOwnerOpen(true);
+  }, []);
+  const caps = useMemo(() => capabilities(accountMode, user.uid, ownerAccount, owners), [accountMode, user.uid, ownerAccount, owners]);
+  const switchMode = (m: AccountMode) => {
+    setMenu(false);
+    setPickClaim(false);
+    setOwnerOpen(m === "owner");
+    setAccountMode(m);
+    toast(m === "owner" ? "Kocsmáros fiókra váltottál." : "Vendég fiókra váltottál.");
+  };
   // A fizetett kiemelési időszak valós időhöz kötött (az időpont-szimuláció nem hosszabbítja / indítja el).
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const livePromos = useMemo(() => livePromotionIndex(promotions, places, owners, Date.now()), [promotions, places, owners, tick]);
-  const isOwner = useMemo(() => Object.values(owners).some((o) => o.uid === user.uid), [owners, user.uid]);
 
   const ctx: AppCtx = {
     repo, user, profile, places, reports, now, pos, setPos, openPlace, toast, radiusM, setRadiusM, openOnly, setOpenOnly,
-    owners, promotions, livePromos, myClaims, openClaim,
+    owners, promotions, livePromos, myClaims, openClaim, accountMode, ownerAccount, caps, openOwnerDashboard,
   };
   const timeLabel = sim ? `${DAY_NAMES[sim.day - 1]} ${sim.time}` : null;
 
@@ -252,6 +322,11 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
             </div>
           </div>
           {repo.mode === "demo" && <span className="demo-badge">DEMÓ</span>}
+          {accountMode === "owner" && (
+            <button className="mode-chip" onClick={() => setOwnerOpen(true)} title="Kocsmáros felület">
+              🏪 Kocsmáros<span className="mode-chip-long"> fiók</span>
+            </button>
+          )}
           <button className="avatar" onClick={() => setMenu((m) => !m)} aria-label="Menü">
             {user.displayName.slice(0, 1).toUpperCase()}
           </button>
@@ -260,25 +335,40 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
               <p>
                 <strong>{user.displayName}</strong>
                 <br />
-                <span className="muted small">
-                  Ízlés: {describeProfile(profile)}
-                  {describeBudgets(profile) && (
-                    <>
-                      <br />
-                      Keret: {describeBudgets(profile)}
-                    </>
-                  )}
-                </span>
+                <span className={`mode-label ${accountMode}`}>{accountMode === "owner" ? "🏪 Kocsmáros fiók" : "🍺 Vendég fiók"}</span>
+                <br />
+                {accountMode === "guest" ? (
+                  <span className="muted small">
+                    Ízlés: {describeProfile(profile)}
+                    {describeBudgets(profile) && (
+                      <>
+                        <br />
+                        Keret: {describeBudgets(profile)}
+                      </>
+                    )}
+                  </span>
+                ) : (
+                  <span className="muted small">{ownerAccount ? ownerAccount.contactEmail : "A kocsmáros fiók még nincs létrehozva"}</span>
+                )}
               </p>
-              <button onClick={onEditProfile}>Ízlésprofil módosítása</button>
-              <button
-                onClick={() => {
-                  setMenu(false);
-                  setOwnerOpen(true);
-                }}
-              >
-                🏪 Kocsmáros felület{isOwner ? " ✓" : myClaims.some((c) => c.status === "pending") ? " · függőben" : ""}
-              </button>
+              {accountMode === "guest" ? (
+                <>
+                  <button onClick={onEditProfile}>Ízlésprofil módosítása</button>
+                  <button onClick={() => switchMode("owner")}>🏪 Váltás kocsmáros fiókra</button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      setMenu(false);
+                      setOwnerOpen(true);
+                    }}
+                  >
+                    🏪 Kocsmáros felület{caps.managedPlaceIds.length ? " ✓" : myClaims.some((c) => c.status === "pending") ? " · függőben" : ""}
+                  </button>
+                  <button onClick={() => switchMode("guest")}>🍺 Váltás vendég fiókra</button>
+                </>
+              )}
               {reviewer && (
                 <button
                   onClick={() => {
@@ -300,7 +390,7 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
                   Demó adatok visszaállítása
                 </button>
               )}
-              <button onClick={() => auth.signOut()}>Kijelentkezés</button>
+              <button onClick={onSignOut}>Kijelentkezés</button>
             </div>
           )}
         </header>
@@ -369,6 +459,17 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
               {sim && <input type="time" value={sim.time} onChange={(e) => e.target.value && setSim({ ...sim, time: e.target.value })} />}
               {sim && <span className="muted small">szimulált időpont</span>}
             </div>
+            {pickClaim && accountMode === "owner" && (
+              <div className="claim-pick-banner" role="status">
+                <span>
+                  🏪 <strong>Válaszd ki a helyed</strong> a térképen vagy a Kocsmák listában, majd az adatlapján koppints az{" "}
+                  <b>Ez az én helyem</b> gombra.
+                </span>
+                <button className="mini" onClick={() => setPickClaim(false)}>
+                  Mégse
+                </button>
+              </div>
+            )}
             <FilterBar farAway={geo.kind === "faraway"} timeLabel={timeLabel} />
             <nav className="tabs" role="tablist">
               <button role="tab" aria-selected={tab === "places"} className={tab === "places" ? "on" : ""} onClick={() => setTab("places")}>
@@ -393,10 +494,20 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
 
         {open && <PlaceSheet place={open} onClose={() => setOpenId(null)} />}
         {draft && <PlaceEditor place={draft} onClose={() => setDraft(null)} />}
-        {claimPlaceId && places.find((p) => p.id === claimPlaceId) && (
+        {claimPlaceId && caps.canClaim && places.find((p) => p.id === claimPlaceId) && (
           <ClaimFlow place={places.find((p) => p.id === claimPlaceId)!} myClaims={myClaims} onClose={() => setClaimPlaceId(null)} />
         )}
-        {ownerOpen && <OwnerDashboard myClaims={myClaims} onClose={() => setOwnerOpen(false)} />}
+        {ownerOpen && accountMode === "owner" && (
+          <OwnerDashboard
+            myClaims={myClaims}
+            onClose={() => setOwnerOpen(false)}
+            onPickPlace={() => {
+              setOwnerOpen(false);
+              setTab("places");
+              setPickClaim(true);
+            }}
+          />
+        )}
         {reviewOpen && reviewer && <ReviewPanel api={reviewer} onClose={() => setReviewOpen(false)} />}
         {toastMsg && <div className="toast">{toastMsg}</div>}
       </div>

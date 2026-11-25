@@ -3,6 +3,7 @@ import type { AppUser, LatLng, Place, Report, TasteProfile } from "./domain/type
 import type { Repo } from "./data/repo";
 import type { OwnerClaim, OwnerIndex } from "./domain/ownership";
 import type { DrinkPromotion } from "./domain/pricing";
+import type { AccountMode, Capabilities, OwnerAccount } from "./domain/account";
 
 export interface AppCtx {
   repo: Repo;
@@ -28,8 +29,14 @@ export interface AppCtx {
   /** A most élő kiemelések `placeId/drinkId` kulccsal (pricing.livePromotionIndex). */
   livePromos: Map<string, DrinkPromotion>;
   myClaims: OwnerClaim[];
-  /** „Ez az én helyem” folyamat megnyitása. */
+  /** „Ez az én helyem” folyamat megnyitása (csak kocsmáros fiókkal). */
   openClaim: (placeId: string) => void;
+  /** Aktív fiók: vendég / kocsmáros (fiókváltással). */
+  accountMode: AccountMode;
+  ownerAccount: OwnerAccount | undefined;
+  /** Mit tehet a felhasználó az aktív fiókjával (domain/account.ts). */
+  caps: Capabilities;
+  openOwnerDashboard: () => void;
 }
 
 export const Ctx = createContext<AppCtx | null>(null);

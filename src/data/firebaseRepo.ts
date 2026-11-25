@@ -33,6 +33,7 @@ import {
   type PlaceOwner,
 } from "../domain/ownership";
 import { decidePromotion, type DrinkPromotion } from "../domain/pricing";
+import { parseOwnerAccount, type OwnerAccount } from "../domain/account";
 
 /** A Firestore nem fogad el `undefined` mezőt – kiszűrjük mentés előtt. */
 const clean = <T,>(o: T): T => JSON.parse(JSON.stringify(o));
@@ -127,6 +128,15 @@ export class FirebaseRepo implements Repo {
   }
 
   // ---- kocsmáros profil ----
+
+  subscribeOwnerAccount(uid: string, cb: (a: OwnerAccount | undefined) => void): Unsubscribe {
+    return onSnapshot(doc(this.db, "users", uid), (snap) => cb(parseOwnerAccount(snap.data()?.ownerAccount, uid)));
+  }
+
+  async createOwnerAccount(account: OwnerAccount) {
+    const { uid, ...rest } = account;
+    await setDoc(doc(this.db, "users", uid), { ownerAccount: rest }, { merge: true });
+  }
 
   newId(kind: "claims" | "promotions") {
     return doc(collection(this.db, kind)).id;
