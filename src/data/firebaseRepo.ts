@@ -18,6 +18,7 @@ import {
 import type { AppUser, Place, Report, TasteProfile } from "../domain/types";
 import type { Repo, Unsubscribe } from "./repo";
 import { getFirebaseApp } from "./firebase";
+import { migrateProfile } from "../domain/tasteProfile";
 
 /** A Firestore nem fogad el `undefined` mezőt – kiszűrjük mentés előtt. */
 const clean = <T,>(o: T): T => JSON.parse(JSON.stringify(o));
@@ -91,7 +92,7 @@ export class FirebaseRepo implements Repo {
 
   async getProfile(uid: string) {
     const snap = await getDoc(doc(this.db, "users", uid));
-    return snap.exists() ? (snap.data().profile as TasteProfile | undefined) : undefined;
+    return snap.exists() ? migrateProfile(snap.data().profile) : undefined;
   }
 
   async saveProfile(uid: string, profile: TasteProfile) {

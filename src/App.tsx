@@ -7,10 +7,13 @@ import { DEFAULT_POSITION, formatDistance, isInsidePolygon, MVP_POLYGON } from "
 import { classifyError, classifyFix, type GeoStatus } from "./domain/location";
 import { DEFAULT_FILTER, searchDrinks, type DrinkFilter } from "./domain/search";
 import { happyHourStatus } from "./domain/happyHour";
-import { PRICE_BAND_LABELS, TASTE_LABELS, type AppUser, type LatLng, type Place, type Report, type TasteProfile } from "./domain/types";
+import { describeProfile } from "./domain/tasteProfile";
+import { PRICE_BAND_LABELS, type AppUser, type LatLng, type Place, type Report, type TasteProfile } from "./domain/types";
 import { LoginScreen, Onboarding } from "./components/Onboarding";
 import { MapView, MARKER_COLORS } from "./components/MapView";
 import { DrinksTab, HappyHourTab, PlacesTab } from "./components/Lists";
+import { FilterBar } from "./components/FilterBar";
+import { DEFAULT_RADIUS_M } from "./domain/searchArea";
 import { PlaceSheet } from "./components/PlaceSheet";
 import { PlaceEditor } from "./components/PlaceEditor";
 
@@ -62,19 +65,25 @@ export default function App() {
   if (!repo || user === undefined) return <div className="center muted">Betöltés…</div>;
   if (!user) return <LoginScreen mode={auth.mode} onLogin={(n) => auth.signInWithGoogle(n)} />;
   if (profile === undefined) return <div className="center muted">Betöltés…</div>;
-  if (!profile || editProfile)
-    return (
-      <Onboarding
-        name={user.displayName}
-        onDone={async (p) => {
-          await repo.saveProfile(user.uid, p);
-          setProfile(p);
-          setEditProfile(false);
-        }}
-      />
-    );
+  const saveProfile = async (p: TasteProfile) => {
+    await repo.saveProfile(user.uid, p);
+    setProfile(p);
+    setEditProfile(false);
+  };
+  // első belépés: teljes képernyős kérdések
+  if (!profile) return <Onboarding name={user.displayName} onDone={saveProfile} />;
 
-  return <Main repo={repo} user={user} profile={profile} onEditProfile={() => setEditProfile(true)} />;
+  return (
+    <>
+      <Main repo={repo} user={user} profile={profile} onEditProfile={() => setEditProfile(true)} />
+      {/* módosítás: ablakként a főképernyő fölött, hogy a kör, az időpont és a szűrők megmaradjanak */}
+      {editProfile && (
+        <div className="onb-overlay" role="dialog" aria-label="Ízlésprofil módosítása">
+          <Onboarding name={user.displayName} initial={profile} onCancel={() => setEditProfile(false)} onDone={saveProfile} />
+        </div>
+      )}
+    </>
+  );
 }
 
 function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUser; profile: TasteProfile; onEditProfile: () => void }) {
@@ -91,6 +100,8 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
   const [menu, setMenu] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [geo, setGeo] = useState<GeoStatus>({ kind: "idle" });
+  const [radiusM, setRadiusM] = useState<number>(DEFAULT_RADIUS_M);
+  const [openOnly, setOpenOnly] = useState(false);
   const [recenterKey, setRecenterKey] = useState(0);
   const followRef = useRef(true); // kézi megadás után nem írjuk felül a GPS-szel
   const watchRef = useRef<number | null>(null);
@@ -111,13 +122,14 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
   }, []);
   const openPlace = useCallback((id: string) => setOpenId(id), []);
 
-  const ctx: AppCtx = { repo, user, profile, places, reports, now, pos, setPos, openPlace, toast };
+  const ctx: AppCtx = { repo, user, profile, places, reports, now, pos, setPos, openPlace, toast, radiusM, setRadiusM, openOnly, setOpenOnly };
+  const timeLabel = sim ? `${DAY_NAMES[sim.day - 1]} ${sim.time}` : null;
 
   const highlight = useMemo(() => {
     if (tab === "places") return undefined;
     if (tab === "hh") return new Set(places.filter((p) => happyHourStatus(p, now).kind !== "none").map((p) => p.id));
-    return new Set(searchDrinks(places, filter, pos, now, profile).map((o) => o.place.id));
-  }, [tab, places, filter, pos, now, profile]);
+    return new Set(searchDrinks(places, { ...filter, maxDistanceM: radiusM }, pos, now, profile).map((o) => o.place.id));
+  }, [tab, places, filter, pos, now, profile, radiusM]);
 
   /** Helymeghatározás indítása: a böngésző ilyenkor kér engedélyt (első alkalommal). */
   const startWatch = useCallback(() => {
@@ -222,7 +234,7 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
                 <strong>{user.displayName}</strong>
                 <br />
                 <span className="muted small">
-                  Ízlés: {profile.categories.map((c) => TASTE_LABELS[c]).join(", ")} · {PRICE_BAND_LABELS[profile.priceBand]}
+                  Ízlés: {describeProfile(profile)} · {PRICE_BAND_LABELS[profile.priceBand]}
                 </span>
               </p>
               <button onClick={onEditProfile}>Ízlésprofil módosítása</button>
@@ -249,6 +261,8 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
               pickMode={pick !== null}
               onPick={onPick}
               accuracy={geo.kind === "tracking" ? geo.accuracy : undefined}
+              radiusM={radiusM}
+              openOnly={openOnly}
               recenterKey={recenterKey}
             />
             <GeoChip geo={geo} onClick={locate} />
@@ -278,6 +292,9 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
               <span>
                 <i style={{ background: MARKER_COLORS.closed }} /> zárva / ismeretlen
               </span>
+              <span>
+                <i className="legend-faded" /> körön kívül
+              </span>
             </div>
           </div>
 
@@ -301,6 +318,7 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
               {sim && <input type="time" value={sim.time} onChange={(e) => e.target.value && setSim({ ...sim, time: e.target.value })} />}
               {sim && <span className="muted small">szimulált időpont</span>}
             </div>
+            <FilterBar farAway={geo.kind === "faraway"} timeLabel={timeLabel} />
             <nav className="tabs" role="tablist">
               <button role="tab" aria-selected={tab === "places"} className={tab === "places" ? "on" : ""} onClick={() => setTab("places")}>
                 📍 Kocsmák

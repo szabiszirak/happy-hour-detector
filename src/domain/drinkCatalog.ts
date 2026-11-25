@@ -1,9 +1,9 @@
 // Italkatalógus: kategóriák → stílusok → márkák.
 // A „Piák & árak” szűrő erre épül. Tiszta függvények, UI nélkül – lásd drinkCatalog.test.ts.
-import type { Drink, DrinkStyle, Place } from "./types";
+import type { Drink, DrinkCategory, DrinkStyle, Place } from "./types";
 import { STYLE_LABELS } from "./types";
 
-export type DrinkCategory = "beer" | "spirits" | "wine" | "cocktail" | "soft";
+export type { DrinkCategory };
 
 export const CATEGORY_ORDER: DrinkCategory[] = ["beer", "spirits", "wine", "cocktail", "soft"];
 
@@ -82,7 +82,13 @@ const KNOWN_BY_KEY: Map<string, { label: string; category: DrinkCategory }> = ne
 /** A márka egységes, szótár szerinti írásmódja (ha ismert), különben a megadott név rendbe téve. */
 export function canonicalBrand(name: string): string {
   const k = brandKey(name);
-  return KNOWN_BY_KEY.get(k)?.label ?? name.trim().replace(/\s+/g, " ");
+  const known = KNOWN_BY_KEY.get(k)?.label;
+  if (known) return known;
+  const clean = name.trim().replace(/\s+/g, " ");
+  // csupa kisbetűvel beírt saját márka → nagy kezdőbetűk; az egyedi írásmódot (pl. „MONYO”) nem bántjuk
+  return clean === clean.toLocaleLowerCase("hu-HU")
+    ? clean.replace(/(^|[\s-])(\p{L})/gu, (_, sep: string, ch: string) => sep + ch.toLocaleUpperCase("hu-HU"))
+    : clean;
 }
 
 /** Javaslatok a szerkesztő márka mezőjéhez: a kategória ismert márkái, ABC-sorrendben. */

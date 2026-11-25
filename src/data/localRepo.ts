@@ -1,5 +1,6 @@
 import type { AppUser, Place, Report, TasteProfile } from "../domain/types";
 import { applyVote } from "../domain/reports";
+import { migrateProfile } from "../domain/tasteProfile";
 import type { Repo, Unsubscribe } from "./repo";
 import { seedPlaces, seedReports } from "./seed";
 
@@ -101,7 +102,8 @@ export class LocalRepo implements Repo {
   }
 
   async getProfile(uid: string) {
-    return this.state.profiles[uid];
+    // régi (v1) profilok automatikus átalakítása v2-re
+    return migrateProfile(this.state.profiles[uid]);
   }
 
   async saveProfile(uid: string, profile: TasteProfile) {

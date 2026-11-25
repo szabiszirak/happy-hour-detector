@@ -17,7 +17,17 @@ export type DrinkStyle =
   | "shot"
   | "nonalcoholic";
 
-/** Ízlésprofil-kategóriák a regisztrációs kérdéshez. */
+/** Italkategóriák (Piák & árak szűrő és ízlésprofil). */
+export type DrinkCategory = "beer" | "spirits" | "wine" | "cocktail" | "soft";
+
+/** Kategórián belüli alfajták (ízlésprofil és itallap „Fajta” mezője). */
+export type WineStyle = "dry_white" | "semi_sweet" | "sweet" | "rose" | "red";
+export type SpiritType = "palinka" | "whiskey" | "gin" | "rum" | "tequila" | "vodka" | "liqueur";
+export type CocktailType = "gin_tonic" | "spritz" | "mojito" | "classic" | "longdrink";
+export type SoftType = "na_beer" | "tonic_soda" | "lemonade";
+export type DrinkSubtype = WineStyle | SpiritType | CocktailType | SoftType;
+
+/** Régi (v1) ízlésprofil-kategóriák – csak a migrációhoz. */
 export type TasteCategory = "lightbeer" | "craftbeer" | "wine" | "longdrink" | "shot";
 
 export type PriceBand = "budget" | "mid" | "premium";
@@ -28,6 +38,8 @@ export interface Drink {
   name: string;
   brand?: string;
   style: DrinkStyle;
+  /** Alfajta (pl. rosé, pálinka, gin-tonik) – ha nincs megadva, a névből következtetünk rá. */
+  subtype?: DrinkSubtype;
   /** Kiszerelés literben (0.5 korsó, 0.3 pohár, 0.04 rövid). */
   volumeL: number;
   /** Normál ár forintban. */
@@ -108,7 +120,27 @@ export interface Report {
   denies: string[];
 }
 
+/** Kategórián belüli preferenciák – mind opcionális. */
+export interface TastePrefs {
+  /** Kedvenc sörmárkák (szótár szerinti írásmóddal, vagy saját név). */
+  beerBrands?: string[];
+  wine?: WineStyle[];
+  spirits?: SpiritType[];
+  cocktail?: CocktailType[];
+  soft?: SoftType[];
+}
+
+/** Ízlésprofil (v2): kategóriák + kategórián belüli preferenciák + ársáv. */
 export interface TasteProfile {
+  version: 2;
+  categories: DrinkCategory[];
+  prefs: TastePrefs;
+  priceBand: PriceBand;
+  completedAt: number;
+}
+
+/** Régi (v1) profil, ahogy a böngészőben / Firestore-ban maradhatott. */
+export interface LegacyTasteProfile {
   categories: TasteCategory[];
   priceBand: PriceBand;
   completedAt: number;
@@ -136,13 +168,6 @@ export const STYLE_LABELS: Record<DrinkStyle, string> = {
   nonalcoholic: "Alkoholmentes",
 };
 
-export const TASTE_LABELS: Record<TasteCategory, string> = {
-  lightbeer: "Világos sör / pilsner",
-  craftbeer: "Kézműves sör (IPA, APA…)",
-  wine: "Bor / fröccs",
-  longdrink: "Long drink / koktél",
-  shot: "Rövidital",
-};
 
 export const PRICE_BAND_LABELS: Record<PriceBand, string> = {
   budget: "800 Ft alatt",
@@ -157,17 +182,3 @@ export const VIBE_LABELS: Record<Vibe, string> = {
   sport: "Meccsnézős",
 };
 
-/** Melyik italstílus melyik ízlésprofil-kategóriába tartozik. */
-export const STYLE_TO_TASTE: Record<DrinkStyle, TasteCategory | null> = {
-  pilsner: "lightbeer",
-  lager: "lightbeer",
-  wheat: "craftbeer",
-  ipa: "craftbeer",
-  dark: "craftbeer",
-  craft: "craftbeer",
-  wine: "wine",
-  spritzer: "wine",
-  longdrink: "longdrink",
-  shot: "shot",
-  nonalcoholic: null,
-};

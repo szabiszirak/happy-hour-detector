@@ -13,6 +13,12 @@ export interface AppCtx {
   setPos: (p: LatLng) => void;
   openPlace: (id: string) => void;
   toast: (msg: string) => void;
+  /** Keresési kör sugara méterben (a `pos` körül). */
+  radiusM: number;
+  setRadiusM: (m: number) => void;
+  /** „Csak nyitva” – a `now` időpontra (most, vagy a fejlécben beállított nap/óra). */
+  openOnly: boolean;
+  setOpenOnly: (v: boolean) => void;
 }
 
 export const Ctx = createContext<AppCtx | null>(null);

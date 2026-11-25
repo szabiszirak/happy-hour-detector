@@ -378,3 +378,67 @@ table.drinks td.num > * { display: block; }
 .brand-icon.all { background: var(--primary); color: #fff; }
 .brand-icon.other { background: var(--card2); color: var(--muted); border: 1px dashed var(--line); }
 .brand-input { flex: 1; min-width: 160px; }
+
+/* ---------- közös szűrősáv: keresési kör + csak nyitva ---------- */
+.filterbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; justify-content: space-between;
+  margin: 8px 16px 0; padding: 10px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.radius { display: flex; flex-direction: column; gap: 4px; flex: 1 1 220px; min-width: 0; }
+.radius-label { font-size: 12px; color: var(--muted); }
+.radius-ctrl { display: flex; align-items: center; gap: 8px; }
+.radius-ctrl input[type="range"] { flex: 1; min-width: 60px; accent-color: var(--primary); padding: 0; background: none; border: none; }
+.step-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: var(--card2);
+  font-size: 18px; font-weight: 700; line-height: 1; flex: none; }
+.step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.radius-value { min-width: 52px; text-align: right; color: var(--primary-text); }
+.open-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 14px; }
+.open-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.open-toggle .switch { width: 38px; height: 22px; border-radius: 999px; background: var(--card2); border: 1px solid var(--line);
+  position: relative; flex: none; transition: background 0.15s; }
+.open-toggle .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--muted); transition: transform 0.15s, background 0.15s; }
+.open-toggle.on .switch { background: var(--ok-soft); border-color: var(--ok); }
+.open-toggle.on .switch::after { transform: translateX(16px); background: var(--ok); }
+.open-toggle input:focus-visible + .switch { outline: 2px solid var(--primary-text); outline-offset: 2px; }
+.outside-hint { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  margin: 4px 0 12px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 13px; }
+
+/* ---------- térkép: kör és halványítás ---------- */
+.look-dimmed { opacity: 0.18; filter: grayscale(0.6); }
+.look-dimmed .dot-name, .look-dimmed .dot-names, .look-dimmed .dot-count { display: none !important; }
+.dot.look-muted { background: var(--closed); opacity: 0.45; }
+.pin.look-muted { background: var(--card2); color: var(--muted); border-color: var(--closed); opacity: 0.5; }
+.look-muted .dot-name { opacity: 0.7; }
+.dot.look-open-ring { background: var(--ok); box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.35), 0 0 0 5px var(--ok), 0 0 12px rgba(45, 212, 191, 0.55); }
+.pin.look-open-ring { border-color: var(--ok); box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.45), 0 3px 8px rgba(0, 0, 0, 0.5); }
+.dot-name-item.look-dimmed, .dot-name-item.look-muted { opacity: 0.45; }
+.group-chooser button.no-match { opacity: 0.5; }
+.legend .legend-faded { background: var(--closed); opacity: 0.25; }
+
+/* ---------- ízlésprofil-választó ---------- */
+.onb-card.wide { max-width: 520px; text-align: left; }
+.onb-card.wide h2, .onb-card.wide > p { text-align: center; }
+.taste-list { display: flex; flex-direction: column; gap: 6px; margin: 14px 0 18px; }
+.taste { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.taste.selected { border-color: var(--primary); }
+.taste-head-row { display: flex; align-items: stretch; }
+.taste-check { width: 44px; flex: none; background: none; border: none; display: grid; place-items: center; font-weight: 800; color: #fff; }
+.taste-check::before { content: ""; position: absolute; }
+.taste-check { position: relative; }
+.taste-check:not(.on)::after { content: ""; width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--muted); }
+.taste-check.on { background: var(--primary); }
+.taste-head { flex: 1; display: flex; align-items: center; gap: 10px; background: none; border: none; padding: 10px 12px 10px 4px; text-align: left; min-height: 50px; }
+.taste.open .taste-head { background: var(--primary-soft); }
+.taste-text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.taste-label { font-weight: 700; }
+.taste-summary { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.taste.open .cat-chevron { transform: rotate(180deg); color: var(--primary-text); }
+.taste-panel { padding: 4px 12px 12px; border-top: 1px solid var(--line); animation: catOpen 0.18s ease; }
+.brand-chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 210px; overflow-y: auto; }
+.brand-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card2); font-size: 13px; font-weight: 600; }
+.brand-chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.custom-brand { display: flex; gap: 8px; margin-top: 10px; }
+.custom-brand input { flex: 1; }
+.band.current { border-color: var(--primary-text); }
+.onb-overlay { position: fixed; inset: 0; z-index: 4000; overflow-y: auto; background: rgba(11, 13, 23, 0.82); backdrop-filter: blur(3px); }
+.onb-overlay .onb { background: none; min-height: 100%; }

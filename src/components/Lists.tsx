@@ -11,6 +11,8 @@ import { CategoryFilter, selectionLabel, BrandIcon } from "./DrinkFilters";
 import { brandBadge, canonicalBrand } from "../domain/drinkCatalog";
 import { openState, type OpenState } from "../domain/openingHours";
 import { distanceM } from "../domain/geo";
+import { filterForList } from "../domain/mapVisual";
+import { formatRadius, stepRadius } from "../domain/searchArea";
 
 export function SponsoredBlock() {
   const { places, now, openPlace } = useApp();
@@ -37,7 +39,10 @@ function MatchBadge({ place }: { place: Place }) {
 
 export function HappyHourTab() {
   const { places, now, pos, reports, openPlace } = useApp();
-  const list = useMemo(() => happyHourList(places, pos, now), [places, pos, now]);
+  const { radiusM } = useApp();
+  const all = useMemo(() => happyHourList(places, pos, now), [places, pos, now]);
+  const list = all.filter((e) => e.distance <= radiusM);
+  const hhOutside = all.length - list.length;
   const real = Date.now(); // a bejelentések valós időben járnak le, az idő-szimulációtól függetlenül
   const live = reports.filter((r) => reportStatus(r, real) !== "expired").slice(0, 3);
   const active = list.filter((e) => e.status.kind === "active");
@@ -106,6 +111,7 @@ export function HappyHourTab() {
             ))}
         </div>
       </section>}
+      <OutsideHint count={hhOutside} />
     </div>
   );
 }
@@ -147,12 +153,6 @@ function HHCard({
   );
 }
 
-const DIST_OPTIONS = [
-  { v: 500, l: "500 m" },
-  { v: 1000, l: "1 km" },
-  { v: 2000, l: "2 km" },
-  { v: undefined, l: "Bárhol" },
-];
 const SORTS: { v: SortKey; l: string }[] = [
   { v: "perL", l: "Ft/liter" },
   { v: "price", l: "Ár" },
@@ -161,8 +161,13 @@ const SORTS: { v: SortKey; l: string }[] = [
 ];
 
 export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilter: (f: DrinkFilter) => void }) {
-  const { places, now, pos, profile, openPlace } = useApp();
-  const res = useMemo(() => searchDrinks(places, filter, pos, now, profile), [places, filter, pos, now, profile]);
+  const { places, now, pos, profile, openPlace, radiusM, openOnly } = useApp();
+  // a közös szűrők (kör + „csak nyitva”) szerinti helyek; a tab saját szűrői ezen belül
+  const eligible = useMemo(() => filterForList(places, { center: pos, radiusM, openOnly, now }).shown, [places, pos, radiusM, openOnly, now]);
+  const res = useMemo(
+    () => searchDrinks(eligible, { ...filter, maxDistanceM: undefined }, pos, now, profile),
+    [eligible, filter, pos, now, profile],
+  );
   const anyPrice = places.some((p) => p.drinks.length > 0);
   const sel = selectionLabel(filter, places);
 
@@ -175,7 +180,7 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
           value={filter.brandQuery}
           onChange={(e) => setFilter({ ...filter, brandQuery: e.target.value })}
         />
-        <CategoryFilter places={places} filter={filter} setFilter={setFilter} />
+        <CategoryFilter places={eligible} filter={filter} setFilter={setFilter} />
         <div className="filter-row">
           <label>
             Max. ár
@@ -187,19 +192,6 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
               {[600, 800, 1000, 1200, 1500, 2000].map((v) => (
                 <option key={v} value={v}>
                   {formatFt(v)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Távolság
-            <select
-              value={filter.maxDistanceM ?? ""}
-              onChange={(e) => setFilter({ ...filter, maxDistanceM: e.target.value ? Number(e.target.value) : undefined })}
-            >
-              {DIST_OPTIONS.map((o) => (
-                <option key={o.l} value={o.v ?? ""}>
-                  {o.l}
                 </option>
               ))}
             </select>
@@ -287,31 +279,27 @@ type PlaceSort = "distance" | "name";
 
 /** „Kocsmák” fül: az összes hely az MVP-területen, távolság szerint. */
 export function PlacesTab() {
-  const { places, now, pos, openPlace } = useApp();
+  const { places, now, pos, openPlace, radiusM, openOnly } = useApp();
   const [q, setQ] = useState("");
-  const [openOnly, setOpenOnly] = useState(false);
   const [sort, setSort] = useState<PlaceSort>("distance");
   const norm = (s: string) => s.toLocaleLowerCase("hu-HU").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-  const rows = useMemo(() => {
+  const { rows, outsideCount } = useMemo(() => {
     const nq = norm(q.trim());
-    return places
+    const searched = places.filter((p) => !nq || norm(`${p.name} ${p.address}`).includes(nq));
+    // a közös szűrők: keresési kör + „csak nyitva” a beállított időpontra
+    const { shown, outsideCount } = filterForList(searched, { center: pos, radiusM, openOnly, now });
+    const rows = shown
       .map((p) => ({ p, d: distanceM(pos, p.location), st: openState(p.info?.openingHours, now) }))
-      .filter(({ p }) => !nq || norm(`${p.name} ${p.address}`).includes(nq))
-      .filter(({ st }) => !openOnly || st.kind === "open")
       .sort((a, b) => (sort === "name" ? a.p.name.localeCompare(b.p.name, "hu") : a.d - b.d));
-  }, [places, pos, now, q, openOnly, sort]);
-  const openCount = useMemo(() => places.filter((p) => openState(p.info?.openingHours, now).kind === "open").length, [places, now]);
+    return { rows, outsideCount };
+  }, [places, pos, now, q, openOnly, sort, radiusM]);
 
   return (
     <div className="tab-body">
       <div className="filters">
         <input className="search" placeholder="Hely vagy utca keresése…" value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="filter-row">
-          <label className="check">
-            <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} />
-            Csak a most nyitvák ({openCount})
-          </label>
           <label>
             Rendezés
             <select value={sort} onChange={(e) => setSort(e.target.value as PlaceSort)}>
@@ -323,8 +311,11 @@ export function PlacesTab() {
       </div>
       <SponsoredBlock />
       <p className="muted small result-count">
-        {rows.length} hely a Fővám tér – Kálvin tér – Corvin negyed – Boráros tér négyszögben
+        {rows.length} hely a {formatRadius(radiusM)}-es körben{openOnly ? ", nyitva" : ""}
       </p>
+      {rows.length === 0 && (
+        <p className="empty">{openOnly ? "A körön belül ilyenkor semmi sincs nyitva." : "A körön belül nincs hely."}</p>
+      )}
       <ul className="place-list">
         {rows.map(({ p, d, st }) => {
           const beer = cheapestBeer(p, now);
@@ -358,6 +349,24 @@ export function PlacesTab() {
           );
         })}
       </ul>
+      <OutsideHint count={outsideCount} />
+    </div>
+  );
+}
+
+/** „+N hely a körön kívül” – egy koppintással nagyobb kör. */
+function OutsideHint({ count }: { count: number }) {
+  const { radiusM, setRadiusM } = useApp();
+  if (!count) return null;
+  const next = stepRadius(radiusM, 1);
+  return (
+    <div className="outside-hint">
+      <span>+{count} hely a körön kívül</span>
+      {next !== radiusM && (
+        <button className="mini" onClick={() => setRadiusM(next)}>
+          Kör növelése: {formatRadius(next)}
+        </button>
+      )}
     </div>
   );
 }

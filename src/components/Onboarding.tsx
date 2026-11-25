@@ -1,14 +1,8 @@
 import { useState } from "react";
-import type { PriceBand, TasteCategory, TasteProfile } from "../domain/types";
-import { PRICE_BAND_LABELS, TASTE_LABELS } from "../domain/types";
-
-const TASTE_ICONS: Record<TasteCategory, string> = {
-  lightbeer: "🍺",
-  craftbeer: "🍻",
-  wine: "🍷",
-  longdrink: "🍸",
-  shot: "🥃",
-};
+import type { PriceBand, TasteProfile } from "../domain/types";
+import { PRICE_BAND_LABELS } from "../domain/types";
+import { normalizePrefs } from "../domain/tasteProfile";
+import { TastePicker, type TasteValue } from "./TastePicker";
 
 export function LoginScreen({ mode, onLogin }: { mode: "demo" | "firebase"; onLogin: (demoName?: string) => Promise<void> }) {
   const [name, setName] = useState("");
@@ -60,46 +54,61 @@ export function LoginScreen({ mode, onLogin }: { mode: "demo" | "firebase"; onLo
   );
 }
 
-export function Onboarding({ name, onDone }: { name: string; onDone: (p: TasteProfile) => Promise<void> }) {
+export function Onboarding({
+  name,
+  initial,
+  onDone,
+  onCancel,
+}: {
+  name: string;
+  /** Meglévő profil (módosításkor előre kitöltve). */
+  initial?: TasteProfile;
+  onDone: (p: TasteProfile) => Promise<void>;
+  onCancel?: () => void;
+}) {
   const [step, setStep] = useState<1 | 2>(1);
-  const [cats, setCats] = useState<TasteCategory[]>([]);
+  const [taste, setTaste] = useState<TasteValue>({ categories: initial?.categories ?? [], prefs: initial?.prefs ?? {} });
   const [busy, setBusy] = useState(false);
 
-  const toggle = (c: TasteCategory) => setCats((x) => (x.includes(c) ? x.filter((y) => y !== c) : [...x, c]));
   const finish = async (band: PriceBand) => {
     setBusy(true);
-    await onDone({ categories: cats, priceBand: band, completedAt: Date.now() });
+    await onDone({
+      version: 2,
+      categories: taste.categories,
+      prefs: normalizePrefs(taste.categories, taste.prefs),
+      priceBand: band,
+      completedAt: Date.now(),
+    });
   };
 
   return (
     <div className="onb">
-      <div className="onb-card">
+      <div className="onb-card wide">
         <div className="steps">
           <span className={step === 1 ? "on" : ""} />
           <span className={step === 2 ? "on" : ""} />
         </div>
         {step === 1 ? (
           <>
-            <p className="muted">Szia, {name.split(" ")[0]}! Két gyors kérdés, és kész.</p>
+            <p className="muted">{initial ? "Ízlésprofil módosítása" : `Szia, ${name.split(" ")[0]}! Két gyors kérdés, és kész.`}</p>
             <h2>Mit iszol legszívesebben?</h2>
-            <p className="muted small">Több is választható.</p>
-            <div className="chips big">
-              {(Object.keys(TASTE_LABELS) as TasteCategory[]).map((c) => (
-                <button key={c} className={`chip ${cats.includes(c) ? "on" : ""}`} onClick={() => toggle(c)}>
-                  <span className="emoji">{TASTE_ICONS[c]}</span> {TASTE_LABELS[c]}
-                </button>
-              ))}
-            </div>
-            <button className="btn primary" disabled={cats.length === 0} onClick={() => setStep(2)}>
+            <p className="muted small">Több is választható. A kijelölt italnál pontosíthatod is, mit szeretsz – ez nem kötelező.</p>
+            <TastePicker value={taste} onChange={setTaste} />
+            <button className="btn primary" disabled={taste.categories.length === 0} onClick={() => setStep(2)}>
               Tovább
             </button>
+            {onCancel && (
+              <button className="btn ghost" onClick={onCancel}>
+                Mégse
+              </button>
+            )}
           </>
         ) : (
           <>
             <h2>Mennyit adnál maximum egy korsóért?</h2>
             <div className="band-list">
               {(Object.keys(PRICE_BAND_LABELS) as PriceBand[]).map((b) => (
-                <button key={b} className="band" disabled={busy} onClick={() => finish(b)}>
+                <button key={b} className={`band ${initial?.priceBand === b ? "current" : ""}`} disabled={busy} onClick={() => finish(b)}>
                   <span className="emoji">{b === "budget" ? "🪙" : b === "mid" ? "⚖️" : "💎"}</span>
                   {PRICE_BAND_LABELS[b]}
                 </button>

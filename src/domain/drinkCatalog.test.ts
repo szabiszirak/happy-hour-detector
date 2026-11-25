@@ -52,6 +52,9 @@ describe("márkák: ABC-sorrend és egyesítés", () => {
     expect(brandKey("  Arany   Ászok ")).toBe("arany aszok");
     expect(canonicalBrand("arany aszok")).toBe("Arany Ászok");
     expect(canonicalBrand("  Saját  Főzde ")).toBe("Saját Főzde");
+    expect(canonicalBrand("hedon")).toBe("Hedon");
+    expect(canonicalBrand("fehér nyúl")).toBe("Fehér Nyúl");
+    expect(canonicalBrand("MONYO")).toBe("MONYO");
   });
   it("nincs két ugyanolyan kulcsú márka a szótárban", () => {
     const keys = CATEGORY_ORDER.flatMap((c) => KNOWN_BRANDS[c].map(brandKey));

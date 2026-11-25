@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useApp } from "../context";
 import { brandSuggestions, canonicalBrand, CATEGORY_OF, CATEGORY_ORDER } from "../domain/drinkCatalog";
-import { STYLE_LABELS, VIBE_LABELS, type Drink, type DrinkStyle, type HappyHourSlot, type Place, type Vibe } from "../domain/types";
+import { inferSubtype, SUBTYPE_CATEGORY, SUBTYPE_LABELS, SUBTYPE_OPTIONS, type SubtypeCategory } from "../domain/tasteProfile";
+import { STYLE_LABELS, VIBE_LABELS, type Drink, type DrinkStyle, type DrinkSubtype, type HappyHourSlot, type Place, type Vibe } from "../domain/types";
 
 const DAYS = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
 const uid = (p: string) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
@@ -124,7 +125,14 @@ export function PlaceEditor({ place, onClose }: { place: Place; onClose: () => v
           <div key={d.id} className="edit-box">
             <div className="row">
               <input value={d.name} placeholder="Ital neve (pl. Arany Ászok korsó)" onChange={(e) => setDrink(d.id, { name: e.target.value })} />
-              <select value={d.style} onChange={(e) => setDrink(d.id, { style: e.target.value as DrinkStyle })}>
+              <select
+                value={d.style}
+                onChange={(e) => {
+                  const style = e.target.value as DrinkStyle;
+                  const keep = d.subtype && CATEGORY_OF[style] !== "beer" && SUBTYPE_CATEGORY[d.subtype] === CATEGORY_OF[style];
+                  setDrink(d.id, { style, subtype: keep ? d.subtype : undefined });
+                }}
+              >
                 {(Object.keys(STYLE_LABELS) as DrinkStyle[]).map((s) => (
                   <option key={s} value={s}>
                     {STYLE_LABELS[s]}
@@ -141,6 +149,25 @@ export function PlaceEditor({ place, onClose }: { place: Place; onClose: () => v
                 aria-label="Márka"
                 onChange={(e) => setDrink(d.id, { brand: e.target.value === "" ? undefined : e.target.value })}
               />
+              {CATEGORY_OF[d.style] !== "beer" && (
+                <select
+                  aria-label="Fajta"
+                  value={d.subtype ?? ""}
+                  onChange={(e) => setDrink(d.id, { subtype: (e.target.value || undefined) as DrinkSubtype | undefined })}
+                >
+                  <option value="">
+                    Fajta: {(() => {
+                      const guess = inferSubtype({ ...d, subtype: undefined });
+                      return guess ? `${SUBTYPE_LABELS[guess]} (a névből)` : "nem tudni";
+                    })()}
+                  </option>
+                  {SUBTYPE_OPTIONS[CATEGORY_OF[d.style] as SubtypeCategory].map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
             <div className="row">
               <label className="inline">

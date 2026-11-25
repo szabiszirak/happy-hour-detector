@@ -3,10 +3,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useApp } from "../context";
 import { centroid, groupNearby, MVP_CORNERS, MVP_POLYGON } from "../domain/geo";
-import type { Place } from "../domain/types";
-import { happyHourStatus } from "../domain/happyHour";
 import { cheapestBeer, formatFt } from "../domain/pricing";
-import { openState } from "../domain/openingHours";
+import { groupLook, markerVisual, type MarkerLook } from "../domain/mapVisual";
 import { addBaseLayer, type BaseKind } from "./baseLayer";
 
 /** Ettől a nagyítástól a kocsmák neve is kiíródik a jelölők mellé. */
@@ -23,15 +21,21 @@ interface Props {
   accuracy?: number;
   /** Ha nő, a térkép a helyedre ugrik. */
   recenterKey?: number;
+  /** Keresési kör sugara (a `pos` körül) – a körön kívüli helyek halványak. */
+  radiusM: number;
+  /** „Csak nyitva”: a nyitva lévők türkiz gyűrűt kapnak, a többi szürke. */
+  openOnly: boolean;
 }
 
-export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey = 0 }: Props) {
+export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey = 0, radiusM, openOnly }: Props) {
   const { places, now, pos, openPlace } = useApp();
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.LayerGroup | null>(null);
   const me = useRef<L.CircleMarker | null>(null);
   const acc = useRef<L.Circle | null>(null);
+  const area = useRef<L.Circle | null>(null);
+  const lastRadius = useRef(radiusM);
   const [base, setBase] = useState<BaseKind | null>(null);
   const pickRef = useRef({ pickMode, onPick });
   pickRef.current = { pickMode, onPick };
@@ -80,44 +84,42 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
     const g = markers.current;
     if (!g) return;
     g.clearLayers();
-    const stateOf = (p: Place) => {
-      const hh = happyHourStatus(p, now).kind;
-      const open = openState(p.info?.openingHours, now).kind;
-      return hh === "active" ? "active" : open === "open" ? "open" : "closed";
-    };
-    const RANK = { active: 2, open: 1, closed: 0 } as const;
+    const opts = { center: pos, radiusM, openOnly, now, highlightIds };
+    const RANK: Record<MarkerLook, number> = { "open-ring": 3, normal: 2, muted: 1, dimmed: 0 };
+    const STATE_RANK = { active: 2, open: 1, closed: 0 } as const;
+    const z = (look: MarkerLook, state: keyof typeof STATE_RANK) => RANK[look] * 1000 + STATE_RANK[state] * 250;
 
     // Az egymáshoz nagyon közeli helyek (pl. azonos cím) egy jelölőt kapnak, a nevek egymás alatt.
     for (const group of groupNearby(places, 25)) {
       if (group.length === 1) {
         const p = group[0];
-        const state = stateOf(p);
+        const v = markerVisual(p, opts);
         const beer = cheapestBeer(p, now);
-        const dim = highlightIds && !highlightIds.has(p.id);
         const sponsored = p.sponsored && p.sponsored.until > now.getTime() ? " pin-sponsored" : "";
+        const cls = `look-${v.look}${sponsored}`;
         // Ár csak akkor kerül a jelölőre, ha van adat; különben kis pötty a hely állapotának színével.
         const html = beer
-          ? `<div class="pin pin-${state}${sponsored}${dim ? " pin-dim" : ""}">${state === "active" ? "<span class='pin-dot'></span>" : ""}${formatFt(beer.price).replace(" Ft", "")}</div>`
-          : `<div class="dot dot-${state}${sponsored}${dim ? " pin-dim" : ""}"><span class="dot-name">${escapeHtml(p.name)}</span></div>`;
+          ? `<div class="pin pin-${v.state} ${cls}">${v.state === "active" ? "<span class='pin-dot'></span>" : ""}${formatFt(beer.price).replace(" Ft", "")}</div>`
+          : `<div class="dot dot-${v.state} ${cls}"><span class="dot-name">${escapeHtml(p.name)}</span></div>`;
         const icon = L.divIcon({ className: "", html, iconSize: [0, 0] });
-        L.marker([p.location.lat, p.location.lng], { icon, title: p.name, zIndexOffset: RANK[state] * 250 })
+        L.marker([p.location.lat, p.location.lng], { icon, title: p.name, zIndexOffset: z(v.look, v.state) })
           .bindTooltip(p.name, { direction: "top", offset: [0, beer ? -26 : -8], className: "pin-label" })
           .on("click", () => openPlace(p.id))
           .addTo(g);
         continue;
       }
 
-      const states = group.map(stateOf);
-      const best = states.reduce((a, b) => (RANK[b] > RANK[a] ? b : a));
-      const dim = highlightIds && group.every((p) => !highlightIds.has(p.id));
+      const visuals = group.map((p) => markerVisual(p, opts));
+      const look = groupLook(visuals);
+      const lead = visuals.filter((v) => v.look === look).reduce((a, b) => (STATE_RANK[b.state] > STATE_RANK[a.state] ? b : a));
       const items = group
         .map((p, i) => {
           const beer = cheapestBeer(p, now);
           const price = beer ? ` · ${formatFt(beer.price)}` : "";
-          return `<span class="dot-name-item" data-id="${escapeHtml(p.id)}"><i class="mini-dot mini-${states[i]}"></i>${escapeHtml(p.name)}${price}</span>`;
+          return `<span class="dot-name-item look-${visuals[i].look}" data-id="${escapeHtml(p.id)}"><i class="mini-dot mini-${visuals[i].state}"></i>${escapeHtml(p.name)}${price}</span>`;
         })
         .join("");
-      const html = `<div class="dot dot-${best} dot-group${dim ? " pin-dim" : ""}"><span class="dot-count">${group.length}</span><span class="dot-names">${items}</span></div>`;
+      const html = `<div class="dot dot-${lead.state} dot-group look-${look}"><span class="dot-count">${group.length}</span><span class="dot-names">${items}</span></div>`;
       const at = centroid(group.map((p) => p.location));
       const icon = L.divIcon({ className: "", html, iconSize: [0, 0] });
 
@@ -126,7 +128,8 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
       chooser.className = "group-chooser";
       group.forEach((p, i) => {
         const b = document.createElement("button");
-        b.innerHTML = `<i class="mini-dot mini-${states[i]}"></i>${escapeHtml(p.name)}`;
+        b.innerHTML = `<i class="mini-dot mini-${visuals[i].state}"></i>${escapeHtml(p.name)}`;
+        if (!visuals[i].matches) b.className = "no-match";
         b.onclick = () => {
           m.closePopup();
           openPlace(p.id);
@@ -134,7 +137,7 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
         chooser.appendChild(b);
       });
       const m = map.current!;
-      L.marker([at.lat, at.lng], { icon, title: group.map((p) => p.name).join(" · "), zIndexOffset: RANK[best] * 250 + 100 })
+      L.marker([at.lat, at.lng], { icon, title: group.map((p) => p.name).join(" · "), zIndexOffset: z(look, lead.state) + 100 })
         .bindTooltip(group.map((p) => p.name).join(" · "), { direction: "top", offset: [0, -10], className: "pin-label" })
         .bindPopup(chooser, { closeButton: false, className: "group-popup", offset: [0, -6] })
         .on("click", (e: L.LeafletMouseEvent) => {
@@ -146,7 +149,28 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
         })
         .addTo(g);
     }
-  }, [places, now, highlightIds, openPlace]);
+  }, [places, now, highlightIds, openPlace, pos, radiusM, openOnly]);
+
+  // keresési kör a referenciapont körül; sugárváltáskor a térkép rááll a körre
+  useEffect(() => {
+    const m = map.current;
+    if (!m) return;
+    if (!area.current)
+      area.current = L.circle([pos.lat, pos.lng], {
+        radius: radiusM,
+        color: "#A78BFA",
+        weight: 1.5,
+        dashArray: "4 6",
+        fillColor: "#7C3AED",
+        fillOpacity: 0.07,
+        interactive: false,
+      }).addTo(m);
+    else area.current.setLatLng([pos.lat, pos.lng]).setRadius(radiusM);
+    if (lastRadius.current !== radiusM) {
+      lastRadius.current = radiusM;
+      m.fitBounds(area.current.getBounds(), { padding: [16, 16], maxZoom: 17 });
+    }
+  }, [pos, radiusM]);
 
   // saját pozíció
   useEffect(() => {
