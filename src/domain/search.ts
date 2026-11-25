@@ -98,7 +98,10 @@ export function happyHourList(places: Place[], pos: LatLng, now: Date): HHEntry[
   });
 }
 
-/** Aktív szponzorált helyek – mindig külön blokkban, „Szponzorált” címkével. */
+/**
+ * Régi, hely-szintű kiemelés: a felület már NEM jeleníti meg (a kocsmák listája / térképe nem megvehető).
+ * A fizetős kiemelés italokra szól – lásd pricing.ts rankDrinkOffers.
+ */
 export function activeSponsored(places: Place[], now: Date): Place[] {
   return places.filter((p) => p.sponsored && p.sponsored.until > now.getTime());
 }

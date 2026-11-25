@@ -86,6 +86,18 @@ export interface PlaceInfo {
   checkNeeded?: boolean;
 }
 
+/** Kocsmáros által feltöltött fotó (nem Google-adat). */
+export interface PlacePhoto {
+  id: string;
+  /** Megjeleníthető cím: Storage letöltési URL, demóban kicsinyített data URL. */
+  url: string;
+  storagePath?: string;
+  addedAt: number;
+}
+
+/** Közösségi „Még mindig ennyi?” megerősítések italonként – külön mező, hogy a kocsmáros adatait ne írja felül. */
+export type DrinkConfirmations = Record<string, { count: number; lastAt: number }>;
+
 export interface Place {
   id: string;
   name: string;
@@ -99,7 +111,12 @@ export interface Place {
   info?: PlaceInfo;
   drinks: Drink[];
   happyHours: HappyHourSlot[];
+  /** Régi, hely-szintű kiemelés – már nem jelenik meg (a fizetős kiemelés italoknál van, lásd pricing.ts). */
   sponsored?: Sponsorship;
+  /** Kocsmáros bemutatkozó szövege. */
+  description?: string;
+  photos?: PlacePhoto[];
+  confirmations?: DrinkConfirmations;
   updatedAt?: number;
   updatedBy?: string;
 }
@@ -130,12 +147,18 @@ export interface TastePrefs {
   soft?: SoftType[];
 }
 
-/** Ízlésprofil (v2): kategóriák + kategórián belüli preferenciák + ársáv. */
+/**
+ * Kategóriánkénti árkeret Ft-ban (a priceBudget.ts egységeiben: sör 0,5 l, rövid 4 cl, a többi darab).
+ * `null` = „mindegy”; hiányzó kategória = nem kérdeztük (szintén nem korlátoz).
+ */
+export type CategoryBudgets = Partial<Record<DrinkCategory, number | null>>;
+
+/** Ízlésprofil (v3): kategóriák + kategórián belüli preferenciák + kategóriánkénti árkeret. */
 export interface TasteProfile {
-  version: 2;
+  version: 3;
   categories: DrinkCategory[];
   prefs: TastePrefs;
-  priceBand: PriceBand;
+  budgets: CategoryBudgets;
   completedAt: number;
 }
 
@@ -152,6 +175,8 @@ export interface AppUser {
   email?: string;
   photoURL?: string;
   profile?: TasteProfile;
+  /** Csak éles módban, a Firebase Auth `admin` custom claimből – kliensről nem állítható. */
+  isAdmin?: boolean;
 }
 
 export const STYLE_LABELS: Record<DrinkStyle, string> = {

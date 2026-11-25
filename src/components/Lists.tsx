@@ -2,9 +2,10 @@ import { useMemo, useState } from "react";
 import { useApp } from "../context";
 import { formatDistance, walkMinutes } from "../domain/geo";
 import { describeDays, formatMinutes, happyHourStatus } from "../domain/happyHour";
-import { cheapestBeer, formatFt, formatVolume } from "../domain/pricing";
+import { cheapestBeer, formatFt, formatVolume, rankDrinkOffers } from "../domain/pricing";
+import { withinBudget } from "../domain/priceBudget";
 import { reportStatus, timeAgo } from "../domain/reports";
-import { activeSponsored, happyHourList, searchDrinks, type DrinkFilter, type SortKey } from "../domain/search";
+import { happyHourList, searchDrinks, type DrinkFilter, type SortKey } from "../domain/search";
 import { matchScore } from "../domain/match";
 import type { Place } from "../domain/types";
 import { CategoryFilter, selectionLabel, BrandIcon } from "./DrinkFilters";
@@ -13,23 +14,6 @@ import { openState, type OpenState } from "../domain/openingHours";
 import { distanceM } from "../domain/geo";
 import { filterForList } from "../domain/mapVisual";
 import { formatRadius, stepRadius } from "../domain/searchArea";
-
-export function SponsoredBlock() {
-  const { places, now, openPlace } = useApp();
-  const sp = activeSponsored(places, now);
-  if (!sp.length) return null;
-  return (
-    <div className="sponsored-block">
-      {sp.map((p) => (
-        <button key={p.id} className="sponsored-card" onClick={() => openPlace(p.id)}>
-          <span className="tag-sponsored">Szponzorált</span>
-          <strong>{p.name}</strong>
-          <span className="muted small">{p.sponsored!.tagline}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
 
 function MatchBadge({ place }: { place: Place }) {
   const { profile, now } = useApp();
@@ -51,7 +35,6 @@ export function HappyHourTab() {
 
   return (
     <div className="tab-body">
-      <SponsoredBlock />
       {!anyHH && (
         <div className="empty-card">
           <strong>Még egyetlen helynél sincs megadott happy hour.</strong>
@@ -161,13 +144,15 @@ const SORTS: { v: SortKey; l: string }[] = [
 ];
 
 export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilter: (f: DrinkFilter) => void }) {
-  const { places, now, pos, profile, openPlace, radiusM, openOnly } = useApp();
+  const { places, now, pos, profile, openPlace, radiusM, openOnly, livePromos } = useApp();
   // a közös szűrők (kör + „csak nyitva”) szerinti helyek; a tab saját szűrői ezen belül
   const eligible = useMemo(() => filterForList(places, { center: pos, radiusM, openOnly, now }).shown, [places, pos, radiusM, openOnly, now]);
   const res = useMemo(
     () => searchDrinks(eligible, { ...filter, maxDistanceM: undefined }, pos, now, profile),
     [eligible, filter, pos, now, profile],
   );
+  // kiemelés: külön blokk a szűrésnek megfelelő, élő kiemelésekből – az organikus `res` változatlan marad
+  const { sponsored } = useMemo(() => rankDrinkOffers(res, livePromos), [res, livePromos]);
   const anyPrice = places.some((p) => p.drinks.length > 0);
   const sel = selectionLabel(filter, places);
 
@@ -212,7 +197,26 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
           </label>
         </div>
       </div>
-      <SponsoredBlock />
+      {sponsored.length > 0 && (
+        <section className="sponsored-offers" aria-label="Szponzorált ajánlatok">
+          {sponsored.map((o) => (
+            <button key={o.promo.id} className="offer sponsored" onClick={() => openPlace(o.place.id)}>
+              <span className="tag-sponsored">Szponzorált</span>
+              <span className="offer-main">
+                <strong>{o.drink.name}</strong>
+                <span className="muted small">
+                  {o.place.name} · {formatDistance(o.distance)}
+                  {o.promo.tagline ? ` · ${o.promo.tagline}` : ""}
+                </span>
+              </span>
+              <span className="offer-price">
+                <strong className={o.isHH ? "hh-price" : ""}>{formatFt(o.price)}</strong>
+                <span className="muted small">{formatVolume(o.drink.volumeL)}</span>
+              </span>
+            </button>
+          ))}
+        </section>
+      )}
       <p className="muted small result-count">
         {res.length} találat · organikus sorrend, fizetéssel nem befolyásolható
       </p>
@@ -242,6 +246,7 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
                 <span className="muted small">
                   {o.place.name} · {formatDistance(o.distance)} · {formatVolume(o.drink.volumeL)}
                 </span>
+                {withinBudget(o.drink, o.price, profile) && <span className="budget-ok">keretben</span>}
               </span>
               <span className="offer-price">
                 <strong className={o.isHH ? "hh-price" : ""}>{formatFt(o.price)}</strong>
@@ -279,7 +284,7 @@ type PlaceSort = "distance" | "name";
 
 /** „Kocsmák” fül: az összes hely az MVP-területen, távolság szerint. */
 export function PlacesTab() {
-  const { places, now, pos, openPlace, radiusM, openOnly } = useApp();
+  const { places, now, pos, openPlace, radiusM, openOnly, owners } = useApp();
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<PlaceSort>("distance");
   const norm = (s: string) => s.toLocaleLowerCase("hu-HU").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -309,7 +314,6 @@ export function PlacesTab() {
           </label>
         </div>
       </div>
-      <SponsoredBlock />
       <p className="muted small result-count">
         {rows.length} hely a {formatRadius(radiusM)}-es körben{openOnly ? ", nyitva" : ""}
       </p>
@@ -331,7 +335,8 @@ export function PlacesTab() {
                   <span className="place-tags">
                     <OpenBadge state={st} />
                     {hh.kind === "active" && <span className="tag-hh">HH most</span>}
-                    {p.info?.checkNeeded && <span className="tag-check">ellenőrizendő</span>}
+                    {owners[p.id] && <span className="tag-verified">✓ kocsmáros</span>}
+                    {p.info?.checkNeeded && !owners[p.id] && <span className="tag-check">ellenőrizendő</span>}
                   </span>
                 </span>
                 <span className="place-side">

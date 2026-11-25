@@ -1,12 +1,14 @@
-// Ízlésprofil (v2): kategóriák + kategórián belüli preferenciák (márka / alfajta).
+// Ízlésprofil (v3): kategóriák + kategórián belüli preferenciák (márka / alfajta) + árkeret (priceBudget.ts).
 // Tiszta függvények – lásd tasteProfile.test.ts.
 import type {
+  CategoryBudgets,
   CocktailType,
   Drink,
   DrinkCategory,
   DrinkSubtype,
   LegacyTasteProfile,
   Place,
+  PriceBand,
   SoftType,
   SpiritType,
   TastePrefs,
@@ -14,6 +16,7 @@ import type {
   WineStyle,
 } from "./types";
 import { brandKey, canonicalBrand, CATEGORY_LABELS, CATEGORY_OF, CATEGORY_ORDER, compareHu, KNOWN_BRANDS } from "./drinkCatalog";
+import { budgetsFromBand, normalizeBudgets } from "./priceBudget";
 
 /** A nem-sör kategóriák alfajtái, megjelenítési sorrendben. */
 export const SUBTYPE_OPTIONS = {
@@ -123,24 +126,22 @@ const LEGACY_MAP: Record<LegacyTasteProfile["categories"][number], DrinkCategory
  */
 export function migrateProfile(raw: unknown): TasteProfile | undefined {
   if (!raw || typeof raw !== "object") return undefined;
-  const r = raw as Partial<TasteProfile> & Partial<LegacyTasteProfile> & { version?: number };
+  const r = raw as Partial<TasteProfile> & Partial<LegacyTasteProfile> & { version?: number; priceBand?: PriceBand };
+  if (!Array.isArray(r.categories)) return undefined;
+  const completedAt = r.completedAt ?? Date.now();
+  const valid = (cs: unknown[]) => CATEGORY_ORDER.filter((c) => (cs as string[]).includes(c));
+  if (r.version === 3) {
+    const categories = valid(r.categories);
+    return { version: 3, categories, prefs: (r.prefs as TastePrefs) ?? {}, budgets: normalizeBudgets(categories, (r.budgets as CategoryBudgets) ?? {}), completedAt };
+  }
   const band = r.priceBand === "budget" || r.priceBand === "mid" || r.priceBand === "premium" ? r.priceBand : "mid";
-  if (r.version === 2 && Array.isArray(r.categories)) {
-    return {
-      version: 2,
-      categories: (r.categories as DrinkCategory[]).filter((c) => CATEGORY_ORDER.includes(c)),
-      prefs: (r.prefs as TastePrefs) ?? {},
-      priceBand: band,
-      completedAt: r.completedAt ?? Date.now(),
-    };
+  if (r.version === 2) {
+    const categories = valid(r.categories);
+    return { version: 3, categories, prefs: (r.prefs as TastePrefs) ?? {}, budgets: budgetsFromBand(band, categories), completedAt };
   }
-  if (Array.isArray(r.categories)) {
-    const cats = [
-      ...new Set((r.categories as string[]).map((c) => LEGACY_MAP[c as keyof typeof LEGACY_MAP]).filter(Boolean)),
-    ] as DrinkCategory[];
-    return { version: 2, categories: CATEGORY_ORDER.filter((c) => cats.includes(c)), prefs: {}, priceBand: band, completedAt: r.completedAt ?? Date.now() };
-  }
-  return undefined;
+  const mapped = [...new Set((r.categories as string[]).map((c) => LEGACY_MAP[c as keyof typeof LEGACY_MAP]).filter(Boolean))] as DrinkCategory[];
+  const categories = CATEGORY_ORDER.filter((c) => mapped.includes(c));
+  return { version: 3, categories, prefs: {}, budgets: budgetsFromBand(band, categories), completedAt };
 }
 
 /** Egy kategória kiválasztott preferenciái (szövegként), pl. ["Kozel", "Soproni"] vagy ["Rosé"]. */

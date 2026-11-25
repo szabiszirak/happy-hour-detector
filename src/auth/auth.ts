@@ -64,18 +64,18 @@ class FirebaseAuth implements AuthService {
       const app = await getFirebaseApp();
       const { getAuth, onAuthStateChanged } = await import("firebase/auth");
       if (cancelled) return;
-      unsub = onAuthStateChanged(getAuth(app), (fu) =>
-        cb(
-          fu
-            ? {
-                uid: fu.uid,
-                displayName: fu.displayName ?? "Névtelen",
-                email: fu.email ?? undefined,
-                photoURL: fu.photoURL ?? undefined,
-              }
-            : null,
-        ),
-      );
+      unsub = onAuthStateChanged(getAuth(app), async (fu) => {
+        if (!fu) return cb(null);
+        // Az `admin` jog a Firebase Auth custom claimből jön (csak szerverről állítható be).
+        const token = await fu.getIdTokenResult().catch(() => null);
+        cb({
+          uid: fu.uid,
+          displayName: fu.displayName ?? "Névtelen",
+          email: fu.email ?? undefined,
+          photoURL: fu.photoURL ?? undefined,
+          isAdmin: token?.claims.admin === true,
+        });
+      });
     })();
     return () => {
       cancelled = true;

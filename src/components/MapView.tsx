@@ -95,8 +95,8 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
         const p = group[0];
         const v = markerVisual(p, opts);
         const beer = cheapestBeer(p, now);
-        const sponsored = p.sponsored && p.sponsored.until > now.getTime() ? " pin-sponsored" : "";
-        const cls = `look-${v.look}${sponsored}`;
+        // A térképen nincs fizetős kiemelés (a kocsmák megjelenése nem megvehető).
+        const cls = `look-${v.look}`;
         // Ár csak akkor kerül a jelölőre, ha van adat; különben kis pötty a hely állapotának színével.
         const html = beer
           ? `<div class="pin pin-${v.state} ${cls}">${v.state === "active" ? "<span class='pin-dot'></span>" : ""}${formatFt(beer.price).replace(" Ft", "")}</div>`

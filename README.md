@@ -53,7 +53,8 @@ npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutat�
 2. **Authentication → Sign-in method → Google** bekapcsolása.
 3. **Firestore Database** létrehozása (régió: `europe-central2`, Varsó).
 4. **Project settings → Your apps → Web app** → a konfigurációs értékeket másold a `.env.local`-ba (minta: `.env.example`).
-5. A `firestore.rules` tartalmát töltsd fel a Firestore → Rules fülre.
+5. A `firestore.rules` tartalmát töltsd fel a Firestore → Rules fülre, a `storage.rules`-t a Storage → Rules fülre
+   (a Storage-hoz Blaze csomag kell – a kocsmáros-igazolások és helyfotók miatt).
 6. Kezdő helyek feltöltése: `node scripts/import-osm.mjs > places.osm.json`, majd importálás a `places` gyűjteménybe.
 7. Térkép: egész Budapest vektoros térképe (Protomaps, OpenStreetMap-adatok) – `bash scripts/download-map.sh public/map budapest` letölti a `public/map/budapest.pmtiles` fájlba (a GitHub Pages deploy ezt automatikusan, hetente frissítve teszi meg).
 8. Hosting: `npm run build`, majd Firebase Hosting / Netlify / Vercel.
@@ -72,7 +73,8 @@ src/
   data/        adatréteg: Repo interfész, LocalRepo (demó), FirebaseRepo (éles), demó adatok
   auth/        belépés: demó vagy Firebase Google
   components/  felület: térkép, fülek, adatlap, szerkesztő, onboarding
-firestore.rules  jogosultságok (szponzorációt csak admin állíthat)
+firestore.rules  jogosultságok: kocsmáros-hitelesítést (owners) és ital-kiemelést (promotions → active) csak admin állíthat
+storage.rules    igazolások (privát: feltöltő + admin), helyfotók (csak az ellenőrzött kocsmáros tölthet fel)
 scripts/         OSM-import
 ```
 
@@ -83,3 +85,14 @@ scripts/         OSM-import
 3. Kocsmáros „Ez az én helyem” igénylés és admin felület a szponzorációhoz.
 4. Jelvények (Árvadász, Kocsmamester) a már gyűjtött megerősítésekből.
 5. Jogi kör: ÁSZF, adatvédelem (ízlésprofil = személyes adat), 18+ korhatár, alkoholreklám-szabályok.
+
+## Kocsmáros profil és ital-kiemelés (éles mód)
+
+- **Admin jog:** Firebase Auth custom claim (`admin: true`), csak szerverről állítható, pl. Admin SDK-val:
+  `admin.auth().setCustomUserClaims(uid, { admin: true })`. Az app a menüben ekkor mutatja az „Admin – ellenőrzés” felületet.
+- **Igénylés:** `claims/{id}` mindig `pending` állapotban jön létre; jóváhagyáskor az admin írja az `owners/{placeId}` dokumentumot.
+  Kliensről senki nem tudja magát hitelesíteni (firestore.rules).
+- **Kiemelés:** a kocsmáros `requested` kérést küld; `active`-ra csak admin állíthatja a díj rendezése után.
+  Később: fizetési webhook (Barion / Stripe) → Cloud Function aktiválja.
+- **Adatvédelem – TODO:** ütemezett Cloud Function, ami a döntés után 30 nappal törli a `claims/{uid}/{claimId}/` igazolásokat
+  (`documentsExpired` a domain/ownership.ts-ben). Demó módban ezt a LocalRepo betöltéskor elvégzi.

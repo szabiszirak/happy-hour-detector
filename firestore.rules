@@ -1,12 +1,19 @@
 rules_version = '2';
-// Happy Hour Detector – Firestore jogosultságok (MVP)
+// Happy Hour Detector – Firestore jogosultságok
+// Alapelvek:
+//  - az `admin` jog a Firebase Auth custom claimből jön (csak szerverről / Admin SDK-val állítható);
+//  - kocsmáros-hitelesítést (owners) és fizetős kiemelést (promotions.status = active) csak admin állíthat;
+//  - ellenőrzött helynél a kocsmáros-mezőket csak a kocsmáros írhatja; a közösség bejelentéssel / megerősítéssel jelez.
 service cloud.firestore {
   match /databases/{db}/documents {
     function signedIn() { return request.auth != null; }
     function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function ownerDoc(placeId) { return /databases/$(db)/documents/owners/$(placeId); }
+    function hasOwner(placeId) { return exists(ownerDoc(placeId)); }
+    function isOwnerOf(placeId) { return signedIn() && hasOwner(placeId) && get(ownerDoc(placeId)).data.uid == request.auth.uid; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
 
-    // Helyek: bárki (belépve) olvashat és szerkeszthet – Waze-elv.
-    // A szponzorációt csak admin állíthatja (fizetős szolgáltatás).
+    // Helyek: belépve bárki olvashat; gazdátlan helyet bárki szerkeszthet (Waze-elv).
     match /places/{placeId} {
       allow read: if signedIn();
       function validPlace() {
@@ -15,10 +22,15 @@ service cloud.firestore {
           && request.resource.data.drinks is list
           && request.resource.data.happyHours is list;
       }
-      allow create: if signedIn() && validPlace()
+      // Ellenőrzött helynél ezeket csak a kocsmáros (vagy admin) módosíthatja – lásd domain/ownership.ts OWNER_ONLY_FIELDS.
+      function ownerFieldsUntouched() {
+        return !changed().hasAny(['name', 'address', 'info', 'drinks', 'happyHours', 'photos', 'description']);
+      }
+      allow create: if signedIn() && validPlace() && !hasOwner(placeId)
         && (isAdmin() || !('sponsored' in request.resource.data));
       allow update: if signedIn() && validPlace()
-        && (isAdmin() || request.resource.data.get('sponsored', null) == resource.data.get('sponsored', null));
+        && (isAdmin() || request.resource.data.get('sponsored', null) == resource.data.get('sponsored', null))
+        && (isAdmin() || !hasOwner(placeId) || isOwnerOf(placeId) || ownerFieldsUntouched());
       allow delete: if isAdmin();
     }
 
@@ -32,14 +44,69 @@ service cloud.firestore {
         && request.resource.data.confirms.size() == 0
         && request.resource.data.denies.size() == 0;
       allow update: if signedIn()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['confirms', 'denies'])
+        && changed().hasOnly(['confirms', 'denies'])
         && request.auth.uid != resource.data.userId;
       allow delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
     }
 
-    // Felhasználói profil (ízlésprofil): csak a saját.
+    // Felhasználói profil (ízlésprofil): csak a saját. Az admin jog NEM itt van, hanem az Auth tokenben.
     match /users/{uid} {
       allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Kocsmáros hely-igénylés („Ez az én helyem”). Tartalmaz személyes adatot → csak a beküldő és az admin látja.
+    match /claims/{claimId} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && !request.resource.data.keys().hasAny(['reviewedAt', 'reviewedBy', 'reviewNote'])
+        && request.resource.data.taxNumber is string
+        && request.resource.data.taxNumber.matches('^[0-9]{8}-[1-5]-[0-9]{2}$')
+        && request.resource.data.documents is list
+        && request.resource.data.documents.size() >= 2
+        && request.resource.data.documents.size() <= 5
+        && !hasOwner(request.resource.data.placeId);
+      // a beküldő csak visszavonhatja; dönteni csak admin tud, a saját igénylése felett nem
+      allow update: if (signedIn()
+          && resource.data.uid == request.auth.uid
+          && resource.data.status == 'pending'
+          && request.resource.data.status == 'withdrawn'
+          && changed().hasOnly(['status', 'reviewedAt']))
+        || (isAdmin()
+          && resource.data.status == 'pending'
+          && request.resource.data.status in ['verified', 'rejected']
+          && request.resource.data.reviewedBy == request.auth.uid
+          && resource.data.uid != request.auth.uid
+          && changed().hasOnly(['status', 'reviewedAt', 'reviewedBy', 'reviewNote']));
+      allow delete: if isAdmin();
+    }
+
+    // Ellenőrzött kocsmárosok: bárki (belépve) olvashatja, írni CSAK admin tud → kliensről nem lehet magát hitelesíteni.
+    match /owners/{placeId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Fizetős ital-kiemelés. Kérni a hely ellenőrzött kocsmárosa tud, aktiválni csak admin (a díj rendezése után).
+    match /promotions/{promoId} {
+      allow read: if signedIn()
+        && (resource.data.status == 'active' || resource.data.requestedBy == request.auth.uid || isAdmin());
+      allow create: if isOwnerOf(request.resource.data.placeId)
+        && request.resource.data.requestedBy == request.auth.uid
+        && request.resource.data.status == 'requested'
+        && !request.resource.data.keys().hasAny(['activatedAt', 'activatedBy', 'reviewNote'])
+        && request.resource.data.tagline is string
+        && request.resource.data.tagline.size() <= 60
+        && request.resource.data.until > request.resource.data.startsAt
+        && request.resource.data.until - request.resource.data.startsAt <= 30 * 86400000;
+      allow update: if isAdmin()
+        && resource.data.status == 'requested'
+        && changed().hasOnly(['status', 'activatedAt', 'activatedBy', 'reviewNote'])
+        && (request.resource.data.status == 'rejected'
+          || (request.resource.data.status == 'active' && request.resource.data.activatedBy == request.auth.uid));
+      allow delete: if isAdmin()
+        || (signedIn() && resource.data.requestedBy == request.auth.uid && resource.data.status == 'requested');
     }
   }
 }

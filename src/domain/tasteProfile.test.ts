@@ -17,7 +17,7 @@ import type { Drink, DrinkStyle, Place, TasteProfile } from "./types";
 const fri = (h: number) => new Date(2026, 10, 20, h, 0);
 const d = (name: string, style: DrinkStyle, extra: Partial<Drink> = {}): Drink => ({ id: name, name, style, volumeL: 0.5, price: 900, ...extra });
 const place = (drinks: Drink[]): Place => ({ id: "x", name: "X", address: "", location: { lat: 47.486, lng: 19.064 }, vibes: [], drinks, happyHours: [] });
-const profile = (p: Partial<TasteProfile>): TasteProfile => ({ version: 2, categories: [], prefs: {}, priceBand: "premium", completedAt: 0, ...p });
+const profile = (p: Partial<TasteProfile>): TasteProfile => ({ version: 3, categories: [], prefs: {}, budgets: {}, completedAt: 0, ...p });
 
 describe("alfajták", () => {
   it("minden alfajta pontosan egy kategóriához tartozik", () => {
@@ -62,14 +62,19 @@ describe("alfajta felismerése névből / márkából", () => {
   });
 });
 
-describe("profil-migráció (v1 → v2)", () => {
-  it("a régi kategóriák lefordulnak, ismétlés nélkül, sorrendben", () => {
+describe("profil-migráció (v1 / v2 → v3)", () => {
+  it("a régi kategóriák lefordulnak, ismétlés nélkül, sorrendben; az ársávból sörkeret lesz", () => {
     const p = migrateProfile({ categories: ["craftbeer", "shot", "lightbeer", "longdrink"], priceBand: "budget", completedAt: 5 })!;
-    expect(p).toEqual({ version: 2, categories: ["beer", "spirits", "cocktail"], prefs: {}, priceBand: "budget", completedAt: 5 });
+    expect(p).toEqual({ version: 3, categories: ["beer", "spirits", "cocktail"], prefs: {}, budgets: { beer: 800 }, completedAt: 5 });
   });
-  it("a v2 profil változatlan marad; hibás adatnál undefined", () => {
-    const v2 = profile({ categories: ["wine"], prefs: { wine: ["rose"] }, priceBand: "mid" });
-    expect(migrateProfile(v2)).toEqual(v2);
+  it("v2 → v3: preferenciák megmaradnak; sör nélkül nincs keret", () => {
+    const v2 = { version: 2, categories: ["beer", "wine"], prefs: { wine: ["rose"] }, priceBand: "premium", completedAt: 7 };
+    expect(migrateProfile(v2)).toEqual({ version: 3, categories: ["beer", "wine"], prefs: { wine: ["rose"] }, budgets: { beer: null }, completedAt: 7 });
+    expect(migrateProfile({ version: 2, categories: ["wine"], prefs: {}, priceBand: "mid", completedAt: 1 })!.budgets).toEqual({});
+  });
+  it("a v3 profil változatlan marad; hibás adatnál undefined", () => {
+    const v3 = profile({ categories: ["wine"], prefs: { wine: ["rose"] }, budgets: { wine: 900 } });
+    expect(migrateProfile(v3)).toEqual(v3);
     expect(migrateProfile(null)).toBeUndefined();
     expect(migrateProfile("x")).toBeUndefined();
     expect(migrateProfile({ foo: 1 })).toBeUndefined();
@@ -104,10 +109,10 @@ describe("pontos preferencia a MatchScore-ban", () => {
     expect(matchScore(kozelBar, p, fri(20))).toBe(100);
   });
 
-  it("részletek nélkül a pontszám ugyanaz, mint korábban (60% kínálat / 40% ár)", () => {
+  it("részletek nélkül 60% kínálat / 40% ár; nem kedvelt ital ára nem számít bele", () => {
     const p = profile({ categories: ["beer"] });
     expect(matchScore(kozelBar, p, fri(20))).toBe(100);
-    expect(matchScore(place([d("Bor", "wine")]), p, fri(20))).toBe(40);
+    expect(matchScore(place([d("Bor", "wine")]), p, fri(20))).toBe(0);
   });
 
   it("alfajta-preferencia: rosét kedvelőnek a rosét kínáló bár jobb", () => {
@@ -125,7 +130,7 @@ describe("pontos preferencia a MatchScore-ban", () => {
   });
 
   it("a teszthelyek mindegyikén lefut hibátlanul, 0–100 közötti értékkel", () => {
-    const p = profile({ categories: ["beer", "wine", "spirits", "cocktail", "soft"], prefs: { beerBrands: ["Soproni"], wine: ["dry_white"], spirits: ["palinka"], cocktail: ["gin_tonic"], soft: ["lemonade"] }, priceBand: "budget" });
+    const p = profile({ categories: ["beer", "wine", "spirits", "cocktail", "soft"], prefs: { beerBrands: ["Soproni"], wine: ["dry_white"], spirits: ["palinka"], cocktail: ["gin_tonic"], soft: ["lemonade"] }, budgets: { beer: 800, wine: 600, spirits: 600, cocktail: 1500, soft: 500 } });
     for (const pl of fixturePlaces()) {
       const s = matchScore(pl, p, fri(20));
       expect(s).toBeGreaterThanOrEqual(0);

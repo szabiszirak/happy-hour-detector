@@ -1,6 +1,8 @@
 import { createContext, useContext } from "react";
 import type { AppUser, LatLng, Place, Report, TasteProfile } from "./domain/types";
 import type { Repo } from "./data/repo";
+import type { OwnerClaim, OwnerIndex } from "./domain/ownership";
+import type { DrinkPromotion } from "./domain/pricing";
 
 export interface AppCtx {
   repo: Repo;
@@ -19,6 +21,15 @@ export interface AppCtx {
   /** „Csak nyitva” – a `now` időpontra (most, vagy a fejlécben beállított nap/óra). */
   openOnly: boolean;
   setOpenOnly: (v: boolean) => void;
+  /** Ellenőrzött kocsmárosok helyenként (owners/{placeId}). */
+  owners: OwnerIndex;
+  /** Látható kiemelések: az élők + a felhasználó saját kérései. */
+  promotions: DrinkPromotion[];
+  /** A most élő kiemelések `placeId/drinkId` kulccsal (pricing.livePromotionIndex). */
+  livePromos: Map<string, DrinkPromotion>;
+  myClaims: OwnerClaim[];
+  /** „Ez az én helyem” folyamat megnyitása. */
+  openClaim: (placeId: string) => void;
 }
 
 export const Ctx = createContext<AppCtx | null>(null);

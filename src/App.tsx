@@ -8,7 +8,13 @@ import { classifyError, classifyFix, type GeoStatus } from "./domain/location";
 import { DEFAULT_FILTER, searchDrinks, type DrinkFilter } from "./domain/search";
 import { happyHourStatus } from "./domain/happyHour";
 import { describeProfile } from "./domain/tasteProfile";
-import { PRICE_BAND_LABELS, type AppUser, type LatLng, type Place, type Report, type TasteProfile } from "./domain/types";
+import { describeBudgets } from "./domain/priceBudget";
+import type { AppUser, LatLng, Place, Report, TasteProfile } from "./domain/types";
+import type { OwnerClaim, OwnerIndex } from "./domain/ownership";
+import { livePromotionIndex, type DrinkPromotion } from "./domain/pricing";
+import { ClaimFlow } from "./components/ClaimFlow";
+import { OwnerDashboard } from "./components/OwnerDashboard";
+import { ReviewPanel } from "./components/ReviewPanel";
 import { LoginScreen, Onboarding } from "./components/Onboarding";
 import { MapView, MARKER_COLORS } from "./components/MapView";
 import { DrinksTab, HappyHourTab, PlacesTab } from "./components/Lists";
@@ -103,12 +109,22 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
   const [radiusM, setRadiusM] = useState<number>(DEFAULT_RADIUS_M);
   const [openOnly, setOpenOnly] = useState(false);
   const [recenterKey, setRecenterKey] = useState(0);
+  const [owners, setOwners] = useState<OwnerIndex>({});
+  const [promotions, setPromotions] = useState<DrinkPromotion[]>([]);
+  const [myClaims, setMyClaims] = useState<OwnerClaim[]>([]);
+  const [claimPlaceId, setClaimPlaceId] = useState<string | null>(null);
+  const [ownerOpen, setOwnerOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const reviewer = useMemo(() => repo.reviewer(user), [repo, user]);
   const followRef = useRef(true); // kézi megadás után nem írjuk felül a GPS-szel
   const watchRef = useRef<number | null>(null);
   const firstFixRef = useRef(true);
 
   useEffect(() => repo.subscribePlaces(setPlaces), [repo]);
   useEffect(() => repo.subscribeReports(setReports), [repo]);
+  useEffect(() => repo.subscribeOwners(setOwners), [repo]);
+  useEffect(() => repo.subscribePromotions(user, setPromotions), [repo, user]);
+  useEffect(() => repo.subscribeMyClaims(user.uid, setMyClaims), [repo, user.uid]);
   useEffect(() => {
     const t = setInterval(() => setTick((x) => x + 1), 30000);
     return () => clearInterval(t);
@@ -121,8 +137,19 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
     setTimeout(() => setToastMsg(null), 2600);
   }, []);
   const openPlace = useCallback((id: string) => setOpenId(id), []);
+  const openClaim = useCallback((id: string) => {
+    setOpenId(null);
+    setClaimPlaceId(id);
+  }, []);
+  // A fizetett kiemelési időszak valós időhöz kötött (az időpont-szimuláció nem hosszabbítja / indítja el).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const livePromos = useMemo(() => livePromotionIndex(promotions, places, owners, Date.now()), [promotions, places, owners, tick]);
+  const isOwner = useMemo(() => Object.values(owners).some((o) => o.uid === user.uid), [owners, user.uid]);
 
-  const ctx: AppCtx = { repo, user, profile, places, reports, now, pos, setPos, openPlace, toast, radiusM, setRadiusM, openOnly, setOpenOnly };
+  const ctx: AppCtx = {
+    repo, user, profile, places, reports, now, pos, setPos, openPlace, toast, radiusM, setRadiusM, openOnly, setOpenOnly,
+    owners, promotions, livePromos, myClaims, openClaim,
+  };
   const timeLabel = sim ? `${DAY_NAMES[sim.day - 1]} ${sim.time}` : null;
 
   const highlight = useMemo(() => {
@@ -234,10 +261,34 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
                 <strong>{user.displayName}</strong>
                 <br />
                 <span className="muted small">
-                  Ízlés: {describeProfile(profile)} · {PRICE_BAND_LABELS[profile.priceBand]}
+                  Ízlés: {describeProfile(profile)}
+                  {describeBudgets(profile) && (
+                    <>
+                      <br />
+                      Keret: {describeBudgets(profile)}
+                    </>
+                  )}
                 </span>
               </p>
               <button onClick={onEditProfile}>Ízlésprofil módosítása</button>
+              <button
+                onClick={() => {
+                  setMenu(false);
+                  setOwnerOpen(true);
+                }}
+              >
+                🏪 Kocsmáros felület{isOwner ? " ✓" : myClaims.some((c) => c.status === "pending") ? " · függőben" : ""}
+              </button>
+              {reviewer && (
+                <button
+                  onClick={() => {
+                    setMenu(false);
+                    setReviewOpen(true);
+                  }}
+                >
+                  🛡️ {reviewer.label}
+                </button>
+              )}
               {repo.reset && (
                 <button
                   onClick={async () => {
@@ -342,6 +393,11 @@ function Main({ repo, user, profile, onEditProfile }: { repo: Repo; user: AppUse
 
         {open && <PlaceSheet place={open} onClose={() => setOpenId(null)} />}
         {draft && <PlaceEditor place={draft} onClose={() => setDraft(null)} />}
+        {claimPlaceId && places.find((p) => p.id === claimPlaceId) && (
+          <ClaimFlow place={places.find((p) => p.id === claimPlaceId)!} myClaims={myClaims} onClose={() => setClaimPlaceId(null)} />
+        )}
+        {ownerOpen && <OwnerDashboard myClaims={myClaims} onClose={() => setOwnerOpen(false)} />}
+        {reviewOpen && reviewer && <ReviewPanel api={reviewer} onClose={() => setReviewOpen(false)} />}
         {toastMsg && <div className="toast">{toastMsg}</div>}
       </div>
     </Ctx.Provider>

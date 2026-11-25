@@ -114,7 +114,7 @@ describe("bejelentések", () => {
 describe("MatchScore", () => {
   const places = seedPlaces();
   it("olcsó sörös profilnak a söröző jobban passzol, mint a koktélbár", () => {
-    const profile = { version: 2 as const, categories: ["beer" as const], prefs: {}, priceBand: "budget" as const, completedAt: 0 };
+    const profile = { version: 3 as const, categories: ["beer" as const], prefs: {}, budgets: { beer: 800 }, completedAt: 0 };
     const soror = matchScore(places.find((p) => p.id === "p5")!, profile, fri(20));
     const bar = matchScore(places.find((p) => p.id === "p8")!, profile, fri(20));
     expect(soror).toBeGreaterThan(bar);

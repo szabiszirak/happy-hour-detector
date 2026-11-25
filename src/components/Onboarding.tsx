@@ -1,8 +1,9 @@
 import { useState } from "react";
-import type { PriceBand, TasteProfile } from "../domain/types";
-import { PRICE_BAND_LABELS } from "../domain/types";
+import type { CategoryBudgets, TasteProfile } from "../domain/types";
 import { normalizePrefs } from "../domain/tasteProfile";
+import { normalizeBudgets } from "../domain/priceBudget";
 import { TastePicker, type TasteValue } from "./TastePicker";
+import { BudgetPicker } from "./BudgetPicker";
 
 export function LoginScreen({ mode, onLogin }: { mode: "demo" | "firebase"; onLogin: (demoName?: string) => Promise<void> }) {
   const [name, setName] = useState("");
@@ -68,15 +69,16 @@ export function Onboarding({
 }) {
   const [step, setStep] = useState<1 | 2>(1);
   const [taste, setTaste] = useState<TasteValue>({ categories: initial?.categories ?? [], prefs: initial?.prefs ?? {} });
+  const [budgets, setBudgets] = useState<CategoryBudgets>(initial?.budgets ?? {});
   const [busy, setBusy] = useState(false);
 
-  const finish = async (band: PriceBand) => {
+  const finish = async () => {
     setBusy(true);
     await onDone({
-      version: 2,
+      version: 3,
       categories: taste.categories,
       prefs: normalizePrefs(taste.categories, taste.prefs),
-      priceBand: band,
+      budgets: normalizeBudgets(taste.categories, budgets),
       completedAt: Date.now(),
     });
   };
@@ -105,15 +107,12 @@ export function Onboarding({
           </>
         ) : (
           <>
-            <h2>Mennyit adnál maximum egy korsóért?</h2>
-            <div className="band-list">
-              {(Object.keys(PRICE_BAND_LABELS) as PriceBand[]).map((b) => (
-                <button key={b} className={`band ${initial?.priceBand === b ? "current" : ""}`} disabled={busy} onClick={() => finish(b)}>
-                  <span className="emoji">{b === "budget" ? "🪙" : b === "mid" ? "⚖️" : "💎"}</span>
-                  {PRICE_BAND_LABELS[b]}
-                </button>
-              ))}
-            </div>
+            <h2>Mennyit fizetnél szívesen?</h2>
+            <p className="muted small">Csak a kiválasztott italaidra. Ehhez mérjük, mennyire passzol hozzád egy hely és egy ajánlat.</p>
+            <BudgetPicker categories={taste.categories} value={budgets} onChange={setBudgets} />
+            <button className="btn primary" disabled={busy} onClick={finish}>
+              {busy ? "Mentés…" : "Kész"}
+            </button>
             <button className="btn ghost" onClick={() => setStep(1)}>
               Vissza
             </button>

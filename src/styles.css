@@ -144,7 +144,6 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-tex
   border: 5px solid transparent; border-top-color: inherit; border-bottom: 0; }
 .pin-active { background: var(--hh); color: var(--on-accent); border-color: #FDA4AF; }
 .pin-upcoming { background: #241A4A; color: #DDD6FE; border-color: var(--primary-text); }
-.pin-sponsored { outline: 2px dashed var(--warn); outline-offset: 2px; }
 .pin-dim { opacity: 0.35; }
 .pin-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--on-accent); animation: pulse 1.4s infinite; }
 @keyframes pulse { 50% { opacity: 0.2; } }
@@ -293,8 +292,7 @@ table.drinks td.num > * { display: block; }
 .dot-active { background: var(--hh); width: 18px; height: 18px; }
 .dot-open { background: var(--ok); }
 .dot-closed { background: var(--closed); }
-.dot.pin-sponsored { outline: 2px dashed var(--warn); outline-offset: 2px; }
-.pin-open { background: #0F2E2B; color: #CCFBF1; border-color: var(--ok); }
+.dot.pin-open { background: #0F2E2B; color: #CCFBF1; border-color: var(--ok); }
 .pin-closed { background: var(--card2); color: var(--text); border-color: var(--closed); }
 .leaflet-tooltip.pin-label { background: var(--bg2); color: var(--text); border: 1px solid var(--line); font-weight: 600; font-size: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); }
@@ -442,3 +440,85 @@ table.drinks td.num > * { display: block; }
 .band.current { border-color: var(--primary-text); }
 .onb-overlay { position: fixed; inset: 0; z-index: 4000; overflow-y: auto; background: rgba(11, 13, 23, 0.82); backdrop-filter: blur(3px); }
 .onb-overlay .onb { background: none; min-height: 100%; }
+
+/* ---------- árkeret (ízlésprofil 2. lépés) ---------- */
+.budget-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.budget-row { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.budget-row header { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+.budget-row header .emoji { font-size: 22px; }
+.budget-row header div { display: flex; flex-direction: column; }
+.budget-row .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ---------- kocsmáros profil ---------- */
+.verified-badge { display: inline-block; font-size: 11px; font-weight: 800; color: var(--on-accent); background: var(--ok); border-radius: 999px; padding: 2px 9px; margin-bottom: 4px; }
+.tag-verified { font-size: 11px; font-weight: 700; color: var(--ok); border: 1px solid rgba(45, 212, 191, 0.5); border-radius: 999px; padding: 1px 7px; }
+.block { display: block; }
+.field.invalid input, .field.invalid textarea { border-color: var(--danger); }
+.field-err { font-style: normal; font-size: 12.5px; color: var(--danger); }
+.field-ok { font-style: normal; font-size: 12.5px; color: var(--ok); }
+.claim-steps { list-style: none; display: flex; gap: 6px; padding: 0; margin: 4px 0 8px; }
+.claim-steps li { flex: 1; display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); padding: 6px 8px; border-radius: 10px; background: var(--card); }
+.claim-steps li span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--card2); font-weight: 800; flex: none; }
+.claim-steps li.on { color: var(--text); outline: 1px solid var(--primary-text); }
+.claim-steps li.on span { background: var(--primary); color: #fff; }
+.claim-steps li.done span { background: var(--ok); color: var(--on-accent); }
+@media (max-width: 520px) {
+  .claim-steps li { font-size: 0; gap: 0; justify-content: center; flex: 0 0 auto; }
+  .claim-steps li.on { font-size: 12px; gap: 6px; flex: 1; }
+  .claim-steps li span { font-size: 12px; }
+}
+.upload-row { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 8px 0; }
+.upload-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.doc-list { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.doc-list li { display: flex; align-items: center; gap: 10px; }
+.doc-list img, .doc-icon { width: 52px; height: 52px; object-fit: cover; border-radius: 8px; flex: none; }
+.doc-list.compact img, .doc-list.compact .doc-icon { width: 36px; height: 36px; }
+.doc-icon { display: grid; place-items: center; background: var(--card2); color: var(--muted); font-size: 11px; font-weight: 800; }
+.doc-name { flex: 1; min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+.claim-status { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.claim-status.pending { color: var(--warn); background: var(--warn-soft); }
+.claim-status.verified { color: var(--on-accent); background: var(--ok); }
+.claim-status.rejected { color: var(--on-accent); background: var(--danger); }
+.claim-status.withdrawn, .claim-status.uploaded { color: var(--muted); background: var(--card2); }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; margin: 14px 0; }
+.consent input { margin-top: 3px; accent-color: var(--primary); }
+.claim-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.claim-row { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.claim-row-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.owner-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 10px 0; }
+.owner-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.owner-card-head h3 { margin: 0; }
+.owner-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.promo-box { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
+.promo-box h4 { display: flex; gap: 8px; align-items: center; margin: 0 0 6px; }
+.promo-list { list-style: none; padding: 0; margin: 8px 0; display: flex; flex-direction: column; gap: 6px; }
+.promo-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; background: var(--card2); border-radius: 10px; padding: 8px 10px; }
+.promo-list li > div { flex: 1 1 220px; min-width: 0; }
+.promo-list li.ended { opacity: 0.6; }
+.promo-state { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 2px 8px; color: var(--muted); background: var(--bg); white-space: nowrap; }
+.promo-state.active { color: var(--on-accent); background: var(--ok); }
+.promo-state.requested { color: var(--warn); background: var(--warn-soft); }
+.promo-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.promo-form select:first-child, .promo-form input { grid-column: 1 / -1; }
+.mini.ok { border-color: var(--ok); color: var(--ok); }
+.review-card { margin: 10px 0; }
+.review-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.review-actions input { flex: 1; min-width: 140px; }
+.photo-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.photo-grid figure { position: relative; margin: 0; }
+.photo-grid img { width: 88px; height: 88px; object-fit: cover; border-radius: 10px; display: block; }
+.photo-grid .icon-btn { position: absolute; top: 2px; right: 2px; background: rgba(11, 13, 23, 0.75); border-radius: 50%; font-size: 13px; padding: 2px 6px; }
+.photo-add { width: 88px; height: 88px; border-radius: 10px; border: 1px dashed var(--line); background: var(--card); color: var(--muted); }
+.photo-strip { display: flex; gap: 8px; overflow-x: auto; margin: 10px 0; }
+.photo-strip img { height: 120px; border-radius: 12px; flex: none; }
+.place-desc { margin: 8px 0; font-size: 14px; }
+
+/* ---------- fizetős ital-kiemelés ---------- */
+.sponsored-offers { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; padding: 8px; border: 1px dashed rgba(251, 191, 36, 0.45); border-radius: var(--radius); background: var(--warn-soft); }
+.offer.sponsored { background: var(--card); }
+.offer.sponsored .tag-sponsored { align-self: center; }
+tr.promoted td { background: var(--warn-soft); }
+tr.promoted .tag-sponsored { display: inline-block; margin-bottom: 2px; }
+.promo-tagline { display: block; font-size: 12.5px; color: var(--warn); }
+.budget-ok { align-self: flex-start; display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--ok); border: 1px solid rgba(45, 212, 191, 0.45); border-radius: 999px; padding: 0 6px; margin-top: 2px; }
+.onb-card .btn.ghost { margin-top: 10px; }

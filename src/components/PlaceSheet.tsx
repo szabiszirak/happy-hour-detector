@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useApp } from "../context";
 import { distanceM, formatDistance, walkMinutes } from "../domain/geo";
 import { describeDays, formatMinutes, happyHourStatus, slotMinutesLeft } from "../domain/happyHour";
-import { currentPrice, formatFt, formatVolume, pricePerLiter } from "../domain/pricing";
+import { currentPrice, formatFt, formatVolume, orderPlaceMenu, pricePerLiter } from "../domain/pricing";
+import { canEditPlaceDetails, drinkConfirmation, isVerifiedOwner } from "../domain/ownership";
+import { withinBudget } from "../domain/priceBudget";
 import { extractPrice, REPORT_STATUS_LABELS, REPORT_TTL_MS, reportStatus, timeAgo } from "../domain/reports";
 import { matchScore } from "../domain/match";
 import { STYLE_LABELS, VIBE_LABELS, type Place } from "../domain/types";
@@ -11,7 +13,7 @@ import { formatOpeningHours, openState } from "../domain/openingHours";
 import { kindLabel, OpenBadge } from "./Lists";
 
 export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => void }) {
-  const { repo, user, profile, reports, now, pos, toast } = useApp();
+  const { repo, user, profile, reports, now, pos, toast, owners, livePromos, myClaims, openClaim } = useApp();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState("");
   const [drinkId, setDrinkId] = useState("");
@@ -20,12 +22,16 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
   const match = matchScore(place, profile, now);
   const t = Date.now(); // bejelentések, megerősítések: valós idő
   const placeReports = reports.filter((r) => r.placeId === place.id).sort((a, b) => b.createdAt - a.createdAt);
-  const sponsored = place.sponsored && place.sponsored.until > now.getTime();
+  const owner = owners[place.id];
+  const iAmOwner = isVerifiedOwner(user.uid, place.id, owners);
+  const canEdit = canEditPlaceDetails(user.uid, place.id, owners);
+  const myPending = myClaims.some((c) => c.placeId === place.id && c.status === "pending");
+  const menu = orderPlaceMenu(place, livePromos);
   const mapsUrl = place.googlePlaceId
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.googlePlaceId}`
     : `https://www.google.com/maps/search/?api=1&query=${place.location.lat},${place.location.lng}`;
 
-  if (editing) return <PlaceEditor place={place} onClose={() => setEditing(false)} />;
+  if (editing) return <PlaceEditor place={place} ownerMode={iAmOwner} onClose={() => setEditing(false)} />;
 
   const submitReport = async () => {
     const clean = text.trim();
@@ -53,7 +59,7 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
       <div className="sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={place.name}>
         <div className="sheet-head">
           <div>
-            {sponsored && <span className="tag-sponsored">Szponzorált</span>}
+            {owner && <span className="verified-badge">✓ Kocsmáros által ellenőrzött</span>}
             <h2>{place.name}</h2>
             <p className="muted small">
               {place.address} · {formatDistance(dist)} · {walkMinutes(dist)} perc séta
@@ -76,7 +82,14 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
             </span>
           ))}
         </div>
-        {sponsored && <p className="sponsored-line">{place.sponsored!.tagline}</p>}
+        {place.description && <p className="place-desc">{place.description}</p>}
+        {place.photos && place.photos.length > 0 && (
+          <div className="photo-strip">
+            {place.photos.map((ph) => (
+              <img key={ph.id} src={ph.url} alt={`${place.name} – fotó`} loading="lazy" />
+            ))}
+          </div>
+        )}
 
         <dl className="facts">
           {place.info?.openingHours && (
@@ -112,7 +125,7 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
             )}
           </dd>
         </dl>
-        {place.info?.checkNeeded && (
+        {place.info?.checkNeeded && !owner && (
           <p className="check-note">
             ⚠️ Ellenőrizendő: webes forrásból vagy étterem/kávézóként van nyilvántartva. Ha jártál itt, erősítsd meg, hogy kocsmaként működik!
           </p>
@@ -122,7 +135,11 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
           <h3 className="sec">Happy Hour</h3>
           {st.kind === "active" && <div className="hh-live">🍻 Most zajlik · még {formatMinutes(st.minutesLeft)}</div>}
           {st.kind === "upcoming" && <div className="hh-soon">⏳ {formatMinutes(st.minutesUntil)} múlva indul</div>}
-          {place.happyHours.length === 0 && <p className="empty">Nincs megadott happy hour. Tudsz róla? Szerkeszd!</p>}
+          {place.happyHours.length === 0 && (
+            <p className="empty">
+              {owner ? (iAmOwner ? "Még nem adtál meg happy hourt – a Szerkesztés gombbal felviheted." : "A kocsmáros még nem adott meg happy hourt.") : "Nincs megadott happy hour. Tudsz róla? Szerkeszd!"}
+            </p>
+          )}
           <ul className="slots">
             {place.happyHours.map((h) => (
               <li key={h.id} className={slotMinutesLeft(h, now) !== null ? "live" : ""}>
@@ -142,16 +159,21 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
           )}
           <table className="drinks">
             <tbody>
-              {place.drinks.map((d) => {
+              {menu.map(({ drink: d, promo }) => {
                 const cp = currentPrice(d, place, now);
+                const conf = drinkConfirmation(place, d);
+                const fits = withinBudget(d, cp.price, profile);
                 return (
-                  <tr key={d.id}>
+                  <tr key={d.id} className={promo ? "promoted" : ""}>
                     <td>
+                      {promo && <span className="tag-sponsored">Szponzorált</span>}
                       <strong>{d.name}</strong>
+                      {promo?.tagline && <span className="promo-tagline">{promo.tagline}</span>}
                       <span className="muted small">
                         {STYLE_LABELS[d.style]} · {formatVolume(d.volumeL)}
-                        {d.lastConfirmedAt ? ` · ✔ ${timeAgo(d.lastConfirmedAt, t)} megerősítve` : ""}
+                        {conf.lastAt ? ` · ✔ ${timeAgo(conf.lastAt, t)} megerősítve` : ""}
                       </span>
+                      {fits === true && <span className="budget-ok">keretben</span>}
                     </td>
                     <td className="num">
                       <strong className={cp.isHH ? "hh-price" : ""}>{formatFt(cp.price)}</strong>
@@ -176,7 +198,13 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
               })}
             </tbody>
           </table>
-          <p className="muted small">Változott az ár vagy hiányzik egy ital? A Szerkesztés gombbal bárki javíthatja.</p>
+          <p className="muted small">
+            {owner
+              ? iAmOwner
+                ? "A te helyed: az itallapot a Szerkesztés gombbal frissítheted."
+                : "Az itallapot a kocsmáros kezeli. Változott az ár? Jelezd bejelentéssel, vagy erősítsd meg, ha stimmel."
+              : "Változott az ár vagy hiányzik egy ital? A Szerkesztés gombbal bárki javíthatja."}
+          </p>
         </section>
 
         <section>
@@ -241,9 +269,16 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
         </section>
 
         <div className="sheet-actions">
-          <button className="btn" onClick={() => setEditing(true)}>
-            ✏️ Szerkesztés
-          </button>
+          {canEdit && (
+            <button className="btn" onClick={() => setEditing(true)}>
+              ✏️ Szerkesztés
+            </button>
+          )}
+          {!owner && (
+            <button className="btn ghost" disabled={myPending} onClick={() => openClaim(place.id)}>
+              {myPending ? "🏪 Igénylésed függőben" : "🏪 Ez az én helyem"}
+            </button>
+          )}
           <a className="btn ghost" href={mapsUrl} target="_blank" rel="noreferrer">
             Útvonal (Google Térkép)
           </a>
