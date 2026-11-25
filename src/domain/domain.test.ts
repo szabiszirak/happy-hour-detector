@@ -191,3 +191,21 @@ describe("helymeghatározás", () => {
     expect(classifyError(3).kind).toBe("unavailable");
   });
 });
+
+import { groupNearby } from "./geo";
+
+describe("egymáshoz közeli helyek csoportosítása", () => {
+  it("azonos címen lévő kocsmák egy csoportba kerülnek", () => {
+    const groups = groupNearby(realPlaces(), 25);
+    const names = (n: string) => groups.find((g) => g.some((p) => p.name === n))!.map((p) => p.name);
+    expect(names("Jaffa")).toContain("Bar Oriental");
+    expect(names("Gravity")).toContain("Szamárpad");
+    expect(names("Harat's Pub")).toHaveLength(1);
+  });
+  it("minden hely pontosan egy csoportban van", () => {
+    const ps = realPlaces();
+    const groups = groupNearby(ps, 25);
+    expect(groups.flat().length).toBe(ps.length);
+    expect(new Set(groups.flat().map((p) => p.id)).size).toBe(ps.length);
+  });
+});

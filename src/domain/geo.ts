@@ -52,3 +52,31 @@ export function formatDistance(m: number): string {
 export function walkMinutes(m: number): number {
   return Math.max(1, Math.round(m / 80));
 }
+
+/**
+ * Egymáshoz nagyon közeli helyek csoportosítása (pl. azonos címen két kocsma),
+ * hogy a térképen ne csússzanak egymásra. Egyszerű, sorrendfüggetlen láncolás:
+ * két hely egy csoportba kerül, ha `radiusM` méteren belül vannak (közvetve is).
+ */
+export function groupNearby<T extends { id: string; location: LatLng }>(items: T[], radiusM = 25): T[][] {
+  const parent = items.map((_, i) => i);
+  const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+  for (let i = 0; i < items.length; i++)
+    for (let j = i + 1; j < items.length; j++)
+      if (distanceM(items[i].location, items[j].location) <= radiusM) parent[find(i)] = find(j);
+  const groups = new Map<number, T[]>();
+  items.forEach((it, i) => {
+    const r = find(i);
+    groups.set(r, [...(groups.get(r) ?? []), it]);
+  });
+  // csoporton belül észak→dél sorrend, hogy a feliratok listája a térképhez illeszkedjen
+  return [...groups.values()].map((g) => g.sort((a, b) => b.location.lat - a.location.lat));
+}
+
+/** Egy csoport középpontja. */
+export function centroid(points: LatLng[]): LatLng {
+  return {
+    lat: points.reduce((s, p) => s + p.lat, 0) / points.length,
+    lng: points.reduce((s, p) => s + p.lng, 0) / points.length,
+  };
+}

@@ -312,3 +312,23 @@ table.drinks td.num > * { display: block; }
   font-size: 11.5px; font-weight: 700; color: #f4ece4; text-shadow: 0 0 3px #000, 0 0 6px #000; pointer-events: none; }
 .zoom-names .dot-name { display: block; }
 .map-note { bottom: 22px; left: auto; right: 54px; }
+
+/* ---------- egymáshoz közeli helyek csoportja ---------- */
+.dot-group { width: 18px; height: 18px; display: grid; place-items: center; }
+.dot-count { font-size: 10.5px; font-weight: 800; color: #15100d; line-height: 1; }
+.dot-names { display: none; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); flex-direction: column; gap: 3px; }
+.zoom-names .dot-names { display: flex; }
+.dot-name-item { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; font-size: 11.5px; font-weight: 700;
+  color: #f4ece4; text-shadow: 0 0 3px #000, 0 0 6px #000; cursor: pointer; pointer-events: auto; }
+.dot-name-item:hover { color: var(--amber); }
+.mini-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; border: 1px solid #15100d; flex: none; }
+.mini-active { background: var(--amber); }
+.mini-open { background: var(--green); }
+.mini-closed { background: #8a7f76; }
+.group-popup .leaflet-popup-content-wrapper { background: var(--bg2); color: var(--text); border: 1px solid var(--line); border-radius: 12px; }
+.group-popup .leaflet-popup-tip { background: var(--bg2); }
+.group-popup .leaflet-popup-content { margin: 6px; }
+.group-chooser { display: flex; flex-direction: column; gap: 2px; }
+.group-chooser button { display: flex; align-items: center; gap: 8px; background: none; border: none; color: var(--text);
+  font-weight: 600; font-size: 13.5px; padding: 7px 10px; border-radius: 8px; text-align: left; }
+.group-chooser button:hover { background: var(--card); }

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useApp } from "../context";
-import { MVP_CORNERS, MVP_POLYGON } from "../domain/geo";
+import { centroid, groupNearby, MVP_CORNERS, MVP_POLYGON } from "../domain/geo";
+import type { Place } from "../domain/types";
 import { happyHourStatus } from "../domain/happyHour";
 import { cheapestBeer, formatFt } from "../domain/pricing";
 import { openState } from "../domain/openingHours";
@@ -78,21 +79,70 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
     const g = markers.current;
     if (!g) return;
     g.clearLayers();
-    for (const p of places) {
+    const stateOf = (p: Place) => {
       const hh = happyHourStatus(p, now).kind;
       const open = openState(p.info?.openingHours, now).kind;
-      const beer = cheapestBeer(p, now);
-      const dim = highlightIds && !highlightIds.has(p.id);
-      const state = hh === "active" ? "active" : open === "open" ? "open" : "closed";
-      const sponsored = p.sponsored && p.sponsored.until > now.getTime() ? " pin-sponsored" : "";
-      // Ár csak akkor kerül a jelölőre, ha van adat; különben kis pötty a hely állapotának színével.
-      const html = beer
-        ? `<div class="pin pin-${state}${sponsored}${dim ? " pin-dim" : ""}">${state === "active" ? "<span class='pin-dot'></span>" : ""}${formatFt(beer.price).replace(" Ft", "")}</div>`
-        : `<div class="dot dot-${state}${sponsored}${dim ? " pin-dim" : ""}"><span class="dot-name">${escapeHtml(p.name)}</span></div>`;
+      return hh === "active" ? "active" : open === "open" ? "open" : "closed";
+    };
+    const RANK = { active: 2, open: 1, closed: 0 } as const;
+
+    // Az egymáshoz nagyon közeli helyek (pl. azonos cím) egy jelölőt kapnak, a nevek egymás alatt.
+    for (const group of groupNearby(places, 25)) {
+      if (group.length === 1) {
+        const p = group[0];
+        const state = stateOf(p);
+        const beer = cheapestBeer(p, now);
+        const dim = highlightIds && !highlightIds.has(p.id);
+        const sponsored = p.sponsored && p.sponsored.until > now.getTime() ? " pin-sponsored" : "";
+        // Ár csak akkor kerül a jelölőre, ha van adat; különben kis pötty a hely állapotának színével.
+        const html = beer
+          ? `<div class="pin pin-${state}${sponsored}${dim ? " pin-dim" : ""}">${state === "active" ? "<span class='pin-dot'></span>" : ""}${formatFt(beer.price).replace(" Ft", "")}</div>`
+          : `<div class="dot dot-${state}${sponsored}${dim ? " pin-dim" : ""}"><span class="dot-name">${escapeHtml(p.name)}</span></div>`;
+        const icon = L.divIcon({ className: "", html, iconSize: [0, 0] });
+        L.marker([p.location.lat, p.location.lng], { icon, title: p.name, zIndexOffset: RANK[state] * 250 })
+          .bindTooltip(p.name, { direction: "top", offset: [0, beer ? -26 : -8], className: "pin-label" })
+          .on("click", () => openPlace(p.id))
+          .addTo(g);
+        continue;
+      }
+
+      const states = group.map(stateOf);
+      const best = states.reduce((a, b) => (RANK[b] > RANK[a] ? b : a));
+      const dim = highlightIds && group.every((p) => !highlightIds.has(p.id));
+      const items = group
+        .map((p, i) => {
+          const beer = cheapestBeer(p, now);
+          const price = beer ? ` · ${formatFt(beer.price)}` : "";
+          return `<span class="dot-name-item" data-id="${escapeHtml(p.id)}"><i class="mini-dot mini-${states[i]}"></i>${escapeHtml(p.name)}${price}</span>`;
+        })
+        .join("");
+      const html = `<div class="dot dot-${best} dot-group${dim ? " pin-dim" : ""}"><span class="dot-count">${group.length}</span><span class="dot-names">${items}</span></div>`;
+      const at = centroid(group.map((p) => p.location));
       const icon = L.divIcon({ className: "", html, iconSize: [0, 0] });
-      L.marker([p.location.lat, p.location.lng], { icon, title: p.name, zIndexOffset: state === "active" ? 500 : state === "open" ? 200 : 0 })
-        .bindTooltip(p.name, { direction: "top", offset: [0, beer ? -26 : -8], className: "pin-label" })
-        .on("click", () => openPlace(p.id))
+
+      // Kis nagyításon a csoportra koppintva választó jön fel; nagyban a nevekre lehet koppintani.
+      const chooser = document.createElement("div");
+      chooser.className = "group-chooser";
+      group.forEach((p, i) => {
+        const b = document.createElement("button");
+        b.innerHTML = `<i class="mini-dot mini-${states[i]}"></i>${escapeHtml(p.name)}`;
+        b.onclick = () => {
+          m.closePopup();
+          openPlace(p.id);
+        };
+        chooser.appendChild(b);
+      });
+      const m = map.current!;
+      L.marker([at.lat, at.lng], { icon, title: group.map((p) => p.name).join(" · "), zIndexOffset: RANK[best] * 250 + 100 })
+        .bindTooltip(group.map((p) => p.name).join(" · "), { direction: "top", offset: [0, -10], className: "pin-label" })
+        .bindPopup(chooser, { closeButton: false, className: "group-popup", offset: [0, -6] })
+        .on("click", (e: L.LeafletMouseEvent) => {
+          const hit = (e.originalEvent.target as HTMLElement | null)?.closest?.("[data-id]") as HTMLElement | null;
+          if (hit?.dataset.id) {
+            e.target.closePopup();
+            openPlace(hit.dataset.id);
+          }
+        })
         .addTo(g);
     }
   }, [places, now, highlightIds, openPlace]);
