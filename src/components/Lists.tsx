@@ -6,7 +6,9 @@ import { cheapestBeer, formatFt, formatVolume } from "../domain/pricing";
 import { reportStatus, timeAgo } from "../domain/reports";
 import { activeSponsored, happyHourList, searchDrinks, type DrinkFilter, type SortKey } from "../domain/search";
 import { matchScore } from "../domain/match";
-import { STYLE_LABELS, type DrinkStyle, type Place } from "../domain/types";
+import type { Place } from "../domain/types";
+import { CategoryFilter, selectionLabel, BrandIcon } from "./DrinkFilters";
+import { brandBadge, canonicalBrand } from "../domain/drinkCatalog";
 import { openState, type OpenState } from "../domain/openingHours";
 import { distanceM } from "../domain/geo";
 
@@ -145,7 +147,6 @@ function HHCard({
   );
 }
 
-const STYLE_CHIPS: DrinkStyle[] = ["pilsner", "lager", "ipa", "wheat", "dark", "spritzer", "wine", "longdrink", "shot", "nonalcoholic"];
 const DIST_OPTIONS = [
   { v: 500, l: "500 m" },
   { v: 1000, l: "1 km" },
@@ -162,8 +163,8 @@ const SORTS: { v: SortKey; l: string }[] = [
 export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilter: (f: DrinkFilter) => void }) {
   const { places, now, pos, profile, openPlace } = useApp();
   const res = useMemo(() => searchDrinks(places, filter, pos, now, profile), [places, filter, pos, now, profile]);
-  const toggleStyle = (s: DrinkStyle) =>
-    setFilter({ ...filter, styles: filter.styles.includes(s) ? filter.styles.filter((x) => x !== s) : [...filter.styles, s] });
+  const anyPrice = places.some((p) => p.drinks.length > 0);
+  const sel = selectionLabel(filter, places);
 
   return (
     <div className="tab-body">
@@ -174,13 +175,7 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
           value={filter.brandQuery}
           onChange={(e) => setFilter({ ...filter, brandQuery: e.target.value })}
         />
-        <div className="chips scroll">
-          {STYLE_CHIPS.map((s) => (
-            <button key={s} className={`chip ${filter.styles.includes(s) ? "on" : ""}`} onClick={() => toggleStyle(s)}>
-              {STYLE_LABELS[s]}
-            </button>
-          ))}
-        </div>
+        <CategoryFilter places={places} filter={filter} setFilter={setFilter} />
         <div className="filter-row">
           <label>
             Max. ár
@@ -229,7 +224,7 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
       <p className="muted small result-count">
         {res.length} találat · organikus sorrend, fizetéssel nem befolyásolható
       </p>
-      {res.length === 0 && !places.some((p) => p.drinks.length > 0) && (
+      {res.length === 0 && !anyPrice && (
         <div className="empty-card">
           <strong>Még nincsenek árak.</strong>
           <span>
@@ -238,14 +233,18 @@ export function DrinksTab({ filter, setFilter }: { filter: DrinkFilter; setFilte
           </span>
         </div>
       )}
-      {res.length === 0 && places.some((p) => p.drinks.length > 0) && (
-        <p className="empty">Nincs találat ezekkel a szűrőkkel. Lazíts egy kicsit a feltételeken!</p>
+      {res.length === 0 && anyPrice && (
+        <p className="empty">
+          {sel ? `Ebben a választásban (${sel}) még nincs ár, vagy a többi szűrő kizárja.` : "Nincs találat ezekkel a szűrőkkel."} Lazíts
+          egy kicsit a feltételeken!
+        </p>
       )}
       <ol className="offers">
         {res.slice(0, 60).map((o, i) => (
           <li key={`${o.place.id}-${o.drink.id}`}>
             <button className="offer" onClick={() => openPlace(o.place.id)}>
               <span className="rank">{i + 1}</span>
+              {o.drink.brand && <BrandIcon badge={brandBadge(canonicalBrand(o.drink.brand))} size={28} />}
               <span className="offer-main">
                 <strong>{o.drink.name}</strong>
                 <span className="muted small">

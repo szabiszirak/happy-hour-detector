@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useApp } from "../context";
+import { brandSuggestions, canonicalBrand, CATEGORY_OF, CATEGORY_ORDER } from "../domain/drinkCatalog";
 import { STYLE_LABELS, VIBE_LABELS, type Drink, type DrinkStyle, type HappyHourSlot, type Place, type Vibe } from "../domain/types";
 
 const DAYS = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
@@ -42,6 +43,8 @@ export function PlaceEditor({ place, onClose }: { place: Place; onClose: () => v
     const drinks = p.drinks.map((d) => {
       const old = place.drinks.find((o) => o.id === d.id);
       const changed = !old || old.price !== d.price || old.hhPrice !== d.hhPrice;
+      const brand = d.brand?.trim() ? canonicalBrand(d.brand) : undefined;
+      d = { ...d, brand };
       return changed ? { ...d, updatedAt: Date.now(), updatedBy: user.displayName, lastConfirmedAt: undefined, confirmCount: 0 } : d;
     });
     await repo.savePlace(JSON.parse(JSON.stringify({ ...p, name: p.name.trim(), drinks })), user);
@@ -130,6 +133,16 @@ export function PlaceEditor({ place, onClose }: { place: Place; onClose: () => v
               </select>
             </div>
             <div className="row">
+              <input
+                className="brand-input"
+                value={d.brand ?? ""}
+                placeholder="Márka (pl. Dreher) – nem kötelező"
+                list={`brands-${CATEGORY_OF[d.style]}`}
+                aria-label="Márka"
+                onChange={(e) => setDrink(d.id, { brand: e.target.value === "" ? undefined : e.target.value })}
+              />
+            </div>
+            <div className="row">
               <label className="inline">
                 Liter
                 <input type="number" step="0.01" min="0.01" value={d.volumeL} onChange={(e) => setDrink(d.id, { volumeL: Number(e.target.value) })} />
@@ -162,6 +175,13 @@ export function PlaceEditor({ place, onClose }: { place: Place; onClose: () => v
           + Ital
         </button>
 
+        {CATEGORY_ORDER.map((c) => (
+          <datalist key={c} id={`brands-${c}`}>
+            {brandSuggestions(c).map((b) => (
+              <option key={b} value={b} />
+            ))}
+          </datalist>
+        ))}
         {err && <p className="error">{err}</p>}
         <div className="sheet-actions sticky">
           <button className="btn ghost" onClick={onClose}>

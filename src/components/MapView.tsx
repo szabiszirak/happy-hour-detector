@@ -12,7 +12,8 @@ import { addBaseLayer, type BaseKind } from "./baseLayer";
 /** Ettől a nagyítástól a kocsmák neve is kiíródik a jelölők mellé. */
 const NAME_ZOOM = 17;
 
-export const MARKER_COLORS = { active: "#f5a623", open: "#5fd38d", closed: "#8a7f76" };
+/** Jelölőszínek – a CSS-változókkal egyezően (--hh, --ok, --closed). */
+export const MARKER_COLORS = { active: "#FB7185", open: "#2DD4BF", closed: "#6B7394" };
 
 interface Props {
   highlightIds?: Set<string>;
@@ -54,10 +55,10 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
 
     L.polygon(
       MVP_POLYGON.map((p) => [p.lat, p.lng] as [number, number]),
-      { color: "#f5a623", weight: 2, dashArray: "6 6", fillColor: "#f5a623", fillOpacity: 0.04, interactive: false },
+      { color: "#A78BFA", weight: 2, dashArray: "6 6", fillColor: "#7C3AED", fillOpacity: 0.06, interactive: false },
     ).addTo(m);
     for (const c of MVP_CORNERS) {
-      L.circleMarker([c.at.lat, c.at.lng], { radius: 3, color: "#f5a623", fillOpacity: 1, interactive: false })
+      L.circleMarker([c.at.lat, c.at.lng], { radius: 3, color: "#A78BFA", fillOpacity: 1, interactive: false })
         .bindTooltip(c.name, { permanent: true, direction: "top", className: "corner-label", offset: [0, -4] })
         .addTo(m);
     }
@@ -156,7 +157,7 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
         radius: 8,
         color: "#fff",
         weight: 3,
-        fillColor: "#3d8bff",
+        fillColor: "#60A5FA",
         fillOpacity: 1,
       })
         .bindTooltip("Itt vagy", { direction: "top", offset: [0, -8] })
@@ -168,9 +169,9 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
       if (!acc.current)
         acc.current = L.circle([pos.lat, pos.lng], {
           radius: accuracy,
-          color: "#3d8bff",
+          color: "#60A5FA",
           weight: 1,
-          fillColor: "#3d8bff",
+          fillColor: "#60A5FA",
           fillOpacity: 0.12,
           interactive: false,
         }).addTo(m);

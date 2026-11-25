@@ -3,11 +3,16 @@ import { distanceM } from "./geo";
 import { currentPrice, pricePerLiter } from "./pricing";
 import { happyHourStatus, type HHStatus } from "./happyHour";
 import { matchScore } from "./match";
+import { matchesSelection, type DrinkCategory } from "./drinkCatalog";
 
 export type SortKey = "perL" | "price" | "distance" | "match";
 
 export interface DrinkFilter {
-  styles: DrinkStyle[]; // üres = mind
+  /** Kiválasztott italkategória (null = mind). */
+  category: DrinkCategory | null;
+  styles: DrinkStyle[]; // üres = mind (a kategórián belül)
+  /** Márkakulcs (brandKey), OTHER_BRAND a márka nélküliekre, null = összes márka. */
+  brand: string | null;
   brandQuery: string; // részszöveg a névben / márkában
   maxPrice?: number; // Ft, a mostani árra
   maxDistanceM?: number;
@@ -16,7 +21,9 @@ export interface DrinkFilter {
 }
 
 export const DEFAULT_FILTER: DrinkFilter = {
+  category: null,
   styles: [],
+  brand: null,
   brandQuery: "",
   maxPrice: undefined,
   maxDistanceM: 2000,
@@ -54,7 +61,7 @@ export function searchDrinks(
     if (filter.hhOnly && !hhActive) continue;
     const match = profile ? matchScore(place, profile, now) : undefined;
     for (const drink of place.drinks) {
-      if (filter.styles.length && !filter.styles.includes(drink.style)) continue;
+      if (!matchesSelection(drink, filter)) continue;
       if (q && !norm(`${drink.name} ${drink.brand ?? ""}`).includes(q)) continue;
       const { price, isHH } = currentPrice(drink, place, now);
       if (filter.maxPrice !== undefined && price > filter.maxPrice) continue;

@@ -25,12 +25,44 @@ const MVP_BOUNDS = L.latLngBounds([47.476, 19.05], [47.494, 19.078]);
  * már 15-ös nagyítástól látszik (az alap 16).
  */
 function readableRules() {
+  // A „dark” stílus szürkéit az app éjszakai indigó palettájához hangoljuk (háttér #0B0D17).
   const flavor = {
     ...namedFlavor("dark"),
-    roads_label_major: "#e6ddd3",
-    roads_label_major_halo: "#15100d",
-    roads_label_minor: "#c9beb2",
-    roads_label_minor_halo: "#15100d",
+    background: "#0B0D17",
+    earth: "#10131F",
+    water: "#1A2140",
+    park_a: "#0F2420",
+    park_b: "#0F2622",
+    wood_a: "#0F1F1D",
+    wood_b: "#0F1F1D",
+    pedestrian: "#141829",
+    buildings: "#171B2E",
+    minor_service: "#20263D",
+    minor_a: "#262D48",
+    minor_b: "#20263D",
+    other: "#20263D",
+    link: "#2B3354",
+    major: "#2B3354",
+    highway: "#343D63",
+    minor_service_casing: "#10131F",
+    minor_casing: "#10131F",
+    link_casing: "#10131F",
+    major_casing_early: "#10131F",
+    major_casing_late: "#10131F",
+    highway_casing_early: "#10131F",
+    highway_casing_late: "#10131F",
+    bridges_minor: "#262D48",
+    bridges_major: "#2B3354",
+    bridges_highway: "#343D63",
+    boundaries: "#4B5578",
+    roads_label_major: "#E4E7F5",
+    roads_label_major_halo: "#0B0D17",
+    roads_label_minor: "#C3C9E0",
+    roads_label_minor_halo: "#0B0D17",
+    city_label: "#9AA3C0",
+    city_label_halo: "#0B0D17",
+    subplace_label: "#8A93B2",
+    subplace_label_halo: "#0B0D17",
   };
   const labels = labelRules(flavor, "hu").map((rule) => {
     if (rule.dataLayer !== "roads" || !(rule.symbolizer instanceof LineLabelSymbolizer)) return rule;
@@ -63,10 +95,10 @@ async function isPmtiles(url: string): Promise<boolean> {
 }
 
 function addSketch(m: L.Map) {
-  L.polygon(DANUBE, { stroke: false, fillColor: "#1f3a4d", fillOpacity: 0.9, interactive: false }).addTo(m);
+  L.polygon(DANUBE, { stroke: false, fillColor: "#1A2140", fillOpacity: 0.95, interactive: false }).addTo(m);
   for (const s of STREETS) {
     L.polyline(s.path, {
-      color: s.kind === "major" ? "#5a4a3e" : s.kind === "bridge" ? "#6d7c87" : "#40352d",
+      color: s.kind === "major" ? "#343D63" : s.kind === "bridge" ? "#4B5578" : "#262D48",
       weight: s.kind === "major" ? 7 : 4,
       lineCap: "round",
       interactive: false,
