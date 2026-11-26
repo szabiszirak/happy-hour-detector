@@ -163,14 +163,20 @@ describe("nyitvatartás (OSM opening_hours)", () => {
 });
 
 describe("valódi helyek", () => {
-  it("33 hely, mind az MVP-négyszögben, árak és HH nélkül", () => {
+  it("33 hely, mind az MVP-négyszögben, érvényes itallap és HH adatokkal", () => {
     const ps = realPlaces();
     expect(ps.length).toBe(33);
+    let withDrinks = 0;
     for (const p of ps) {
       expect(isInsidePolygon(p.location, MVP_POLYGON), p.name).toBe(true);
-      expect(p.drinks).toEqual([]);
       expect(p.sponsored).toBeUndefined();
+      if (p.drinks.length > 0) withDrinks++;
+      for (const d of p.drinks) {
+        expect(d.price).toBeGreaterThan(0);
+        expect(d.volumeL).toBeGreaterThan(0);
+      }
     }
+    expect(withDrinks).toBeGreaterThanOrEqual(4);
   });
 });
 

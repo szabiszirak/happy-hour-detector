@@ -193,6 +193,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-tex
   border: 1px dashed var(--warn); border-radius: var(--radius); padding: 10px 14px; }
 .tag-sponsored { align-self: flex-start; font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--warn); border: 1px solid var(--warn); border-radius: 5px; padding: 1px 5px; margin-bottom: 4px; display: inline-block; }
+.tag-synthetic { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: var(--muted, #b5b0a4);
+  border: 1px dashed var(--line); border-radius: 5px; padding: 1px 5px; margin-left: 6px; display: inline-block; vertical-align: middle; }
 .sponsored-line { color: var(--warn); margin: 4px 0 0; font-size: 13.5px; }
 
 .report-mini { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 2px; background: var(--bg2);

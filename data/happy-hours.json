@@ -1,0 +1,543 @@
+{
+  "osm-node-2766675225": [
+    {
+      "id": "hh-osm-node-2766675225",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "start": "17:00",
+      "end": "19:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-1232883691": [
+    {
+      "id": "hh-osm-node-1232883691",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "17:00",
+      "end": "20:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-7174910272": [
+    {
+      "id": "hh-osm-node-7174910272",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "18:00",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2663224111": [
+    {
+      "id": "hh-osm-node-2663224111",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "start": "20:00",
+      "end": "23:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2508882161": [
+    {
+      "id": "hh-osm-node-2508882161",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "16:00",
+      "end": "19:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2795507925": [
+    {
+      "id": "hh-osm-node-2795507925",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "17:30",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-4290484184": [
+    {
+      "id": "hh-osm-node-4290484184",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "start": "20:00",
+      "end": "23:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2105368169": [
+    {
+      "id": "hh-osm-node-2105368169",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "16:00",
+      "end": "18:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2508882029": [
+    {
+      "id": "hh-osm-node-2508882029",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "17:00",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-7023835994": [
+    {
+      "id": "hh-osm-node-7023835994",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "17:00",
+      "end": "19:00",
+      "note": "10% kedvezmény az italokra 19:00-ig – forrás: blastbeatbar.hu",
+      "isSynthetic": false
+    }
+  ],
+  "osm-node-2615662154": [
+    {
+      "id": "hh-osm-node-2615662154",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "17:00",
+      "end": "20:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2508882042": [
+    {
+      "id": "hh-osm-node-2508882042",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "start": "19:30",
+      "end": "22:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2621456259": [
+    {
+      "id": "hh-osm-node-2621456259",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "16:00",
+      "end": "18:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2663224110": [
+    {
+      "id": "hh-osm-node-2663224110",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "start": "17:00",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2614135660": [
+    {
+      "id": "hh-osm-node-2614135660",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "16:00",
+      "end": "18:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2615662206": [
+    {
+      "id": "hh-osm-node-2615662206",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "17:00",
+      "end": "21:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "web-gosipbar": [
+    {
+      "id": "hh-web-gosipbar",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": "18:00",
+      "end": "20:00",
+      "note": "Napi rotáló italakciók (1+1 koktélok, fröccs, gin-tonik) – forrás: gosipbar.hu",
+      "isSynthetic": false
+    }
+  ],
+  "osm-node-2199373155": [
+    {
+      "id": "hh-osm-node-2199373155",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "16:30",
+      "end": "19:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-11830299332": [
+    {
+      "id": "hh-osm-node-11830299332",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "16:00",
+      "end": "18:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2784876374": [
+    {
+      "id": "hh-osm-node-2784876374",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "16:30",
+      "end": "19:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2325633572": [
+    {
+      "id": "hh-osm-node-2325633572",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "17:30",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "web-jaffa": [
+    {
+      "id": "hh-web-jaffa",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "17:00",
+      "end": "20:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "web-jedermanncafe": [
+    {
+      "id": "hh-web-jedermanncafe",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "17:30",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2508882111": [
+    {
+      "id": "hh-osm-node-2508882111",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "17:30",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-6403982785": [
+    {
+      "id": "hh-osm-node-6403982785",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "16:00",
+      "end": "18:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2787323358": [
+    {
+      "id": "hh-osm-node-2787323358",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "17:00",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2660464815": [
+    {
+      "id": "hh-osm-node-2660464815",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "17:00",
+      "end": "20:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-738753846": [
+    {
+      "id": "hh-osm-node-738753846",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "16:00",
+      "end": "18:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-1624491422": [
+    {
+      "id": "hh-osm-node-1624491422",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "16:00",
+      "end": "19:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "web-puderbarszinhaz": [
+    {
+      "id": "hh-web-puderbarszinhaz",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "18:00",
+      "end": "19:30",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2795507924": [
+    {
+      "id": "hh-osm-node-2795507924",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "start": "17:30",
+      "end": "21:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2617619881": [
+    {
+      "id": "hh-osm-node-2617619881",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "start": "17:00",
+      "end": "20:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ],
+  "osm-node-2766675239": [
+    {
+      "id": "hh-osm-node-2766675239",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "17:30",
+      "end": "21:00",
+      "note": "Becsült idősáv (nem valós adat) – normál eloszlás alapján generálva",
+      "isSynthetic": true
+    }
+  ]
+}

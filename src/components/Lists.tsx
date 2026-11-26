@@ -92,7 +92,10 @@ export function HappyHourTab() {
                 <span className="when">
                   {describeDays(h.days)} {h.start}–{h.end}
                 </span>
-                <span className="where">{p.name}</span>
+                <span className="where">
+                  {p.name}
+                  {h.isSynthetic && <span className="tag-synthetic">Becsült (nem valós adat)</span>}
+                </span>
               </button>
             ))}
         </div>
@@ -120,7 +123,10 @@ function HHCard({
         <strong>{place.name}</strong>
         <MatchBadge place={place} />
       </div>
-      <div className="hh-note">{status.slot.note}</div>
+      <div className="hh-note">
+        {status.slot.isSynthetic && <span className="tag-synthetic">Becsült (nem valós adat)</span>}{" "}
+        {status.slot.note}
+      </div>
       <div className="card-meta">
         {status.kind === "active" ? (
           <span className="countdown">⏱ még {formatMinutes(status.minutesLeft)}</span>
