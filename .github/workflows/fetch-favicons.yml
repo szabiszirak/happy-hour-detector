@@ -25,6 +25,11 @@ permissions:
   contents: write
   actions: write
 
+# egyszerre csak egy futás írhat vissza (különben a második push elutasítva)
+concurrency:
+  group: fetch-favicons
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
@@ -47,6 +52,7 @@ jobs:
             echo "Nincs változás."
           else
             git commit -m "Honlap-ikonok frissítése"
+            git pull --rebase origin main
             git push
             # a bot pusha nem indít új workflow-t, ezért a közzétételt kézzel indítjuk
             gh workflow run deploy-pages.yml --ref main
