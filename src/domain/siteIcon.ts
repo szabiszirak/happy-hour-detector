@@ -20,15 +20,30 @@ export function parseFaviconIndex(raw: unknown): FaviconIndex {
   for (const [id, v] of Object.entries(raw as Record<string, unknown>)) {
     if (id.startsWith("_") || !v || typeof v !== "object") continue;
     const r = v as FaviconRecord;
-    if (r.status === "ok" && isSafeIconUrl(r.file)) out[id] = r;
+    if (r.status === "ok" && isSafeIconUrl(r.file))
+      out[id] = { status: "ok", file: r.file, ...(r.source ? { source: r.source } : {}), ...(typeof r.width === "number" ? { width: r.width } : {}), ...(typeof r.height === "number" ? { height: r.height } : {}) };
     else if (r.status === "disabled" || r.status === "not-found" || r.status === "error") out[id] = { status: r.status };
   }
   return out;
 }
 
 export type PlaceBadge =
-  | { kind: "image"; url: string; source: "owner" | "website"; credit?: string }
+  | { kind: "image"; url: string; source: "owner" | "website"; credit?: string; pixelated?: boolean }
   | { kind: "sparkle" };
+
+/** A forrás rövid neve a feliratban: „berliner.hu” (www nélkül). */
+export function creditHost(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return undefined;
+  }
+}
+
+/** Kis (≤ 32 px) raszteres ikon: nagyításkor pixelesen, élesen rajzoljuk elmosás helyett. */
+export const isSmallIcon = (r: Pick<FaviconRecord, "width" | "file">) =>
+  r.width !== undefined && r.width <= 32 && !(r.file ?? "").endsWith(".svg");
 
 /**
  * Mit mutasson a csempe. A `failed` listában lévő (be nem töltött) képeket átugorja,
@@ -39,6 +54,12 @@ export function resolvePlaceBadge(place: Pick<Place, "id" | "info">, favicons: F
   if (isSafeIconUrl(own) && !failed.includes(own)) return { kind: "image", url: own, source: "owner" };
   const rec = favicons[place.id];
   if (rec?.status === "ok" && isSafeIconUrl(rec.file) && !failed.includes(rec.file))
-    return { kind: "image", url: rec.file, source: "website", ...(rec.source ? { credit: rec.source } : {}) };
+    return {
+      kind: "image",
+      url: rec.file,
+      source: "website",
+      ...(creditHost(rec.source) ? { credit: creditHost(rec.source) } : {}),
+      ...(isSmallIcon(rec) ? { pixelated: true } : {}),
+    };
   return { kind: "sparkle" };
 }

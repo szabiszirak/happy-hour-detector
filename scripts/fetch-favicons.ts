@@ -10,7 +10,14 @@ import { mkdirSync, readFileSync, unlinkSync, writeFileSync, existsSync } from "
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  classifyFetchError,
   extractIconLinks,
+  extractManifestLink,
+  extractMetaRefresh,
+  imageDimensions,
+  manifestIcons,
+  parseWebsiteOverrides,
+  websiteVariants,
   FAVICON_MAX_BYTES,
   faviconFileName,
   normalizeWebsite,
@@ -50,8 +57,10 @@ function loadSites(): Site[] {
   };
   const osm = read("data/places.osm.json") as { id: string; name: string; osm?: { website?: string } }[];
   const web = read("data/places.web.json") as { id?: string; name: string; website?: string }[];
+  // kézzel gondozott honlapok (data/place-websites.json) – ezek felülírják / kiegészítik az OSM-et
+  const curated = parseWebsiteOverrides(read("data/place-websites.json"));
   const all = [
-    ...osm.map((p) => ({ id: p.id, name: p.name, website: p.osm?.website })),
+    ...osm.map((p) => ({ id: p.id, name: p.name, website: curated[p.id] ?? p.osm?.website })),
     // a webes kiegészítések az import után OSM-azonosítót kapnak; itt csak akkor számítanak, ha van saját id-jük
     ...web.filter((p) => p.id).map((p) => ({ id: p.id!, name: p.name, website: p.website })),
   ];
@@ -93,18 +102,52 @@ async function get(url: string, maxBytes: number, accept: string): Promise<{ byt
   }
 }
 
+/** Oldal letöltése: címváltozatok (https/http, www) próbálása, egy HTML-átirányítás (meta refresh) követése. */
+async function getPage(website: string): Promise<{ html: string; finalUrl: string }> {
+  const errors: string[] = [];
+  for (const url of websiteVariants(website)) {
+    try {
+      let page = await get(url, PAGE_MAX_BYTES, "text/html,application/xhtml+xml");
+      let html = new TextDecoder("utf-8", { fatal: false }).decode(page.bytes);
+      const refresh = extractMetaRefresh(html, page.finalUrl);
+      if (refresh && refresh !== page.finalUrl) {
+        try {
+          page = await get(refresh, PAGE_MAX_BYTES, "text/html,application/xhtml+xml");
+          html = new TextDecoder("utf-8", { fatal: false }).decode(page.bytes);
+        } catch {
+          /* marad az eredeti oldal */
+        }
+      }
+      return { html, finalUrl: page.finalUrl };
+    } catch (e) {
+      errors.push(`${url}: ${(e as Error).message}`);
+    }
+  }
+  throw new Error(errors.slice(0, 2).join(" | "));
+}
+
 async function fetchIcon(site: Site): Promise<FaviconRecord> {
   const fetchedAt = new Date().toISOString();
-  let page: { bytes: Uint8Array; finalUrl: string };
+  let page: { html: string; finalUrl: string };
   try {
-    page = await get(site.website, PAGE_MAX_BYTES, "text/html,application/xhtml+xml");
+    page = await getPage(site.website);
   } catch (e) {
-    return { status: "error", page: site.website, error: `oldal: ${(e as Error).message}`, fetchedAt };
+    const msg = `oldal: ${(e as Error).message}`;
+    return { status: "error", errorKind: classifyFetchError(msg), page: site.website, error: msg, fetchedAt };
   }
-  const html = new TextDecoder("utf-8", { fatal: false }).decode(page.bytes);
-  const candidates = rankIconCandidates(extractIconLinks(html, page.finalUrl));
+  const found = extractIconLinks(page.html, page.finalUrl);
+  // web app manifest (site.webmanifest / manifest.json) ikonjai
+  const manifestUrl = extractManifestLink(page.html, page.finalUrl);
+  if (manifestUrl)
+    try {
+      const m = await get(manifestUrl, FAVICON_MAX_BYTES, "application/manifest+json,application/json");
+      found.push(...manifestIcons(JSON.parse(new TextDecoder().decode(m.bytes)), m.finalUrl));
+    } catch {
+      /* hibás / elérhetetlen manifest: a többi jelölt marad */
+    }
+  const candidates = rankIconCandidates(found);
   const errors: string[] = [];
-  for (const c of candidates.slice(0, 6)) {
+  for (const c of candidates.slice(0, 8)) {
     try {
       const img = await get(c.url, FAVICON_MAX_BYTES, "image/*");
       const kind = sniffImageType(img.bytes);
@@ -121,12 +164,14 @@ async function fetchIcon(site: Site): Promise<FaviconRecord> {
         mkdirSync(join(PUBLIC, dirname(file)), { recursive: true });
         writeFileSync(join(PUBLIC, file), img.bytes);
       }
+      const dim = imageDimensions(img.bytes, kind);
       return {
         status: "ok",
         file,
         source: img.finalUrl,
         page: page.finalUrl,
         bytes: img.bytes.length,
+        ...(dim ? { width: dim.width, height: dim.height } : {}),
         sha256: createHash("sha256").update(img.bytes).digest("hex"),
         fetchedAt,
       };
@@ -134,7 +179,8 @@ async function fetchIcon(site: Site): Promise<FaviconRecord> {
       errors.push(`${c.url}: ${(e as Error).message}`);
     }
   }
-  return { status: "not-found", page: page.finalUrl, error: errors.slice(0, 3).join(" | ") || "nincs ikon-jelölt", fetchedAt };
+  const error = errors.slice(0, 3).join(" | ") || "nincs ikon-jelölt";
+  return { status: "not-found", errorKind: errors.length ? classifyFetchError(errors[0]) : "no-icon", page: page.finalUrl, error, fetchedAt };
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

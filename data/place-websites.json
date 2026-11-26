@@ -1,0 +1,3 @@
+{
+  "_comment": "Kézzel gondozott hivatalos honlapok azokhoz a helyekhez, ahol az OpenStreetMapből hiányzik (hely-id → URL vagy { url, source }). A „Honlap-ikonok frissítése” munkafolyamat ebből is letölti az ikont. Csak ellenőrzött, hivatalos oldal kerülhet ide."
+}

@@ -92,7 +92,7 @@ describe("csempe: kocsmáros ikon → honlap-ikon → csillag", () => {
   it("sorrend és törött kép esetén visszaesés a csillagra", () => {
     const own = "data:image/png;base64,iVBORw0KGgo=";
     expect(resolvePlaceBadge({ id: "a", info: { iconUrl: own } }, fav)).toEqual({ kind: "image", url: own, source: "owner" });
-    expect(resolvePlaceBadge({ id: "a", info: { iconUrl: own } }, fav, [own])).toMatchObject({ source: "website", credit: "https://a.hu/favicon.png" });
+    expect(resolvePlaceBadge({ id: "a", info: { iconUrl: own } }, fav, [own])).toMatchObject({ source: "website", credit: "a.hu" });
     expect(resolvePlaceBadge({ id: "a" }, fav, ["icons/places/a.png"])).toEqual({ kind: "sparkle" });
     expect(resolvePlaceBadge({ id: "c" }, fav)).toEqual({ kind: "sparkle" });
     expect(resolvePlaceBadge({ id: "zz" })).toEqual({ kind: "sparkle" });
@@ -108,5 +108,69 @@ describe("csempe: kocsmáros ikon → honlap-ikon → csillag", () => {
   it("a repóban lévő favicon-adatfájl érvényes", () => {
     const parsed = parseFaviconIndex(faviconsJson);
     for (const r of Object.values(parsed)) if (r.status === "ok") expect(isSafeIconUrl(r.file)).toBe(true);
+  });
+});
+
+describe("letöltő v2: címváltozatok, átirányítás, manifest, méret, hibák", async () => {
+  const f = await import("./favicon");
+  const s = await import("./siteIcon");
+  it("címváltozatok: eredeti elöl, másik séma, www-vel / nélküle, ismétlés nélkül", () => {
+    expect(f.websiteVariants("https://berliner.hu/")).toEqual([
+      "https://berliner.hu/",
+      "http://berliner.hu/",
+      "https://www.berliner.hu/",
+      "http://www.berliner.hu/",
+    ]);
+    expect(f.websiteVariants("http://www.orfeusz98pub.hu/a?b=1")[0]).toBe("http://www.orfeusz98pub.hu/a?b=1");
+    expect(f.websiteVariants("http://www.orfeusz98pub.hu/a?b=1")).toContain("https://orfeusz98pub.hu/a?b=1");
+    expect(f.websiteVariants("nem url")).toEqual([]);
+  });
+  it("meta refresh és manifest-hivatkozás", () => {
+    expect(f.extractMetaRefresh(`<meta http-equiv="Refresh" content="0; URL='/hu/'">`, "https://x.hu/")).toBe("https://x.hu/hu/");
+    expect(f.extractMetaRefresh(`<meta http-equiv="refresh" content="5">`, "https://x.hu/")).toBeUndefined();
+    expect(f.extractManifestLink(`<link rel="manifest" href="/site.webmanifest">`, "https://x.hu/a/")).toBe("https://x.hu/site.webmanifest");
+  });
+  it("manifest ikonok: méret, típus, egyszínű kihagyva; rangsorban az apple-touch-icon után", () => {
+    const icons = f.manifestIcons(
+      { icons: [{ src: "/android-192.png", sizes: "192x192", type: "image/png" }, { src: "mono.svg", purpose: "monochrome" }, { sizes: "1x1" }] },
+      "https://x.hu/m/site.webmanifest",
+    );
+    expect(icons).toEqual([{ url: "https://x.hu/android-192.png", rel: "manifest", size: 192, type: "image/png" }]);
+    expect(f.manifestIcons("nem json", "https://x.hu/")).toEqual([]);
+    const ranked = f.rankIconCandidates([...icons, { url: "https://x.hu/a.png", rel: "apple-touch-icon", size: 180 }, { url: "https://x.hu/i.png", rel: "icon", size: 32 }]);
+    expect(ranked.map((c) => c.rel)).toEqual(["apple-touch-icon", "manifest", "icon"]);
+  });
+  it("pixelméret PNG / GIF / ICO fejlécből", () => {
+    const png = new Uint8Array(24);
+    png.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    png.set([0, 0, 0, 180, 0, 0, 0, 180], 16);
+    expect(f.imageDimensions(png, "png")).toEqual({ width: 180, height: 180 });
+    const ico = new Uint8Array(6 + 32);
+    ico.set([0, 0, 1, 0, 2, 0]);
+    ico.set([16, 16], 6);
+    ico.set([0, 0], 22); // 0 = 256
+    expect(f.imageDimensions(ico, "ico")).toEqual({ width: 256, height: 256 });
+    expect(f.imageDimensions(new Uint8Array([71, 73, 70, 56, 57, 97, 32, 0, 32, 0]), "gif")).toEqual({ width: 32, height: 32 });
+    expect(f.imageDimensions(new Uint8Array(4), "svg")).toBeUndefined();
+  });
+  it("hibakategóriák", () => {
+    expect(f.classifyFetchError("oldal: fetch failed")).toBe("unreachable");
+    expect(f.classifyFetchError("This operation was aborted")).toBe("timeout");
+    expect(f.classifyFetchError("https://x.hu/favicon.ico: HTTP 404")).toBe("http");
+    expect(f.classifyFetchError("https://x.hu/i.png: nem kép")).toBe("not-image");
+    expect(f.classifyFetchError("nincs ikon-jelölt")).toBe("no-icon");
+  });
+  it("kézi honlap-lista: érvényes címek normalizálva", () => {
+    expect(f.parseWebsiteOverrides({ _comment: "x", a: "gravitybp.com", b: { url: "https://x.hu", source: "web" }, c: "ftp://x", d: 5 })).toEqual({
+      a: "https://gravitybp.com/",
+      b: "https://x.hu/",
+    });
+  });
+  it("felirat és kis ikon jelzése", () => {
+    expect(s.creditHost("https://www.berliner.hu/favicon.ico")).toBe("berliner.hu");
+    expect(s.creditHost("nem url")).toBeUndefined();
+    const fav = s.parseFaviconIndex({ a: { status: "ok", file: "icons/places/a.ico", source: "https://www.a.hu/favicon.ico", width: 16 }, b: { status: "ok", file: "icons/places/b.png", width: 180 } });
+    expect(s.resolvePlaceBadge({ id: "a" }, fav)).toEqual({ kind: "image", url: "icons/places/a.ico", source: "website", credit: "a.hu", pixelated: true });
+    expect(s.resolvePlaceBadge({ id: "b" }, fav)).toEqual({ kind: "image", url: "icons/places/b.png", source: "website" });
   });
 });

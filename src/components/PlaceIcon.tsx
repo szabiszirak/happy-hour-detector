@@ -49,11 +49,15 @@ export function PlaceIconTile({ place, size = 40, hh = false }: { place: Pick<Pl
   const badge = resolvePlaceBadge(place, FAVICONS, failed);
   const type = iconOf(place);
   const title =
-    (badge.kind === "image" ? (badge.source === "owner" ? "A hely saját ikonja" : "Ikon a hely honlapjáról") : type.label) +
+    (badge.kind === "image"
+      ? badge.source === "owner"
+        ? "A hely saját ikonja"
+        : `Ikon: ${badge.credit ?? "a hely honlapja"}`
+      : type.label) +
     (type.uncertain ? " – típus ellenőrizendő" : "");
   return (
     <span
-      className={`place-icon ${badge.kind === "image" ? "has-img" : "has-spark"} ${type.uncertain ? "uncertain" : ""} ${hh ? "hh" : ""}`}
+      className={`place-icon ${badge.kind === "image" ? "has-img" : "has-spark"} ${badge.kind === "image" && badge.pixelated ? "pixelated" : ""} ${type.uncertain ? "uncertain" : ""} ${hh ? "hh" : ""}`}
       style={{ width: size, height: size, borderRadius: Math.round(size * 0.3) }}
       title={title}
       role="img"

@@ -668,3 +668,4 @@ body {
 .place-icon .spark { filter: drop-shadow(0 0 3px rgba(var(--primary-rgb), 0.45)) drop-shadow(0 0 6px rgba(var(--hh-rgb), 0.25)); }
 .place-icon.hh .spark { filter: drop-shadow(0 0 4px rgba(var(--hh-rgb), 0.6)); }
 .icon-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.place-icon.pixelated img { image-rendering: pixelated; image-rendering: crisp-edges; }

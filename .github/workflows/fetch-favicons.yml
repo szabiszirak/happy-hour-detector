@@ -4,6 +4,14 @@ name: Honlap-ikonok frissítése
 # az eredményt a data/place-favicons.json-ba írja, majd újra közzéteszi a demót.
 # Ahol nincs ikon vagy hiba van, ott az app a négyágú csillagot mutatja.
 on:
+  # helyadatok, kézi honlap-lista vagy a letöltő változásakor is
+  push:
+    branches: [main]
+    paths:
+      - data/places.osm.json
+      - data/place-websites.json
+      - scripts/fetch-favicons.ts
+      - src/domain/favicon.ts
   workflow_dispatch:
     inputs:
       force:

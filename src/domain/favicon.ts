@@ -3,7 +3,7 @@
 
 export interface IconCandidate {
   url: string;
-  rel: "apple-touch-icon" | "icon" | "mask-icon" | "fallback";
+  rel: "apple-touch-icon" | "manifest" | "icon" | "mask-icon" | "fallback";
   /** A legnagyobb megadott méret pixelben (sizes="180x180"), `any` → 512, ismeretlen → 0. */
   size: number;
   type?: string;
@@ -86,6 +86,7 @@ export function candidateScore(c: IconCandidate): number {
   const isSvg = c.type === "image/svg+xml" || /\.svg(\?|$)/i.test(c.url);
   let s = 0;
   if (c.rel === "apple-touch-icon") s += 300;
+  else if (c.rel === "manifest") s += 280;
   else if (c.rel === "icon") s += 200;
   else s += 50; // /favicon.ico tartalék
   if (isSvg) s += 120;
@@ -130,6 +131,11 @@ export function faviconFileName(placeId: string, kind: ImageKind): string {
 /** A data/place-favicons.json egy bejegyzése. */
 export interface FaviconRecord {
   status: "ok" | "not-found" | "error" | "disabled";
+  /** Hiba fajtája (kézi utánjáráshoz). */
+  errorKind?: FetchErrorKind;
+  /** A letöltött kép pixelmérete (ha kiolvasható; SVG-nél nincs). */
+  width?: number;
+  height?: number;
   /** Saját mappánkban lévő fájl (status = ok). */
   file?: string;
   /** Honnan töltöttük le (forrásmegjelölés). */
@@ -142,3 +148,125 @@ export interface FaviconRecord {
 }
 
 export type FaviconIndex = Record<string, FaviconRecord>;
+
+// ---------- v2: címváltozatok, átirányítás, web manifest, méret, hibakategória ----------
+
+/**
+ * Próbálandó címváltozatok, ha az oldal nem töltődik be: eredeti → másik séma → www-vel / nélküle.
+ * Ismétlés nélkül, az eredeti mindig elöl.
+ */
+export function websiteVariants(url: string): string[] {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return [];
+  }
+  const hosts = u.hostname.startsWith("www.") ? [u.hostname, u.hostname.slice(4)] : [u.hostname, `www.${u.hostname}`];
+  const schemes = u.protocol === "https:" ? ["https:", "http:"] : ["http:", "https:"];
+  const out: string[] = [];
+  for (const host of hosts)
+    for (const scheme of schemes) {
+      const v = new URL(u.toString());
+      v.protocol = scheme;
+      v.hostname = host;
+      out.push(v.toString());
+    }
+  return [...new Set([u.toString(), ...out])];
+}
+
+/** <meta http-equiv="refresh" content="0; url=…"> célja (abszolút), ha van. */
+export function extractMetaRefresh(html: string, pageUrl: string): string | undefined {
+  for (const tag of html.slice(0, 100_000).match(/<meta\s[^>]*>/gi) ?? []) {
+    if ((attr(tag, "http-equiv") ?? "").toLowerCase() !== "refresh") continue;
+    const m = (attr(tag, "content") ?? "").match(/url\s*=\s*['"]?([^'"]+)['"]?/i);
+    if (!m) continue;
+    try {
+      const u = new URL(decodeEntities(m[1].trim()), pageUrl);
+      if (u.protocol === "http:" || u.protocol === "https:") return u.toString();
+    } catch {
+      /* hibás cél */
+    }
+  }
+  return undefined;
+}
+
+/** <link rel="manifest" href="…"> abszolút címe, ha van. */
+export function extractManifestLink(html: string, pageUrl: string): string | undefined {
+  for (const tag of html.slice(0, 300_000).match(/<link\s[^>]*>/gi) ?? []) {
+    if (!/(^|\s)manifest(\s|$)/i.test(attr(tag, "rel") ?? "")) continue;
+    const href = attr(tag, "href");
+    if (!href) continue;
+    try {
+      const u = new URL(decodeEntities(href), pageUrl);
+      if (u.protocol === "http:" || u.protocol === "https:") return u.toString();
+    } catch {
+      /* hibás href */
+    }
+  }
+  return undefined;
+}
+
+/** A web app manifest `icons` listája jelöltként (az egyszínű „monochrome” ikonok nélkül). */
+export function manifestIcons(manifest: unknown, manifestUrl: string): IconCandidate[] {
+  const icons = (manifest as { icons?: unknown })?.icons;
+  if (!Array.isArray(icons)) return [];
+  const out: IconCandidate[] = [];
+  for (const i of icons as { src?: unknown; sizes?: unknown; type?: unknown; purpose?: unknown }[]) {
+    if (typeof i?.src !== "string" || !i.src) continue;
+    if (typeof i.purpose === "string" && /monochrome/i.test(i.purpose) && !/any/i.test(i.purpose)) continue;
+    try {
+      const u = new URL(i.src, manifestUrl);
+      if (u.protocol !== "http:" && u.protocol !== "https:") continue;
+      const type = typeof i.type === "string" ? i.type.toLowerCase() : undefined;
+      out.push({ url: u.toString(), rel: "manifest", size: parseSizes(typeof i.sizes === "string" ? i.sizes : undefined), ...(type ? { type } : {}) });
+    } catch {
+      /* hibás src */
+    }
+  }
+  return out;
+}
+
+/** Pixelméret PNG / GIF / ICO fejlécből (ICO-nál a legnagyobb bejegyzés; a 0 = 256). JPEG/WebP/SVG: undefined. */
+export function imageDimensions(bytes: Uint8Array, kind: ImageKind): { width: number; height: number } | undefined {
+  const u16le = (i: number) => bytes[i] | (bytes[i + 1] << 8);
+  const u32be = (i: number) => ((bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3]) >>> 0;
+  if (kind === "png" && bytes.length >= 24) return { width: u32be(16), height: u32be(20) };
+  if (kind === "gif" && bytes.length >= 10) return { width: u16le(6), height: u16le(8) };
+  if (kind === "ico" && bytes.length >= 6) {
+    const n = u16le(4);
+    let best: { width: number; height: number } | undefined;
+    for (let k = 0; k < n && 6 + k * 16 + 2 <= bytes.length; k++) {
+      const w = bytes[6 + k * 16] || 256;
+      const h = bytes[6 + k * 16 + 1] || 256;
+      if (!best || w > best.width) best = { width: w, height: h };
+    }
+    return best;
+  }
+  return undefined;
+}
+
+export type FetchErrorKind = "unreachable" | "timeout" | "http" | "no-icon" | "not-image";
+
+/** Hibaüzenetből kategória (a data/place-favicons.json-ban a kézi utánjáráshoz). */
+export function classifyFetchError(message: string): FetchErrorKind {
+  const m = message.toLowerCase();
+  if (/abort|timeout|timed out/.test(m)) return "timeout";
+  if (/http \d{3}/.test(m)) return "http";
+  if (/nem kép|not an image|túl kicsi/.test(m)) return "not-image";
+  if (/nincs ikon/.test(m)) return "no-icon";
+  return "unreachable";
+}
+
+/** Kézzel gondozott honlapok (data/place-websites.json): helyazonosító → hivatalos honlap. Érvénytelen kihagyva. */
+export function parseWebsiteOverrides(raw: unknown): Record<string, string> {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, string> = {};
+  for (const [id, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (id.startsWith("_")) continue;
+    const url = typeof v === "string" ? v : typeof (v as { url?: unknown })?.url === "string" ? (v as { url: string }).url : undefined;
+    const n = normalizeWebsite(url);
+    if (n) out[id] = n;
+  }
+  return out;
+}
