@@ -1,3 +1,120 @@
 {
-  "_comment": "Generált fájl: npm run icons:fetch (scripts/fetch-favicons.ts) vagy a „Honlap-ikonok frissítése” GitHub Actions munkafolyamat. A képek a public/icons/places/ mappában vannak. Egy hely ikonja kikapcsolható: \"<hely-id>\": { \"status\": \"disabled\" }."
+  "_comment": "Generált fájl: npm run icons:fetch (scripts/fetch-favicons.ts) vagy a „Honlap-ikonok frissítése” GitHub Actions munkafolyamat. A képek a public/icons/places/ mappában vannak. Egy hely ikonja kikapcsolható: \"<hely-id>\": { \"status\": \"disabled\" }.",
+  "osm-node-11830299332": {
+    "status": "not-found",
+    "page": "https://gravitybp.com/",
+    "error": "https://gravitybp.com/favicon.ico: HTTP 404",
+    "fetchedAt": "2026-11-26T17:36:36.718Z"
+  },
+  "osm-node-12093728319": {
+    "status": "ok",
+    "file": "icons/places/osm-node-12093728319.png",
+    "source": "https://ingacafe.hu/wp-content/uploads/2023/10/cropped-INGA_szelsokozep_logo_feher_inga-e1697741099340-180x180.png",
+    "page": "https://ingacafe.hu/",
+    "bytes": 1311,
+    "sha256": "b4163fb2df0e7287175b67deed08026177b9084b69ce832e6973a6eea03950a7",
+    "fetchedAt": "2026-11-26T17:36:51.389Z"
+  },
+  "osm-node-1624491422": {
+    "status": "error",
+    "page": "http://paristexaskavehaz.hu/",
+    "error": "oldal: fetch failed",
+    "fetchedAt": "2026-11-26T17:36:41.902Z"
+  },
+  "osm-node-2105368169": {
+    "status": "ok",
+    "file": "icons/places/osm-node-2105368169.ico",
+    "source": "https://berliner.hu/favicon.ico",
+    "page": "https://berliner.hu/",
+    "bytes": 318,
+    "sha256": "1950a8c3b884fe650ff1629fb43ea3ef4572be93b062ba1b2c304ee76694e5fc",
+    "fetchedAt": "2026-11-26T17:36:32.068Z"
+  },
+  "osm-node-2325633572": {
+    "status": "ok",
+    "file": "icons/places/osm-node-2325633572.png",
+    "source": "https://budapest.harats.com/local/templates/harats/images/favicons/apple-touch-icon.png",
+    "page": "https://budapest.harats.com/en/budapesht/",
+    "bytes": 6662,
+    "sha256": "c546db043bff27574fd9aa8460d4cd825aa2ceff58a011c6d95b4341555c5a25",
+    "fetchedAt": "2026-11-26T17:36:38.219Z"
+  },
+  "osm-node-2340691112": {
+    "status": "ok",
+    "file": "icons/places/osm-node-2340691112.png",
+    "source": "https://9kert.hu/wp-content/uploads/cropped-kilenckert_favicon-180x180.png",
+    "page": "https://9kert.hu/muzeumpub/",
+    "bytes": 60868,
+    "sha256": "6550932bfb39b1e8c0cc512a40ed567352b8ceb17063478daa4a0a3cb8a8052d",
+    "fetchedAt": "2026-11-26T17:36:51.755Z"
+  },
+  "osm-node-2615662154": {
+    "status": "ok",
+    "file": "icons/places/osm-node-2615662154.png",
+    "source": "https://bluelagoontikibar.ewk.hu/favicon.ico",
+    "page": "https://bluelagoontikibar.ewk.hu/",
+    "bytes": 3936,
+    "sha256": "649c25991d60bcfb3b935c5de204949c771096e008e2d2dfa3015b567ceb1013",
+    "fetchedAt": "2026-11-26T17:36:34.814Z"
+  },
+  "osm-node-2660464815": {
+    "status": "ok",
+    "file": "icons/places/osm-node-2660464815.png",
+    "source": "https://opusjazzclub.hu/img/favicon/apple-touch-icon.png",
+    "page": "https://opusjazzclub.hu/",
+    "bytes": 4018,
+    "sha256": "d3f0d1eca714f90bdc59ee010e9621321d55857ef7a00408aa106f6fa5134716",
+    "fetchedAt": "2026-11-26T17:36:39.008Z"
+  },
+  "osm-node-2663224110": {
+    "status": "not-found",
+    "page": "http://www.corvinuscafe.com/",
+    "error": "http://www.corvinuscafe.com/favicon.ico: HTTP 404",
+    "fetchedAt": "2026-11-26T17:36:35.979Z"
+  },
+  "osm-node-2829269816": {
+    "status": "ok",
+    "file": "icons/places/osm-node-2829269816.png",
+    "source": "https://allinnpub.hu/wp-content/uploads/2022/05/cropped-all-inn-logo-180x180.png",
+    "page": "https://allinnpub.hu/",
+    "bytes": 43858,
+    "sha256": "059e8d623ace5055b4c8e7fc715c867a0cf13a4fbdda049e830f2993cbb47eec",
+    "fetchedAt": "2026-11-26T17:36:42.964Z"
+  },
+  "osm-node-4141518189": {
+    "status": "error",
+    "page": "https://bacchusbp.com/",
+    "error": "oldal: fetch failed",
+    "fetchedAt": "2026-11-26T17:36:47.069Z"
+  },
+  "osm-node-418029723": {
+    "status": "not-found",
+    "page": "https://www.illegal.co.hu/",
+    "error": "https://www.illegal.co.hu/favicon.ico: HTTP 404",
+    "fetchedAt": "2026-11-26T17:36:49.646Z"
+  },
+  "osm-node-4290484184": {
+    "status": "ok",
+    "file": "icons/places/osm-node-4290484184.png",
+    "source": "https://barcraft.hu/pwa/barcraft-v2-180.png",
+    "page": "https://barcraft.hu/ice/",
+    "bytes": 6349,
+    "sha256": "d8d4c836098bc537ec7e8626ff234b0e8396b024d0884d0286c11b11097eac19",
+    "fetchedAt": "2026-11-26T17:36:32.058Z"
+  },
+  "osm-node-5922712294": {
+    "status": "error",
+    "page": "https://boardgamecafe.hu/",
+    "error": "oldal: fetch failed",
+    "fetchedAt": "2026-11-26T17:36:48.097Z"
+  },
+  "osm-node-738753846": {
+    "status": "ok",
+    "file": "icons/places/osm-node-738753846.png",
+    "source": "https://www.orfeusz98pub.hu/apple-touch-icon-180x180.png",
+    "page": "http://www.orfeusz98pub.hu/",
+    "bytes": 130064,
+    "sha256": "5870a9730208aa78c2ac2cc49162ad9c81fec699b3c821f92ec7ee4a46e568a1",
+    "fetchedAt": "2026-11-26T17:36:40.351Z"
+  }
 }
