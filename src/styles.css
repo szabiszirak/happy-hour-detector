@@ -669,3 +669,28 @@ body {
 .place-icon.hh .spark { filter: drop-shadow(0 0 4px rgba(var(--hh-rgb), 0.6)); }
 .icon-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .place-icon.pixelated img { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* ---------- saját értékelések ---------- */
+.stars { letter-spacing: 1px; color: #3A4542; white-space: nowrap; }
+.stars .on { color: var(--warn); text-shadow: 0 0 6px rgba(255, 197, 61, 0.45); }
+.rating-badge { font-size: 11.5px; font-weight: 700; color: var(--warn); white-space: nowrap; }
+.review-summary { display: flex; gap: 16px; align-items: center; margin: 6px 0 10px; }
+.review-avg { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.review-avg strong { font-size: 26px; line-height: 1; }
+.review-bars { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.review-bar { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.review-bar i { display: block; height: 6px; border-radius: 3px; background: var(--warn); min-width: 2px; box-shadow: 0 0 6px rgba(255, 197, 61, 0.35); }
+.review-form { display: flex; flex-direction: column; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+.star-input { display: flex; gap: 4px; }
+.star-input button { background: none; border: none; font-size: 28px; line-height: 1; color: #3A4542; padding: 2px; }
+.star-input button.on { color: var(--warn); text-shadow: 0 0 8px rgba(255, 197, 61, 0.5); }
+.review-form-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.review-actions { display: flex; gap: 6px; align-items: center; }
+.review-list { list-style: none; padding: 0; margin: 10px 0; display: flex; flex-direction: column; gap: 8px; }
+.review-list li { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; }
+.review-list li.mine { box-shadow: inset 3px 0 0 var(--primary); }
+.review-list p { margin: 4px 0 0; font-size: 14px; white-space: pre-wrap; }
+.review-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.google-reviews { display: inline-block; margin-top: 6px; font-size: 13px; }
+/* a fejléc (és benne a menü) a térkép vezérlői / forrásmegjelölése fölött, az adatlapok alatt */
+.top { z-index: 1500; }

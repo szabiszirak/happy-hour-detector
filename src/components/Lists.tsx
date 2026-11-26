@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useApp } from "../context";
 import { PlaceIconTile } from "./PlaceIcon";
+import { RatingBadge } from "./Reviews";
 import { iconOf } from "../data/placeIcons";
 import { formatDistance, walkMinutes } from "../domain/geo";
 import { describeDays, formatMinutes, happyHourStatus } from "../domain/happyHour";
@@ -329,6 +330,7 @@ export function PlacesTab() {
                   <span className="place-tags">
                     <OpenBadge state={st} />
                     {hh.kind === "active" && <span className="tag-hh">HH most</span>}
+                    <RatingBadge placeId={p.id} />
                     {owners[p.id] && <span className="tag-verified">✓ kocsmáros</span>}
                     {p.info?.checkNeeded && !owners[p.id] && <span className="tag-check">ellenőrizendő</span>}
                   </span>

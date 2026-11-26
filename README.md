@@ -83,6 +83,14 @@ npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutat�
 - LED-csíkok: fejléc alatti vonal, aktív fül alatti csík, kiválasztott szűrők belső vonala, listasorok bal széle
   (HH: pink fénnyel, nyitva: menta), világító állapotpöttyök, HH-jelölők pulzáló gyűrűje. Mozgáscsökkentésnél nincs animáció.
 
+## Értékelések
+
+- Saját, appbeli értékelés: 1–5 csillag + legfeljebb 500 karakter (link nélkül), helyenként felhasználónként egy,
+  szerkeszthető / törölhető; a név rövidítve jelenik meg („Szabolcs S.”). A hely ellenőrzött kocsmárosa a sajátját nem
+  értékelheti (`src/domain/reviews.ts`, firestore.rules `reviews/{placeId}__{uid}`).
+- Google-értékeléseket nem veszünk át; az adatlapon „Google-értékelések megnyitása” link vezet a Google Térképre
+  (`src/domain/links.ts`, place_id-vel vagy név + cím alapján). Az étlap-árak megerősítése: `docs/menu-megerosites.md`.
+
 ## Profilkép
 
 - Sorrend: saját feltöltés → Google-fiók képe → kezdőbetű (`src/domain/avatar.ts`). Betöltési hibánál automatikusan a

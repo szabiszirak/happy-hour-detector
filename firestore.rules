@@ -49,6 +49,23 @@ service cloud.firestore {
       allow delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
     }
 
+    // Saját értékelések (1–5 csillag + max. 500 karakter). Dokumentum-azonosító: {placeId}__{uid} → egy / fő / hely.
+    // A hely ellenőrzött kocsmárosa a saját helyét nem értékelheti. Google-értékeléseket nem tárolunk.
+    match /reviews/{reviewId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && reviewId == request.resource.data.placeId + '__' + request.auth.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.userName is string && request.resource.data.userName.size() <= 60
+        && !(hasOwner(request.resource.data.placeId) && get(ownerDoc(request.resource.data.placeId)).data.uid == request.auth.uid)
+        && (resource == null || resource.data.uid == request.auth.uid);
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+
     // Felhasználói adatok (ízlésprofil, kocsmáros fiók): csak a saját.
     // A kocsmáros fiók önkiszolgáló és önmagában nem ad jogot a helyekhez (azt az owners/{placeId} adja, amit csak admin ír).
     // Az admin jog NEM itt van, hanem az Auth tokenben.

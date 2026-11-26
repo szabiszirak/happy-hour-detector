@@ -3,6 +3,7 @@ import type { ClaimDocKind, ClaimDocument, OwnerClaim, OwnerIndex, ReviewDecisio
 import type { DrinkPromotion } from "../domain/pricing";
 import type { OwnerAccount } from "../domain/account";
 import type { AvatarPref, AvatarSettings } from "../domain/avatar";
+import type { Review } from "../domain/reviews";
 
 export type Unsubscribe = () => void;
 
@@ -38,6 +39,12 @@ export interface Repo {
   confirmDrinkPrice(placeId: string, drinkId: string, uid: string): Promise<void>;
   getProfile(uid: string): Promise<TasteProfile | undefined>;
   saveProfile(uid: string, profile: TasteProfile): Promise<void>;
+
+  // ---- saját értékelések (Google-értékeléseket nem tárolunk) ----
+  subscribeReviews(cb: (reviews: Review[]) => void): Unsubscribe;
+  /** Létrehozás vagy módosítás (helyenként felhasználónként egy). A hely kocsmárosa nem értékelheti a sajátját. */
+  saveReview(review: Review, by: AppUser): Promise<void>;
+  deleteReview(reviewId: string, uid: string): Promise<void>;
 
   // ---- profilkép ----
   /** Saját profilkép és beállítás (users/{uid}.avatar). Hibás adatnál alapérték. */

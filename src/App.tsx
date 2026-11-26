@@ -17,6 +17,7 @@ import { OwnerDashboard } from "./components/OwnerDashboard";
 import { ReviewPanel } from "./components/ReviewPanel";
 import { Avatar, AvatarPicker, useAvatarSettings } from "./components/Avatar";
 import { capabilities, type AccountMode, type OwnerAccount } from "./domain/account";
+import type { Review } from "./domain/reviews";
 import { clearAccountMode, loadAccountMode, saveAccountMode } from "./auth/accountMode";
 
 /** Kocsmáros fiókban nincs ízlésprofil-kérdés – semleges profil a listák számításához. */
@@ -187,6 +188,8 @@ function Main({
   useEffect(() => repo.subscribePromotions(user, setPromotions), [repo, user]);
   useEffect(() => repo.subscribeMyClaims(user.uid, setMyClaims), [repo, user.uid]);
   useEffect(() => repo.subscribeOwnerAccount(user.uid, setOwnerAccount), [repo, user.uid]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  useEffect(() => repo.subscribeReviews(setReviews), [repo]);
   useEffect(() => {
     const t = setInterval(() => setTick((x) => x + 1), 30000);
     return () => clearInterval(t);
@@ -222,7 +225,7 @@ function Main({
 
   const ctx: AppCtx = {
     repo, user, profile, places, reports, now, pos, setPos, openPlace, toast, radiusM, setRadiusM, openOnly, setOpenOnly,
-    owners, promotions, livePromos, myClaims, openClaim, accountMode, ownerAccount, caps, openOwnerDashboard,
+    owners, promotions, livePromos, myClaims, openClaim, accountMode, ownerAccount, caps, openOwnerDashboard, reviews,
   };
   const timeLabel = sim ? `${DAY_NAMES[sim.day - 1]} ${sim.time}` : null;
 

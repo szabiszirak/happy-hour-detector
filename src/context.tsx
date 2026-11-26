@@ -4,6 +4,7 @@ import type { Repo } from "./data/repo";
 import type { OwnerClaim, OwnerIndex } from "./domain/ownership";
 import type { DrinkPromotion } from "./domain/pricing";
 import type { AccountMode, Capabilities, OwnerAccount } from "./domain/account";
+import type { Review } from "./domain/reviews";
 
 export interface AppCtx {
   repo: Repo;
@@ -37,6 +38,8 @@ export interface AppCtx {
   /** Mit tehet a felhasználó az aktív fiókjával (domain/account.ts). */
   caps: Capabilities;
   openOwnerDashboard: () => void;
+  /** Saját (appbeli) értékelések – Google-értékeléseket nem tárolunk. */
+  reviews: Review[];
 }
 
 export const Ctx = createContext<AppCtx | null>(null);

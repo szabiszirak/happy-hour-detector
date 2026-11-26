@@ -12,6 +12,8 @@ import { STYLE_LABELS, VIBE_LABELS, type Place } from "../domain/types";
 import { PlaceEditor } from "./PlaceEditor";
 import { formatOpeningHours, openState } from "../domain/openingHours";
 import { OpenBadge } from "./Lists";
+import { ReviewsSection, RatingBadge } from "./Reviews";
+import { googleMapsUrl } from "../domain/links";
 import { PlaceIconTile } from "./PlaceIcon";
 import { iconOf } from "../data/placeIcons";
 
@@ -32,9 +34,7 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
   const claimState = claimButtonState(accountMode, user.uid, ownerAccount, place.id, myClaims, owners);
   const menu = orderPlaceMenu(place, livePromos);
   const icon = iconOf(place);
-  const mapsUrl = place.googlePlaceId
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.googlePlaceId}`
-    : `https://www.google.com/maps/search/?api=1&query=${place.location.lat},${place.location.lng}`;
+  const mapsUrl = googleMapsUrl(place);
 
   if (editing) return <PlaceEditor place={place} ownerMode={iAmOwner} onClose={() => setEditing(false)} />;
 
@@ -78,6 +78,7 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
 
         <div className="sheet-badges">
           <OpenBadge state={openState(place.info?.openingHours, now)} />
+          <RatingBadge placeId={place.id} />
           <span className={`vibe kind-chip ${icon.uncertain ? "uncertain" : ""}`}>
             {icon.label}
             {icon.uncertain ? " · típus ellenőrizendő" : ""}
@@ -215,6 +216,8 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
               : "Változott az ár vagy hiányzik egy ital? A Szerkesztés gombbal bárki javíthatja."}
           </p>
         </section>
+
+        <ReviewsSection place={place} />
 
         <section>
           <h3 className="sec">Közösségi bejelentések</h3>

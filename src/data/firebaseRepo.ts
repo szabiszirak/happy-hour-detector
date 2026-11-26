@@ -34,6 +34,7 @@ import {
 } from "../domain/ownership";
 import { decidePromotion, type DrinkPromotion } from "../domain/pricing";
 import { parseOwnerAccount, type OwnerAccount } from "../domain/account";
+import { canReview, reviewId, type Review } from "../domain/reviews";
 import { AVATAR_LIMITS, parseAvatarSettings, validateAvatarFile, type AvatarPref, type AvatarSettings } from "../domain/avatar";
 import { dataUrlToBlob, squareAvatar } from "./imagePreview";
 
@@ -130,6 +131,22 @@ export class FirebaseRepo implements Repo {
   }
 
   // ---- kocsmáros profil ----
+
+  subscribeReviews(cb: (r: Review[]) => void): Unsubscribe {
+    return onSnapshot(collection(this.db, "reviews"), (snap) => cb(snap.docs.map((d) => ({ ...(d.data() as Review), id: d.id }))));
+  }
+
+  async saveReview(review: Review, by: AppUser) {
+    if (review.uid !== by.uid || review.id !== reviewId(review.placeId, by.uid)) throw new Error("Csak a saját értékelésedet mentheted.");
+    const check = canReview(by.uid, review.placeId, this.owners);
+    if (!check.ok) throw new Error(check.reason);
+    const { id, ...rest } = review;
+    await setDoc(doc(this.db, "reviews", id), clean(rest));
+  }
+
+  async deleteReview(id: string, _uid: string) {
+    await deleteDoc(doc(this.db, "reviews", id));
+  }
 
   subscribeAvatar(uid: string, cb: (s: AvatarSettings) => void): Unsubscribe {
     return onSnapshot(doc(this.db, "users", uid), (snap) => cb(parseAvatarSettings(snap.data()?.avatar)));

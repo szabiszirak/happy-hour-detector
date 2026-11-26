@@ -17,6 +17,7 @@ import {
 } from "../domain/ownership";
 import { decidePromotion, type DrinkPromotion } from "../domain/pricing";
 import { parseOwnerAccount, type OwnerAccount } from "../domain/account";
+import { canReview, reviewId, validateReviewDraft, type Review } from "../domain/reviews";
 import { AVATAR_LIMITS, parseAvatarSettings, validateAvatarFile, type AvatarPref, type AvatarSettings } from "../domain/avatar";
 import type { Repo, ReviewApi, Unsubscribe } from "./repo";
 import { seedPlaces, seedReports } from "./seed";
@@ -33,6 +34,7 @@ interface State {
   promotions: DrinkPromotion[];
   ownerAccounts: Record<string, OwnerAccount>;
   avatars: Record<string, AvatarSettings>;
+  reviews: Review[];
 }
 
 /** A demó beépített elbírálója – éles módban nincs ilyen, ott a Firebase `admin` claim kell. */
@@ -52,6 +54,7 @@ function load(): State | null {
       promotions: s.promotions ?? [],
       ownerAccounts: s.ownerAccounts ?? {},
       avatars: s.avatars ?? {},
+      reviews: s.reviews ?? [],
       // adatvédelem: a döntés után 30 nappal az igazolások előnézete törlődik
       claims: (s.claims ?? []).map((c) => (documentsExpired(c, now) ? { ...c, documents: c.documents.map(({ previewUrl: _p, ...d }) => d) } : c)),
     };
@@ -68,7 +71,7 @@ function persist(s: State) {
   }
 }
 
-const fresh = (): State => ({ places: seedPlaces(), reports: seedReports(), profiles: {}, claims: [], owners: {}, promotions: [], ownerAccounts: {}, avatars: {} });
+const fresh = (): State => ({ places: seedPlaces(), reports: seedReports(), profiles: {}, claims: [], owners: {}, promotions: [], ownerAccounts: {}, avatars: {}, reviews: [] });
 
 /** Demó adatréteg: localStorage + memória, azonnali értesítéssel. A jogosultságokat a domain függvényei ellenőrzik. */
 export class LocalRepo implements Repo {
@@ -142,6 +145,25 @@ export class LocalRepo implements Repo {
   }
 
   // ---- kocsmáros profil ----
+
+  subscribeReviews(cb: (r: Review[]) => void): Unsubscribe {
+    return this.watch(() => this.state.reviews, cb);
+  }
+
+  async saveReview(review: Review, by: AppUser) {
+    if (review.uid !== by.uid || review.id !== reviewId(review.placeId, by.uid)) throw new Error("Csak a saját értékelésedet mentheted.");
+    const check = canReview(by.uid, review.placeId, this.state.owners);
+    if (!check.ok) throw new Error(check.reason);
+    const errs = validateReviewDraft(review);
+    if (Object.keys(errs).length) throw new Error(Object.values(errs)[0]);
+    this.set({ reviews: [review, ...this.state.reviews.filter((r) => r.id !== review.id)] });
+  }
+
+  async deleteReview(id: string, uid: string) {
+    const r = this.state.reviews.find((x) => x.id === id);
+    if (!r || r.uid !== uid) throw new Error("Csak a saját értékelésedet törölheted.");
+    this.set({ reviews: this.state.reviews.filter((x) => x.id !== id) });
+  }
 
   subscribeAvatar(uid: string, cb: (s: AvatarSettings) => void): Unsubscribe {
     return this.watch(() => this.state.avatars[uid], (raw) => cb(parseAvatarSettings(raw)));
