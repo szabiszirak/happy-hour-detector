@@ -80,7 +80,8 @@ describe("márkajelvény (monogram, nem logó)", () => {
 
 describe("katalógus", () => {
   it("üres adatnál nem dob hibát: nullás darabszámok, a szótárbeli márkák megjelennek", () => {
-    const cat = buildCatalog(realPlaces());
+    const emptyPlaces = realPlaces().map((p) => ({ ...p, drinks: [] }));
+    const cat = buildCatalog(emptyPlaces);
     expect(cat.map((c) => c.category)).toEqual(CATEGORY_ORDER);
     for (const node of cat) {
       expect(node.count).toBe(0);
@@ -89,6 +90,12 @@ describe("katalógus", () => {
       expect(node.brands.every((b) => b.count === 0 && b.known)).toBe(true);
     }
     expect(buildCatalog([]).length).toBe(CATEGORY_ORDER.length);
+  });
+
+  it("a valódi helyek importált itallapjai megjelennek a katalógusban", () => {
+    const cat = buildCatalog(realPlaces());
+    const total = cat.reduce((s, c) => s + c.count, 0);
+    expect(total).toBeGreaterThan(0);
   });
 
   it("megszámolja az ajánlatokat; a szótáron kívüli márka is bekerül, ABC-helyre", () => {
@@ -146,7 +153,8 @@ describe("szűrés kategória / stílus / márka szerint", () => {
   });
 
   it("üres adatnál bármilyen választással üres listát ad, hiba nélkül", () => {
+    const emptyPlaces = realPlaces().map((p) => ({ ...p, drinks: [] }));
     for (const category of [null, ...CATEGORY_ORDER])
-      expect(searchDrinks(realPlaces(), { ...DEFAULT_FILTER, category, brand: OTHER_BRAND }, pos, fri(20))).toEqual([]);
+      expect(searchDrinks(emptyPlaces, { ...DEFAULT_FILTER, category, brand: OTHER_BRAND }, pos, fri(20))).toEqual([]);
   });
 });

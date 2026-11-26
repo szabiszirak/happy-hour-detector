@@ -1,9 +1,11 @@
 // Kezdő adatok: a valódi helyek az MVP-négyszögből (OpenStreetMap + webes kiegészítés).
 // Forrás: data/places.osm.json – frissítése: .github/workflows/import-osm.yml
 // Happy hour idősávok: data/happy-hours.json (valós adatok + normál eloszlással becsült, megjelölt idősávok).
-import type { HappyHourSlot, Place, Report } from "../domain/types";
+// Itallapok: data/drinks.json (Google Maps menüfotókból kinyert italok és HUF árak).
+import type { Drink, HappyHourSlot, Place, Report } from "../domain/types";
 import raw from "../../data/places.osm.json";
 import happyHoursByPlace from "../../data/happy-hours.json";
+import drinksByPlace from "../../data/drinks.json";
 
 interface RawPlace {
   id: string;
@@ -42,7 +44,7 @@ export function seedPlaces(): Place[] {
         source: p.osm.source,
         checkNeeded: p.osm.checkNeeded,
       },
-      drinks: [],
+      drinks: (drinksByPlace as Record<string, Drink[]>)[p.id] ?? [],
       happyHours: (happyHoursByPlace as Record<string, HappyHourSlot[]>)[p.id] ?? [],
     }));
 }
