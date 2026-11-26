@@ -1,4 +1,4 @@
-// Hely-ikon a csempére: kocsmáros által feltöltött ikon → honlap-ikon (saját mappánkból) → négyágú csillag.
+// Hely-ikon a csempére: kocsmáros által feltöltött ikon → honlap-ikon (saját mappánkból) → a hely nevének kezdőbetűje.
 // Külső oldalról közvetlenül nem töltünk be képet (adatvédelem, törött linkek, http-tiltás https-en).
 import type { Place } from "./types";
 import type { FaviconIndex, FaviconRecord } from "./favicon";
@@ -29,7 +29,23 @@ export function parseFaviconIndex(raw: unknown): FaviconIndex {
 
 export type PlaceBadge =
   | { kind: "image"; url: string; source: "owner" | "website"; credit?: string; pixelated?: boolean }
-  | { kind: "sparkle" };
+  | { kind: "initial"; letter: string };
+
+const SKIP_WORDS = new Set(["a", "az", "the"]);
+
+/**
+ * A hely nevének kezdőbetűje nagybetűvel („Púder Bárszínház” → „P”, „2k bár” → „2”).
+ * A névelőt (a, az, the) átugorja, ha utána van még szó; írásjeleket, emojit kihagy. Üres névnél „?”.
+ */
+export function placeInitial(name: string | undefined): string {
+  const words = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  const start = words.length > 1 && SKIP_WORDS.has(words[0].toLocaleLowerCase("hu")) ? 1 : 0;
+  for (const w of words.slice(start)) {
+    const m = w.match(/[\p{L}\p{N}]/u);
+    if (m) return m[0].toLocaleUpperCase("hu");
+  }
+  return "?";
+}
 
 /** A forrás rövid neve a feliratban: „berliner.hu” (www nélkül). */
 export function creditHost(url: string | undefined): string | undefined {
@@ -47,9 +63,9 @@ export const isSmallIcon = (r: Pick<FaviconRecord, "width" | "file">) =>
 
 /**
  * Mit mutasson a csempe. A `failed` listában lévő (be nem töltött) képeket átugorja,
- * így hibás ikon helyett mindig a négyágú csillag marad.
+ * így hibás ikon helyett mindig a hely kezdőbetűje marad.
  */
-export function resolvePlaceBadge(place: Pick<Place, "id" | "info">, favicons: FaviconIndex = {}, failed: readonly string[] = []): PlaceBadge {
+export function resolvePlaceBadge(place: Pick<Place, "id" | "info"> & { name?: string }, favicons: FaviconIndex = {}, failed: readonly string[] = []): PlaceBadge {
   const own = place.info?.iconUrl;
   if (isSafeIconUrl(own) && !failed.includes(own)) return { kind: "image", url: own, source: "owner" };
   const rec = favicons[place.id];
@@ -61,5 +77,5 @@ export function resolvePlaceBadge(place: Pick<Place, "id" | "info">, favicons: F
       ...(creditHost(rec.source) ? { credit: creditHost(rec.source) } : {}),
       ...(isSmallIcon(rec) ? { pixelated: true } : {}),
     };
-  return { kind: "sparkle" };
+  return { kind: "initial", letter: placeInitial(place.name) };
 }

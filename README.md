@@ -99,8 +99,8 @@ npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutat�
 
 ## Hely-ikonok
 
-- A csempén: a kocsmáros saját ikonja → a hely honlapjának ikonja → saját, négyágú színátmenetes csillag
-  (`src/components/PlaceIcon.tsx`, `src/domain/siteIcon.ts`). Ha egy kép nem töltődik be, a csillag jelenik meg.
+- A csempén: a kocsmáros saját ikonja → a hely honlapjának ikonja → a hely nevének kezdőbetűje
+  (`src/components/PlaceIcon.tsx`, `src/domain/siteIcon.ts` – `placeInitial`). Ha egy kép nem töltődik be, a kezdőbetű jelenik meg.
 - Honlap-ikonok: `npm run icons:fetch` (internet kell; `-- --only <hely-id>`, `-- --force`, `-- --dry-run`) vagy a
   „Honlap-ikonok frissítése” GitHub Actions munkafolyamat (kézzel / havonta). A képek a `public/icons/places/` mappába,
   az eredmény a `data/place-favicons.json`-ba kerül; a felhasználók böngészője nem kér semmit a kocsmák oldaláról.

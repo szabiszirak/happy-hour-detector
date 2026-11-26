@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isSafeIconUrl, parseFaviconIndex, resolvePlaceBadge } from "./siteIcon";
+import { isSafeIconUrl, parseFaviconIndex, resolvePlaceBadge, placeInitial } from "./siteIcon";
 import {
   candidateScore,
   extractIconLinks,
@@ -89,13 +89,25 @@ describe("csempe: kocsmáros ikon → honlap-ikon → csillag", () => {
     expect(fav.b).toBeUndefined();
     expect(fav.c).toEqual({ status: "not-found" });
   });
-  it("sorrend és törött kép esetén visszaesés a csillagra", () => {
+  it("sorrend és törött kép esetén visszaesés a kezdőbetűre", () => {
     const own = "data:image/png;base64,iVBORw0KGgo=";
     expect(resolvePlaceBadge({ id: "a", info: { iconUrl: own } }, fav)).toEqual({ kind: "image", url: own, source: "owner" });
     expect(resolvePlaceBadge({ id: "a", info: { iconUrl: own } }, fav, [own])).toMatchObject({ source: "website", credit: "a.hu" });
-    expect(resolvePlaceBadge({ id: "a" }, fav, ["icons/places/a.png"])).toEqual({ kind: "sparkle" });
-    expect(resolvePlaceBadge({ id: "c" }, fav)).toEqual({ kind: "sparkle" });
-    expect(resolvePlaceBadge({ id: "zz" })).toEqual({ kind: "sparkle" });
+    expect(resolvePlaceBadge({ id: "a", name: "Albert Bár" }, fav, ["icons/places/a.png"])).toEqual({ kind: "initial", letter: "A" });
+    expect(resolvePlaceBadge({ id: "c", name: "csapszék" }, fav)).toEqual({ kind: "initial", letter: "C" });
+    expect(resolvePlaceBadge({ id: "zz" })).toEqual({ kind: "initial", letter: "?" });
+  });
+  it("kezdőbetű: névelő, szám, írásjel, ékezet", () => {
+    expect(placeInitial("Púder Bárszínház")).toBe("P");
+    expect(placeInitial("2k bár")).toBe("2");
+    expect(placeInitial("6:3")).toBe("6");
+    expect(placeInitial("The Pointer Pub")).toBe("P");
+    expect(placeInitial("A Grund")).toBe("G");
+    expect(placeInitial("A")).toBe("A");
+    expect(placeInitial("„Ördög” kocsma")).toBe("Ö");
+    expect(placeInitial("éjjeli bár")).toBe("É");
+    expect(placeInitial("  ")).toBe("?");
+    expect(placeInitial(undefined)).toBe("?");
   });
   it("külső, http vagy veszélyes cím nem jelenik meg", () => {
     expect(isSafeIconUrl("https://kulso.hu/favicon.ico")).toBe(false);
@@ -103,7 +115,7 @@ describe("csempe: kocsmáros ikon → honlap-ikon → csillag", () => {
     expect(isSafeIconUrl("javascript:alert(1)")).toBe(false);
     expect(isSafeIconUrl("icons/places/../../secret.png")).toBe(false);
     expect(isSafeIconUrl("https://firebasestorage.googleapis.com/v0/b/x/o/places%2Fa%2Ficon?alt=media")).toBe(true);
-    expect(resolvePlaceBadge({ id: "q", info: { iconUrl: "https://kulso.hu/logo.png" } })).toEqual({ kind: "sparkle" });
+    expect(resolvePlaceBadge({ id: "q", name: "Jaffa", info: { iconUrl: "https://kulso.hu/logo.png" } })).toEqual({ kind: "initial", letter: "J" });
   });
   it("a repóban lévő favicon-adatfájl érvényes", () => {
     const parsed = parseFaviconIndex(faviconsJson);
