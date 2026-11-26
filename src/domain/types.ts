@@ -63,6 +63,8 @@ export interface HappyHourSlot {
   end: string;
   /** Rövid leírás: „Minden csapolt sör -30%”. */
   note: string;
+  /** Normál eloszlással generált becsült idősáv (nem valós adat). */
+  isSynthetic?: boolean;
 }
 
 export interface Sponsorship {

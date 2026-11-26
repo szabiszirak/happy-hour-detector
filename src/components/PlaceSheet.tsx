@@ -154,6 +154,7 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
               <li key={h.id} className={slotMinutesLeft(h, now) !== null ? "live" : ""}>
                 <strong>
                   {describeDays(h.days)} {h.start}–{h.end}
+                  {h.isSynthetic && <span className="tag-synthetic">Becsült (nem valós adat)</span>}
                 </strong>
                 <span>{h.note}</span>
               </li>
