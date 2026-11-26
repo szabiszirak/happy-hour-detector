@@ -5,6 +5,7 @@
 //  4) a beépített vázlatos alaptérkép (pl. a claude.ai-os demólinken, ahol külső fájl nem tölthető).
 // A PMTiles fájlokat a böngésző részletekben (HTTP range request) olvassa, szerver nélkül.
 import L from "leaflet";
+import { MAP_FLAVOR } from "../theme";
 import { labelRules, leafletLayer, LineLabelSymbolizer, paintRules } from "protomaps-leaflet";
 import { namedFlavor } from "@protomaps/basemaps";
 import { DANUBE, STREETS } from "./baseMap";
@@ -25,44 +26,44 @@ const MVP_BOUNDS = L.latLngBounds([47.476, 19.05], [47.494, 19.078]);
  * már 15-ös nagyítástól látszik (az alap 16).
  */
 function readableRules() {
-  // A „dark” stílus szürkéit az app éjszakai indigó palettájához hangoljuk (háttér #0B0D17).
+  // A „dark” stílus szürkéit a „Carbon Mint” karbon tónusaihoz hangoljuk (src/theme.ts).
   const flavor = {
     ...namedFlavor("dark"),
-    background: "#0B0D17",
-    earth: "#10131F",
-    water: "#1A2140",
-    park_a: "#0F2420",
-    park_b: "#0F2622",
-    wood_a: "#0F1F1D",
-    wood_b: "#0F1F1D",
-    pedestrian: "#141829",
-    buildings: "#171B2E",
-    minor_service: "#20263D",
-    minor_a: "#262D48",
-    minor_b: "#20263D",
-    other: "#20263D",
-    link: "#2B3354",
-    major: "#2B3354",
-    highway: "#343D63",
-    minor_service_casing: "#10131F",
-    minor_casing: "#10131F",
-    link_casing: "#10131F",
-    major_casing_early: "#10131F",
-    major_casing_late: "#10131F",
-    highway_casing_early: "#10131F",
-    highway_casing_late: "#10131F",
-    bridges_minor: "#262D48",
-    bridges_major: "#2B3354",
-    bridges_highway: "#343D63",
-    boundaries: "#4B5578",
-    roads_label_major: "#E4E7F5",
-    roads_label_major_halo: "#0B0D17",
-    roads_label_minor: "#C3C9E0",
-    roads_label_minor_halo: "#0B0D17",
-    city_label: "#9AA3C0",
-    city_label_halo: "#0B0D17",
-    subplace_label: "#8A93B2",
-    subplace_label_halo: "#0B0D17",
+    background: MAP_FLAVOR.background,
+    earth: MAP_FLAVOR.earth,
+    water: MAP_FLAVOR.water,
+    park_a: MAP_FLAVOR.park_a,
+    park_b: MAP_FLAVOR.park_b,
+    wood_a: MAP_FLAVOR.wood_a,
+    wood_b: MAP_FLAVOR.wood_b,
+    pedestrian: MAP_FLAVOR.pedestrian,
+    buildings: MAP_FLAVOR.buildings,
+    minor_service: MAP_FLAVOR.minor_service,
+    minor_a: MAP_FLAVOR.minor_a,
+    minor_b: MAP_FLAVOR.minor_b,
+    other: MAP_FLAVOR.other,
+    link: MAP_FLAVOR.link,
+    major: MAP_FLAVOR.major,
+    highway: MAP_FLAVOR.highway,
+    minor_service_casing: MAP_FLAVOR.casing,
+    minor_casing: MAP_FLAVOR.casing,
+    link_casing: MAP_FLAVOR.casing,
+    major_casing_early: MAP_FLAVOR.casing,
+    major_casing_late: MAP_FLAVOR.casing,
+    highway_casing_early: MAP_FLAVOR.casing,
+    highway_casing_late: MAP_FLAVOR.casing,
+    bridges_minor: MAP_FLAVOR.bridges_minor,
+    bridges_major: MAP_FLAVOR.bridges_major,
+    bridges_highway: MAP_FLAVOR.bridges_highway,
+    boundaries: MAP_FLAVOR.boundaries,
+    roads_label_major: MAP_FLAVOR.label_major,
+    roads_label_major_halo: MAP_FLAVOR.halo,
+    roads_label_minor: MAP_FLAVOR.label_minor,
+    roads_label_minor_halo: MAP_FLAVOR.halo,
+    city_label: MAP_FLAVOR.label_city,
+    city_label_halo: MAP_FLAVOR.halo,
+    subplace_label: MAP_FLAVOR.label_sub,
+    subplace_label_halo: MAP_FLAVOR.halo,
   };
   const labels = labelRules(flavor, "hu").map((rule) => {
     if (rule.dataLayer !== "roads" || !(rule.symbolizer instanceof LineLabelSymbolizer)) return rule;
@@ -95,10 +96,10 @@ async function isPmtiles(url: string): Promise<boolean> {
 }
 
 function addSketch(m: L.Map) {
-  L.polygon(DANUBE, { stroke: false, fillColor: "#1A2140", fillOpacity: 0.95, interactive: false }).addTo(m);
+  L.polygon(DANUBE, { stroke: false, fillColor: MAP_FLAVOR.water, fillOpacity: 0.95, interactive: false }).addTo(m);
   for (const s of STREETS) {
     L.polyline(s.path, {
-      color: s.kind === "major" ? "#343D63" : s.kind === "bridge" ? "#4B5578" : "#262D48",
+      color: s.kind === "major" ? MAP_FLAVOR.highway : s.kind === "bridge" ? MAP_FLAVOR.boundaries : MAP_FLAVOR.minor_a,
       weight: s.kind === "major" ? 7 : 4,
       lineCap: "round",
       interactive: false,

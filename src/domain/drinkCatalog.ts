@@ -291,7 +291,7 @@ export function exportCatalog() {
 // ---------- márkajelvény (saját monogram, nem logó) ----------
 
 /** A palettából választott jelvényszínek; a márka neve alapján mindig ugyanaz jön. */
-export const BADGE_COLORS = ["#7C3AED", "#FB7185", "#2DD4BF", "#60A5FA", "#F59E0B", "#E879F9", "#A3E635", "#818CF8"];
+export const BADGE_COLORS = ["#2EF2B3", "#FF5C8A", "#5AB0FF", "#FFC53D", "#B69CFF", "#A3E635", "#FF8A4C", "#7EE8FA"];
 
 export interface BrandBadge {
   initials: string;
@@ -312,8 +312,8 @@ export function brandBadge(label: string): BrandBadge {
   let h = 0;
   for (const ch of brandKey(label)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   const color = BADGE_COLORS[h % BADGE_COLORS.length];
-  // a sötét lila és indigó háttéren fehér, a világos színeken sötét betű olvasható
-  const textColor = color === "#7C3AED" || color === "#818CF8" ? "#FFFFFF" : "#0B0D17";
+  // a „Carbon Mint” jelvényszínek mind világos LED-tónusok: rajtuk sötét betű olvasható
+  const textColor = "#0A0C0D";
   return { initials, color, textColor };
 }
 

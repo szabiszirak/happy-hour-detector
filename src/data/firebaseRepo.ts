@@ -34,6 +34,8 @@ import {
 } from "../domain/ownership";
 import { decidePromotion, type DrinkPromotion } from "../domain/pricing";
 import { parseOwnerAccount, type OwnerAccount } from "../domain/account";
+import { AVATAR_LIMITS, parseAvatarSettings, validateAvatarFile, type AvatarPref, type AvatarSettings } from "../domain/avatar";
+import { dataUrlToBlob, squareAvatar } from "./imagePreview";
 
 /** A Firestore nem fogad el `undefined` mezőt – kiszűrjük mentés előtt. */
 const clean = <T,>(o: T): T => JSON.parse(JSON.stringify(o));
@@ -128,6 +130,43 @@ export class FirebaseRepo implements Repo {
   }
 
   // ---- kocsmáros profil ----
+
+  subscribeAvatar(uid: string, cb: (s: AvatarSettings) => void): Unsubscribe {
+    return onSnapshot(doc(this.db, "users", uid), (snap) => cb(parseAvatarSettings(snap.data()?.avatar)));
+  }
+
+  private async currentAvatar(uid: string): Promise<AvatarSettings> {
+    return parseAvatarSettings((await getDoc(doc(this.db, "users", uid))).data()?.avatar);
+  }
+
+  async setAvatar(uid: string, file: File) {
+    const err = validateAvatarFile({ mime: file.type, size: file.size });
+    if (err) throw new Error(err);
+    const dataUrl = await squareAvatar(file, AVATAR_LIMITS.sizePx, 0.82);
+    if (!dataUrl) throw new Error("Nem sikerült beolvasni a képet.");
+    const blob = dataUrlToBlob(dataUrl);
+    if (blob.size > AVATAR_LIMITS.maxStoredBytes) throw new Error("A kép túl nagy.");
+    const { st, storage } = await this.storage();
+    const path = `avatars/${uid}.jpg`;
+    const r = st.ref(storage, path);
+    await st.uploadBytes(r, blob, { contentType: "image/jpeg" });
+    const url = await st.getDownloadURL(r);
+    await setDoc(doc(this.db, "users", uid), { avatar: { pref: "auto", custom: { url, storagePath: path, updatedAt: Date.now() } } }, { mergeFields: ["avatar"] });
+  }
+
+  async clearAvatar(uid: string) {
+    const cur = await this.currentAvatar(uid);
+    if (cur.custom?.storagePath) {
+      const { st, storage } = await this.storage();
+      await st.deleteObject(st.ref(storage, cur.custom.storagePath)).catch(() => {});
+    }
+    await setDoc(doc(this.db, "users", uid), { avatar: { pref: cur.pref } }, { mergeFields: ["avatar"] });
+  }
+
+  async setAvatarPref(uid: string, pref: AvatarPref) {
+    const cur = await this.currentAvatar(uid);
+    await setDoc(doc(this.db, "users", uid), { avatar: { ...cur, pref } }, { mergeFields: ["avatar"] }); // a teljes avatar-mezőt cseréli
+  }
 
   subscribeOwnerAccount(uid: string, cb: (a: OwnerAccount | undefined) => void): Unsubscribe {
     return onSnapshot(doc(this.db, "users", uid), (snap) => cb(parseOwnerAccount(snap.data()?.ownerAccount, uid)));

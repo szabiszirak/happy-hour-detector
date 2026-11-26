@@ -1,26 +1,33 @@
 :root {
-  /* „Electric Indigo & Cocktail Coral” – sötét, éjszakai paletta */
-  --bg: #0B0D17;            /* háttér */
-  --bg2: #111425;           /* fejléc, adatlapok */
-  --card: #151929;          /* kártyák, panelek, felületek */
-  --card2: #1C2135;         /* emelt felület, gombok */
-  --line: #232942;          /* finom határolók */
-  --text: #EEF0FA;          /* fő szöveg (15,4:1 a kártyán) */
-  --muted: #9AA3C0;         /* halvány szöveg (7,0:1 a kártyán) */
-  --primary: #7C3AED;       /* elektromos ibolya: aktív fül, fő gombok – rajta fehér szöveg (5,7:1) */
-  --primary-hover: #6D28D9;
-  --primary-text: #A78BFA;  /* ibolya SZÖVEG / vonal a sötét alapon (6,4:1) – a #7C3AED szövegnek kevés */
-  --primary-soft: rgba(124, 58, 237, 0.2);
-  --hh: #FB7185;            /* koktél korall: happy hour – rajta sötét szöveg (7,2:1) */
-  --hh-soft: rgba(251, 113, 133, 0.15);
-  --ok: #2DD4BF;            /* tonikos türkiz: nyitva / pozitív – rajta sötét szöveg (10,4:1) */
-  --ok-soft: rgba(45, 212, 191, 0.14);
-  --warn: #FBBF24;          /* csak „Szponzorált” és „ellenőrizendő” (10,5:1) */
-  --warn-soft: rgba(251, 191, 36, 0.1);
-  --danger: #F87171;
-  --closed: #6B7394;        /* zárva / ismeretlen jelölők */
-  --me: #60A5FA;            /* saját helyed a térképen */
-  --on-accent: #0B0D17;     /* szöveg korall / türkiz / sárga alapon */
+  /* „Carbon Mint” – sötét karbon alap, menta LED-kiemelések (kontraszt a kártyán, WCAG) */
+  --bg: #0A0C0D;            /* karbon háttér */
+  --bg2: #101314;           /* fejléc, adatlapok */
+  --card: #14181A;          /* kártyák, panelek */
+  --card2: #1B2023;         /* emelt felület, gombok */
+  --line: #262D30;          /* finom határolók */
+  --line-hover: #34403F;
+  --text: #E9F2EF;          /* fő szöveg (15,7:1) */
+  --muted: #93A39F;         /* halvány szöveg (6,8:1) */
+  --primary: #2EF2B3;       /* menta LED: aktív fül, fő gombok, kiemelés – rajta sötét szöveg (13,5:1) */
+  --primary-hover: #5CF6C6;
+  --primary-text: #6FF7CB;  /* menta szöveg / vonal a sötét alapon */
+  --primary-rgb: 46, 242, 179;
+  --primary-soft: rgba(46, 242, 179, 0.14);
+  --on-primary: #0A0C0D;
+  --hh: #FF5C8A;            /* neon pink LED: happy hour (6,1:1) – rajta sötét szöveg (6,7:1) */
+  --hh-rgb: 255, 92, 138;
+  --hh-soft: rgba(255, 92, 138, 0.14);
+  --ok: #2EF2B3;            /* nyitva / pozitív = menta */
+  --ok-rgb: 46, 242, 179;
+  --ok-soft: rgba(46, 242, 179, 0.12);
+  --warn: #FFC53D;          /* csak „Szponzorált” és „ellenőrizendő” (11,3:1) */
+  --warn-soft: rgba(255, 197, 61, 0.1);
+  --danger: #FF6B6B;
+  --closed: #6E7A77;        /* zárva / ismeretlen jelölők */
+  --me: #5AB0FF;            /* saját helyed a térképen */
+  --on-accent: #0A0C0D;     /* szöveg menta / pink / sárga alapon */
+  --glow-mint: 0 0 6px rgba(46, 242, 179, 0.65), 0 0 14px rgba(46, 242, 179, 0.3);
+  --glow-hh: 0 0 6px rgba(255, 92, 138, 0.7), 0 0 14px rgba(255, 92, 138, 0.35);
   --radius: 14px;
   color-scheme: dark;
 }
@@ -51,7 +58,7 @@ a { color: var(--primary-text); }
   padding: 10px 18px; text-decoration: none; color: var(--text); font-weight: 600;
 }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 .btn.primary:hover:not(:disabled) { background: var(--primary-hover); }
 .btn.ghost { background: transparent; }
 .btn.google { background: #fff; color: #222; border-color: #fff; width: 100%; padding: 12px; }
@@ -71,13 +78,13 @@ a { color: var(--primary-text); }
   padding: 6px 12px; white-space: nowrap; font-size: 13.5px;
 }
 .chip.small { padding: 3px 9px; font-size: 12.5px; }
-.chip.on { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+.chip.on { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
 .chips.big .chip { padding: 10px 14px; font-size: 15px; }
 .emoji { font-size: 1.15em; }
 
 /* ---------- onboarding ---------- */
 .onb { min-height: 100%; display: grid; place-items: center; padding: 24px;
-  background: radial-gradient(circle at 50% 0%, #2A1B5E 0%, var(--bg) 62%); }
+  background: radial-gradient(circle at 50% 0%, rgba(46, 242, 179, 0.16) 0%, var(--bg) 60%); }
 .onb-card { width: 100%; max-width: 420px; background: var(--bg2); border: 1px solid var(--line);
   border-radius: 22px; padding: 28px 24px; text-align: center; }
 .onb-card h1 { margin: 6px 0 8px; font-size: 26px; }
@@ -132,18 +139,18 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-tex
 .leaflet-container { background: var(--bg); font: inherit; }
 .map-note { position: absolute; left: 10px; bottom: 8px; z-index: 500; font-size: 11px; color: var(--muted);
   background: rgba(11, 13, 23, 0.85); padding: 2px 8px; border-radius: 6px; }
-.street-label { background: transparent; border: none; box-shadow: none; color: #8A93B2; font-size: 10.5px;
+.street-label { background: transparent; border: none; box-shadow: none; color: #84938F; font-size: 10.5px;
   font-weight: 600; letter-spacing: 0.02em; padding: 0; }
 .street-label::before, .corner-label::before { display: none; }
-.corner-label { background: rgba(124, 58, 237, 0.92); color: #fff; border: none; font-size: 10.5px;
+.corner-label { background: rgba(var(--primary-rgb), 0.92); color: var(--on-primary); border: none; font-size: 10.5px;
   font-weight: 700; padding: 1px 6px; border-radius: 6px; box-shadow: none; }
 .pin { transform: translate(-50%, -100%); white-space: nowrap; font-size: 12px; font-weight: 700;
   padding: 3px 8px; border-radius: 999px; background: var(--card2); color: var(--text); border: 2px solid var(--closed);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5); display: inline-flex; align-items: center; gap: 5px; position: relative; }
 .pin::after { content: ""; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%);
   border: 5px solid transparent; border-top-color: inherit; border-bottom: 0; }
-.pin-active { background: var(--hh); color: var(--on-accent); border-color: #FDA4AF; }
-.pin-upcoming { background: #241A4A; color: #DDD6FE; border-color: var(--primary-text); }
+.pin-active { background: var(--hh); color: var(--on-accent); border-color: #FF9DB8; }
+.pin-upcoming { background: #10241E; color: #C9FBEA; border-color: var(--primary-text); }
 .pin-dim { opacity: 0.35; }
 .pin-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--on-accent); animation: pulse 1.4s infinite; }
 @keyframes pulse { 50% { opacity: 0.2; } }
@@ -154,7 +161,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-tex
   background: rgba(11, 13, 23, 0.88); padding: 5px 10px; border-radius: 8px; }
 .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }
 .pick-banner { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 700;
-  background: var(--primary); color: #fff; font-weight: 700; padding: 8px 10px 8px 16px; border-radius: 999px;
+  background: var(--primary); color: var(--on-primary); font-weight: 700; padding: 8px 10px 8px 16px; border-radius: 999px;
   display: flex; gap: 10px; align-items: center; white-space: nowrap; }
 .pick-banner .mini { color: var(--text); }
 
@@ -163,7 +170,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-tex
 .timebar select, .timebar input { padding: 5px 8px; font-size: 13px; }
 .tabs { display: flex; gap: 6px; padding: 10px 16px; position: sticky; top: 0; background: var(--bg); z-index: 5; }
 .tabs button { flex: 1; border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 10px; font-weight: 700; }
-.tabs button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.tabs button.on { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 .tab-body { padding: 0 16px 8px; }
 .sec { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 18px 0 8px; }
 
@@ -179,10 +186,10 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-tex
 .match { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
 .match.hi { background: var(--ok-soft); color: var(--ok); }
 .match.mid { background: var(--primary-soft); color: var(--primary-text); }
-.match.lo { background: rgba(154, 163, 192, 0.12); color: var(--muted); }
+.match.lo { background: rgba(147, 163, 159, 0.12); color: var(--muted); }
 
 .sponsored-block { display: flex; flex-direction: column; gap: 8px; margin: 10px 0 4px; }
-.sponsored-card { text-align: left; display: flex; flex-direction: column; gap: 2px; background: linear-gradient(135deg, #2A2414, var(--card));
+.sponsored-card { text-align: left; display: flex; flex-direction: column; gap: 2px; background: linear-gradient(135deg, #2A2412, var(--card));
   border: 1px dashed var(--warn); border-radius: var(--radius); padding: 10px 14px; }
 .tag-sponsored { align-self: flex-start; font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--warn); border: 1px solid var(--warn); border-radius: 5px; padding: 1px 5px; margin-bottom: 4px; display: inline-block; }
@@ -230,7 +237,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-tex
 .sheet-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .vibe { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
 .hh-live { background: var(--hh); color: var(--on-accent); font-weight: 700; border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; }
-.hh-soon { background: var(--primary-soft); color: #DDD6FE; font-weight: 700; border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; }
+.hh-soon { background: var(--primary-soft); color: var(--primary-text); font-weight: 700; border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; }
 .slots { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
 .slots li { display: flex; flex-direction: column; background: var(--card); border-radius: 10px; padding: 8px 12px; border: 1px solid var(--line); }
 .slots li.live { border-color: var(--hh); }
@@ -276,13 +283,13 @@ table.drinks td.num > * { display: block; }
 .empty-card strong { color: var(--text); }
 .open-badge { font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .open-badge.open { background: var(--ok-soft); color: var(--ok); }
-.open-badge.closed { background: rgba(154, 163, 192, 0.12); color: var(--muted); }
+.open-badge.closed { background: rgba(147, 163, 159, 0.12); color: var(--muted); }
 .open-badge.unknown { background: transparent; color: var(--muted); border: 1px dashed var(--line); font-weight: 600; }
 .tag-check { font-size: 11px; font-weight: 700; color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 999px; padding: 1px 7px; }
 .place-list { list-style: none; padding: 0; margin: 0; }
 .place-row { width: 100%; display: flex; gap: 12px; align-items: center; text-align: left; background: var(--card);
   border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
-.place-row:hover { border-color: #3A4266; }
+.place-row:hover { border-color: var(--line-hover); }
 .place-main { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .place-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .place-side { display: flex; flex-direction: column; align-items: flex-end; flex: none; max-width: 40%; text-align: right; }
@@ -292,7 +299,7 @@ table.drinks td.num > * { display: block; }
 .dot-active { background: var(--hh); width: 18px; height: 18px; }
 .dot-open { background: var(--ok); }
 .dot-closed { background: var(--closed); }
-.dot.pin-open { background: #0F2E2B; color: #CCFBF1; border-color: var(--ok); }
+.dot.pin-open { background: #0E2A22; color: #C9FBEA; border-color: var(--ok); }
 .pin-closed { background: var(--card2); color: var(--text); border-color: var(--closed); }
 .leaflet-tooltip.pin-label { background: var(--bg2); color: var(--text); border: 1px solid var(--line); font-weight: 600; font-size: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); }
@@ -373,7 +380,7 @@ table.drinks td.num > * { display: block; }
 .brand-icon { display: inline-grid; place-items: center; flex: none; border-radius: 50%; font-weight: 800; letter-spacing: -0.02em;
   line-height: 1; width: 26px; height: 26px; font-size: 11px; }
 .brand-row.no-price .brand-icon { opacity: 0.55; }
-.brand-icon.all { background: var(--primary); color: #fff; }
+.brand-icon.all { background: var(--primary); color: var(--on-primary); }
 .brand-icon.other { background: var(--card2); color: var(--muted); border: 1px dashed var(--line); }
 .brand-input { flex: 1; min-width: 160px; }
 
@@ -406,8 +413,8 @@ table.drinks td.num > * { display: block; }
 .dot.look-muted { background: var(--closed); opacity: 0.45; }
 .pin.look-muted { background: var(--card2); color: var(--muted); border-color: var(--closed); opacity: 0.5; }
 .look-muted .dot-name { opacity: 0.7; }
-.dot.look-open-ring { background: var(--ok); box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.35), 0 0 0 5px var(--ok), 0 0 12px rgba(45, 212, 191, 0.55); }
-.pin.look-open-ring { border-color: var(--ok); box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.45), 0 3px 8px rgba(0, 0, 0, 0.5); }
+.dot.look-open-ring { background: var(--ok); box-shadow: 0 0 0 3px rgba(var(--ok-rgb), 0.35), 0 0 0 5px var(--ok), 0 0 12px rgba(var(--ok-rgb), 0.55); }
+.pin.look-open-ring { border-color: var(--ok); box-shadow: 0 0 0 3px rgba(var(--ok-rgb), 0.45), 0 3px 8px rgba(0, 0, 0, 0.5); }
 .dot-name-item.look-dimmed, .dot-name-item.look-muted { opacity: 0.45; }
 .group-chooser button.no-match { opacity: 0.5; }
 .legend .legend-faded { background: var(--closed); opacity: 0.25; }
@@ -419,7 +426,7 @@ table.drinks td.num > * { display: block; }
 .taste { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .taste.selected { border-color: var(--primary); }
 .taste-head-row { display: flex; align-items: stretch; }
-.taste-check { width: 44px; flex: none; background: none; border: none; display: grid; place-items: center; font-weight: 800; color: #fff; }
+.taste-check { width: 44px; flex: none; background: none; border: none; display: grid; place-items: center; font-weight: 800; color: var(--on-primary); }
 .taste-check::before { content: ""; position: absolute; }
 .taste-check { position: relative; }
 .taste-check:not(.on)::after { content: ""; width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--muted); }
@@ -434,11 +441,11 @@ table.drinks td.num > * { display: block; }
 .brand-chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 210px; overflow-y: auto; }
 .brand-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--card2); font-size: 13px; font-weight: 600; }
-.brand-chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.brand-chip.on { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 .custom-brand { display: flex; gap: 8px; margin-top: 10px; }
 .custom-brand input { flex: 1; }
 .band.current { border-color: var(--primary-text); }
-.onb-overlay { position: fixed; inset: 0; z-index: 4000; overflow-y: auto; background: rgba(11, 13, 23, 0.82); backdrop-filter: blur(3px); }
+.onb-overlay { position: fixed; inset: 0; z-index: 4000; overflow-y: auto; background: rgba(10, 12, 13, 0.82); backdrop-filter: blur(3px); }
 .onb-overlay .onb { background: none; min-height: 100%; }
 
 /* ---------- árkeret (ízlésprofil 2. lépés) ---------- */
@@ -451,7 +458,7 @@ table.drinks td.num > * { display: block; }
 
 /* ---------- kocsmáros profil ---------- */
 .verified-badge { display: inline-block; font-size: 11px; font-weight: 800; color: var(--on-accent); background: var(--ok); border-radius: 999px; padding: 2px 9px; margin-bottom: 4px; }
-.tag-verified { font-size: 11px; font-weight: 700; color: var(--ok); border: 1px solid rgba(45, 212, 191, 0.5); border-radius: 999px; padding: 1px 7px; }
+.tag-verified { font-size: 11px; font-weight: 700; color: var(--ok); border: 1px solid rgba(var(--ok-rgb), 0.5); border-radius: 999px; padding: 1px 7px; }
 .block { display: block; }
 .field.invalid input, .field.invalid textarea { border-color: var(--danger); }
 .field-err { font-style: normal; font-size: 12.5px; color: var(--danger); }
@@ -460,7 +467,7 @@ table.drinks td.num > * { display: block; }
 .claim-steps li { flex: 1; display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); padding: 6px 8px; border-radius: 10px; background: var(--card); }
 .claim-steps li span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--card2); font-weight: 800; flex: none; }
 .claim-steps li.on { color: var(--text); outline: 1px solid var(--primary-text); }
-.claim-steps li.on span { background: var(--primary); color: #fff; }
+.claim-steps li.on span { background: var(--primary); color: var(--on-primary); }
 .claim-steps li.done span { background: var(--ok); color: var(--on-accent); }
 @media (max-width: 520px) {
   .claim-steps li { font-size: 0; gap: 0; justify-content: center; flex: 0 0 auto; }
@@ -507,7 +514,7 @@ table.drinks td.num > * { display: block; }
 .photo-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .photo-grid figure { position: relative; margin: 0; }
 .photo-grid img { width: 88px; height: 88px; object-fit: cover; border-radius: 10px; display: block; }
-.photo-grid .icon-btn { position: absolute; top: 2px; right: 2px; background: rgba(11, 13, 23, 0.75); border-radius: 50%; font-size: 13px; padding: 2px 6px; }
+.photo-grid .icon-btn { position: absolute; top: 2px; right: 2px; background: rgba(10, 12, 13, 0.75); border-radius: 50%; font-size: 13px; padding: 2px 6px; }
 .photo-add { width: 88px; height: 88px; border-radius: 10px; border: 1px dashed var(--line); background: var(--card); color: var(--muted); }
 .photo-strip { display: flex; gap: 8px; overflow-x: auto; margin: 10px 0; }
 .photo-strip img { height: 120px; border-radius: 12px; flex: none; }
@@ -520,23 +527,23 @@ table.drinks td.num > * { display: block; }
 tr.promoted td { background: var(--warn-soft); }
 tr.promoted .tag-sponsored { display: inline-block; margin-bottom: 2px; }
 .promo-tagline { display: block; font-size: 12.5px; color: var(--warn); }
-.budget-ok { align-self: flex-start; display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--ok); border: 1px solid rgba(45, 212, 191, 0.45); border-radius: 999px; padding: 0 6px; margin-top: 2px; }
+.budget-ok { align-self: flex-start; display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--ok); border: 1px solid rgba(var(--ok-rgb), 0.45); border-radius: 999px; padding: 0 6px; margin-top: 2px; }
 .onb-card .btn.ghost { margin-top: 10px; }
 
 /* ---------- kocsmáros fiók ---------- */
-.mode-chip { margin-left: auto; margin-right: 8px; font-size: 12px; font-weight: 800; color: #fff; background: var(--primary); border: none; border-radius: 999px; padding: 5px 11px; }
+.mode-chip { margin-left: auto; margin-right: 8px; font-size: 12px; font-weight: 800; color: var(--on-primary); background: var(--primary); border: none; border-radius: 999px; padding: 5px 11px; }
 .mode-label { display: inline-block; margin: 4px 0; font-size: 12px; font-weight: 800; border-radius: 999px; padding: 2px 9px; }
-.mode-label.owner { color: #fff; background: var(--primary); }
+.mode-label.owner { color: var(--on-primary); background: var(--primary); }
 .mode-label.guest { color: var(--text); background: var(--card2); }
 .login-owner { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
 .btn.owner-login { width: 100%; background: var(--card2); border: 1px solid var(--primary-text); color: var(--text); }
-.btn.claim-btn { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.claim-btn { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
 .taken-note { align-self: center; }
 .owner-steps { list-style: none; padding: 0; margin: 6px 0 12px; display: flex; flex-direction: column; gap: 6px; }
 .owner-steps li { display: flex; gap: 10px; align-items: center; font-size: 13.5px; color: var(--muted); }
 .owner-steps li span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--card2); font-size: 12px; font-weight: 800; flex: none; }
 .owner-steps li.on { color: var(--text); font-weight: 700; }
-.owner-steps li.on span { background: var(--primary); color: #fff; }
+.owner-steps li.on span { background: var(--primary); color: var(--on-primary); }
 .owner-steps li.done span { background: var(--ok); color: var(--on-accent); }
 .pick-guide { background: var(--card); border: 1px solid var(--primary-text); border-radius: 14px; padding: 14px; margin: 10px 0; }
 .pick-guide h3 { margin: 0 0 6px; }
@@ -566,8 +573,8 @@ tr.promoted .tag-sponsored { display: inline-block; margin-bottom: 2px; }
 
 /* ---------- hely-ikonok (saját SVG) ---------- */
 .place-icon { position: relative; flex: none; display: inline-grid; place-items: center; color: var(--primary-text);
-  background: linear-gradient(160deg, rgba(124, 58, 237, 0.22), rgba(124, 58, 237, 0.06)) var(--card); border: 1px solid var(--line); }
-.place-icon.hh { border-color: var(--hh); color: var(--hh); background: linear-gradient(160deg, rgba(251, 113, 133, 0.2), rgba(251, 113, 133, 0.05)) var(--card); }
+  background: linear-gradient(160deg, rgba(var(--primary-rgb), 0.22), rgba(var(--primary-rgb), 0.06)) var(--card); border: 1px solid var(--line); }
+.place-icon.hh { border-color: var(--hh); color: var(--hh); background: linear-gradient(160deg, rgba(var(--hh-rgb), 0.2), rgba(var(--hh-rgb), 0.05)) var(--card); }
 .place-icon.uncertain { border: 1px dashed var(--warn); }
 .place-icon-q { position: absolute; right: -4px; top: -4px; width: 15px; height: 15px; border-radius: 50%; display: grid; place-items: center;
   font-size: 10px; font-weight: 800; color: var(--on-accent); background: var(--warn); }
@@ -578,3 +585,77 @@ tr.promoted .tag-sponsored { display: inline-block; margin-bottom: 2px; }
 .sheet-head { gap: 12px; align-items: flex-start; }
 .sheet-head .sheet-title { flex: 1; min-width: 0; }
 .kind-chip.uncertain { border: 1px dashed var(--warn); color: var(--warn); }
+
+/* ======================================================================
+   Carbon Mint – karbon textúra + LED-csíkok (visszafogott fény, a szöveg alatt soha)
+   ====================================================================== */
+body {
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 4px),
+    var(--bg);
+}
+/* fejléc alatti LED-csík */
+.top { position: relative; }
+.top::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--primary) 18%, var(--primary) 82%, transparent);
+  box-shadow: var(--glow-mint); opacity: 0.7;
+}
+/* aktív fül: tónusos háttér + alsó LED-csík */
+.tabs button { position: relative; }
+.tabs button.on {
+  background: rgba(var(--primary-rgb), 0.1); border-color: rgba(var(--primary-rgb), 0.45); color: var(--primary-text);
+}
+.tabs button.on::after {
+  content: ""; position: absolute; left: 16%; right: 16%; bottom: -1px; height: 3px; border-radius: 3px;
+  background: var(--primary); box-shadow: var(--glow-mint);
+}
+/* kiválasztott szűrők, chipek: menta keret + belső LED-vonal */
+.chip.on, .brand-chip.on {
+  background: rgba(var(--primary-rgb), 0.14); color: var(--primary-text); border-color: var(--primary);
+  box-shadow: inset 0 -2px 0 var(--primary), 0 0 10px rgba(var(--primary-rgb), 0.2);
+}
+.brand-row.on { box-shadow: inset 3px 0 0 var(--primary), 0 0 10px rgba(var(--primary-rgb), 0.15); }
+.open-toggle.on .switch { box-shadow: var(--glow-mint); }
+/* fő gombok: menta, sötét szöveg; fókusz / rámutatás: LED-fény */
+.btn.primary:hover:not(:disabled) { background: var(--primary-hover); box-shadow: var(--glow-mint); }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+/* listák: bal oldali LED-szél – happy hour pink fénnyel, nyitva menta fény nélkül */
+.place-row, .card { position: relative; overflow: hidden; }
+.place-row.led-open::before, .card.upcoming::before,
+.place-row.led-hh::before, .card.active::before {
+  content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0;
+}
+.place-row.led-open::before { background: var(--ok); opacity: 0.85; }
+.card.upcoming::before { background: var(--primary); opacity: 0.6; }
+.place-row.led-hh::before, .card.active::before { background: var(--hh); box-shadow: var(--glow-hh); }
+/* állapotjelzők: világító pöttyök */
+.open-badge.open::before {
+  content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 5px; vertical-align: 1px;
+  background: var(--ok); box-shadow: var(--glow-mint);
+}
+.tag-hh { box-shadow: 0 0 8px rgba(var(--hh-rgb), 0.55); animation: led-breathe 2.6s ease-in-out infinite; }
+/* térkép: nyitott és HH jelölők enyhe fénnyel, HH-n lassan pulzáló gyűrű; zárva matt */
+.dot-open { box-shadow: 0 0 6px rgba(var(--ok-rgb), 0.55); }
+.dot-active { box-shadow: var(--glow-hh); animation: led-ring 2.4s ease-out infinite; }
+.pin-active { box-shadow: var(--glow-hh); }
+@keyframes led-ring {
+  0% { box-shadow: 0 0 0 0 rgba(var(--hh-rgb), 0.55), var(--glow-hh); }
+  70% { box-shadow: 0 0 0 9px rgba(var(--hh-rgb), 0), var(--glow-hh); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--hh-rgb), 0), var(--glow-hh); }
+}
+@keyframes led-breathe { 0%, 100% { box-shadow: 0 0 4px rgba(var(--hh-rgb), 0.35); } 50% { box-shadow: 0 0 10px rgba(var(--hh-rgb), 0.7); } }
+@media (prefers-reduced-motion: reduce) {
+  .tag-hh, .dot-active, .pin-dot { animation: none !important; }
+}
+
+/* ---------- profilkép / kezdőbetű ---------- */
+.avatar { padding: 0; background: none; display: grid; place-items: center; }
+.avatar-img { display: inline-grid; place-items: center; flex: none; border-radius: 50%; overflow: hidden; font-weight: 800;
+  color: #0A0C0D; box-shadow: 0 0 0 2px var(--bg2), 0 0 0 3px rgba(var(--primary-rgb), 0.55); user-select: none; }
+.avatar-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.avatar-picker { display: flex; gap: 14px; align-items: center; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin: 10px 0; }
+.avatar-picker .avatar-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.avatar-picker .avatar-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.menu-head { display: flex; gap: 10px; align-items: center; }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { THEME } from "../theme";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useApp } from "../context";
@@ -11,7 +12,7 @@ import { addBaseLayer, type BaseKind } from "./baseLayer";
 const NAME_ZOOM = 17;
 
 /** Jelölőszínek – a CSS-változókkal egyezően (--hh, --ok, --closed). */
-export const MARKER_COLORS = { active: "#FB7185", open: "#2DD4BF", closed: "#6B7394" };
+export { MARKER_COLORS } from "../theme";
 
 interface Props {
   highlightIds?: Set<string>;
@@ -59,10 +60,10 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
 
     L.polygon(
       MVP_POLYGON.map((p) => [p.lat, p.lng] as [number, number]),
-      { color: "#A78BFA", weight: 2, dashArray: "6 6", fillColor: "#7C3AED", fillOpacity: 0.06, interactive: false },
+      { color: THEME.corner, weight: 1.5, dashArray: "6 6", fillColor: THEME.mint, fillOpacity: 0.03, interactive: false },
     ).addTo(m);
     for (const c of MVP_CORNERS) {
-      L.circleMarker([c.at.lat, c.at.lng], { radius: 3, color: "#A78BFA", fillOpacity: 1, interactive: false })
+      L.circleMarker([c.at.lat, c.at.lng], { radius: 3, color: THEME.corner, fillOpacity: 1, interactive: false })
         .bindTooltip(c.name, { permanent: true, direction: "top", className: "corner-label", offset: [0, -4] })
         .addTo(m);
     }
@@ -158,10 +159,10 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
     if (!area.current)
       area.current = L.circle([pos.lat, pos.lng], {
         radius: radiusM,
-        color: "#A78BFA",
+        color: THEME.radius,
         weight: 1.5,
         dashArray: "4 6",
-        fillColor: "#7C3AED",
+        fillColor: THEME.radius,
         fillOpacity: 0.07,
         interactive: false,
       }).addTo(m);
@@ -181,7 +182,7 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
         radius: 8,
         color: "#fff",
         weight: 3,
-        fillColor: "#60A5FA",
+        fillColor: THEME.me,
         fillOpacity: 1,
       })
         .bindTooltip("Itt vagy", { direction: "top", offset: [0, -8] })
@@ -193,9 +194,9 @@ export function MapView({ highlightIds, pickMode, onPick, accuracy, recenterKey 
       if (!acc.current)
         acc.current = L.circle([pos.lat, pos.lng], {
           radius: accuracy,
-          color: "#60A5FA",
+          color: THEME.me,
           weight: 1,
-          fillColor: "#60A5FA",
+          fillColor: THEME.me,
           fillOpacity: 0.12,
           interactive: false,
         }).addTo(m);

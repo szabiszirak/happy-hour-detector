@@ -75,6 +75,20 @@ npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutat�
   `logo` mezőbe (jogosult, hatály, lejárat); a `logoAllowed` dönti el, megjelenhet-e. Forrás-keresési sorrend partnerség előtt:
   hivatalos márkaoldal → sajtó-/médiaoldal → márkahasználati útmutató → írásos engedélykérés.
 
+## Stílus: „Carbon Mint”
+
+- Karbon alap (`#0A0C0D` / kártya `#14181A`), menta LED-kiemelés (`#2EF2B3`, rajta sötét szöveg), happy hour: neon pink
+  (`#FF5C8A`), szponzorált/ellenőrizendő: borostyán. A CSS-változók a `src/styles.css` :root-jában, a térkép- és
+  jelölőszínek a `src/theme.ts`-ben.
+- LED-csíkok: fejléc alatti vonal, aktív fül alatti csík, kiválasztott szűrők belső vonala, listasorok bal széle
+  (HH: pink fénnyel, nyitva: menta), világító állapotpöttyök, HH-jelölők pulzáló gyűrűje. Mozgáscsökkentésnél nincs animáció.
+
+## Profilkép
+
+- Sorrend: saját feltöltés → Google-fiók képe → kezdőbetű (`src/domain/avatar.ts`). Betöltési hibánál automatikusan a
+  következő. Feltöltés: JPG/PNG/WebP, max. 5 MB, a böngésző 256×256-ra vágja és kicsinyíti; demóban a böngészőben,
+  élesben Firebase Storage `avatars/{uid}.jpg` (storage.rules). Külső kép-URL nem adható meg.
+
 ## Hely-ikonok
 
 - Saját, beépített SVG ikonkészlet (`src/components/PlaceIcon.tsx`, 13 ikon) – nincs külső kép vagy ikon-URL.

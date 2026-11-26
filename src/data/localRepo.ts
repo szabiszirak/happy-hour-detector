@@ -17,9 +17,10 @@ import {
 } from "../domain/ownership";
 import { decidePromotion, type DrinkPromotion } from "../domain/pricing";
 import { parseOwnerAccount, type OwnerAccount } from "../domain/account";
+import { AVATAR_LIMITS, parseAvatarSettings, validateAvatarFile, type AvatarPref, type AvatarSettings } from "../domain/avatar";
 import type { Repo, ReviewApi, Unsubscribe } from "./repo";
 import { seedPlaces, seedReports } from "./seed";
-import { imagePreview, randomId } from "./imagePreview";
+import { imagePreview, randomId, squareAvatar } from "./imagePreview";
 
 const KEY = "hhd.demo.v2"; // v2: valódi helyek (v1 a kitalált demó volt)
 
@@ -31,6 +32,7 @@ interface State {
   owners: OwnerIndex;
   promotions: DrinkPromotion[];
   ownerAccounts: Record<string, OwnerAccount>;
+  avatars: Record<string, AvatarSettings>;
 }
 
 /** A demó beépített elbírálója – éles módban nincs ilyen, ott a Firebase `admin` claim kell. */
@@ -49,6 +51,7 @@ function load(): State | null {
       owners: s.owners ?? {},
       promotions: s.promotions ?? [],
       ownerAccounts: s.ownerAccounts ?? {},
+      avatars: s.avatars ?? {},
       // adatvédelem: a döntés után 30 nappal az igazolások előnézete törlődik
       claims: (s.claims ?? []).map((c) => (documentsExpired(c, now) ? { ...c, documents: c.documents.map(({ previewUrl: _p, ...d }) => d) } : c)),
     };
@@ -65,7 +68,7 @@ function persist(s: State) {
   }
 }
 
-const fresh = (): State => ({ places: seedPlaces(), reports: seedReports(), profiles: {}, claims: [], owners: {}, promotions: [], ownerAccounts: {} });
+const fresh = (): State => ({ places: seedPlaces(), reports: seedReports(), profiles: {}, claims: [], owners: {}, promotions: [], ownerAccounts: {}, avatars: {} });
 
 /** Demó adatréteg: localStorage + memória, azonnali értesítéssel. A jogosultságokat a domain függvényei ellenőrzik. */
 export class LocalRepo implements Repo {
@@ -139,6 +142,32 @@ export class LocalRepo implements Repo {
   }
 
   // ---- kocsmáros profil ----
+
+  subscribeAvatar(uid: string, cb: (s: AvatarSettings) => void): Unsubscribe {
+    return this.watch(() => this.state.avatars[uid], (raw) => cb(parseAvatarSettings(raw)));
+  }
+
+  private setAvatarSettings(uid: string, s: AvatarSettings) {
+    this.set({ avatars: { ...this.state.avatars, [uid]: s } });
+  }
+
+  async setAvatar(uid: string, file: File) {
+    const err = validateAvatarFile({ mime: file.type, size: file.size });
+    if (err) throw new Error(err);
+    const url = await squareAvatar(file, AVATAR_LIMITS.sizePx, 0.8);
+    if (!url) throw new Error("Nem sikerült beolvasni a képet.");
+    const next = parseAvatarSettings({ pref: "auto", custom: { url, updatedAt: Date.now() } });
+    if (!next.custom) throw new Error("A kép túl nagy a demó tárolójához.");
+    this.setAvatarSettings(uid, next);
+  }
+
+  async clearAvatar(uid: string) {
+    this.setAvatarSettings(uid, { pref: parseAvatarSettings(this.state.avatars[uid]).pref });
+  }
+
+  async setAvatarPref(uid: string, pref: AvatarPref) {
+    this.setAvatarSettings(uid, { ...parseAvatarSettings(this.state.avatars[uid]), pref });
+  }
 
   subscribeOwnerAccount(uid: string, cb: (a: OwnerAccount | undefined) => void): Unsubscribe {
     return this.watch(() => this.state.ownerAccounts[uid], (raw) => cb(parseOwnerAccount(raw, uid)));
@@ -242,7 +271,7 @@ export class LocalRepo implements Repo {
   }
 
   async reset() {
-    const { profiles, ownerAccounts } = this.state;
-    this.set({ ...fresh(), profiles, ownerAccounts });
+    const { profiles, ownerAccounts, avatars } = this.state;
+    this.set({ ...fresh(), profiles, ownerAccounts, avatars });
   }
 }

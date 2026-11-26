@@ -57,7 +57,14 @@ service cloud.firestore {
       allow write: if signedIn() && request.auth.uid == uid
         && (!('ownerAccount' in request.resource.data)
           || (request.resource.data.ownerAccount.contactEmail is string
-            && request.resource.data.ownerAccount.termsAcceptedAt is number));
+            && request.resource.data.ownerAccount.termsAcceptedAt is number))
+        // profilkép: csak saját Storage-ból (https), ésszerű hosszal; pref: auto / initials
+        && (!('avatar' in request.resource.data)
+          || (request.resource.data.avatar.get('pref', 'auto') in ['auto', 'initials']
+            && (!('custom' in request.resource.data.avatar)
+              || (request.resource.data.avatar.custom.url is string
+                && request.resource.data.avatar.custom.url.size() <= 2048
+                && request.resource.data.avatar.custom.url.matches('^https://firebasestorage[.]googleapis[.]com/.*')))));
     }
     function hasOwnerAccount() {
       return signedIn()

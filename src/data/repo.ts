@@ -2,6 +2,7 @@ import type { AppUser, Place, PlacePhoto, Report, TasteProfile } from "../domain
 import type { ClaimDocKind, ClaimDocument, OwnerClaim, OwnerIndex, ReviewDecision } from "../domain/ownership";
 import type { DrinkPromotion } from "../domain/pricing";
 import type { OwnerAccount } from "../domain/account";
+import type { AvatarPref, AvatarSettings } from "../domain/avatar";
 
 export type Unsubscribe = () => void;
 
@@ -37,6 +38,14 @@ export interface Repo {
   confirmDrinkPrice(placeId: string, drinkId: string, uid: string): Promise<void>;
   getProfile(uid: string): Promise<TasteProfile | undefined>;
   saveProfile(uid: string, profile: TasteProfile): Promise<void>;
+
+  // ---- profilkép ----
+  /** Saját profilkép és beállítás (users/{uid}.avatar). Hibás adatnál alapérték. */
+  subscribeAvatar(uid: string, cb: (s: AvatarSettings) => void): Unsubscribe;
+  /** Kép beállítása: a böngésző 256×256-ra kicsinyíti, az eredeti fájl nem kerül tárolásra. */
+  setAvatar(uid: string, file: File): Promise<void>;
+  clearAvatar(uid: string): Promise<void>;
+  setAvatarPref(uid: string, pref: AvatarPref): Promise<void>;
 
   // ---- kocsmáros fiók és profil ----
   /** A felhasználó kocsmáros fiókja (users/{uid}.ownerAccount) – `undefined`, ha még nincs. */

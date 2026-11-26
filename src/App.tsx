@@ -15,6 +15,7 @@ import { livePromotionIndex, type DrinkPromotion } from "./domain/pricing";
 import { ClaimFlow } from "./components/ClaimFlow";
 import { OwnerDashboard } from "./components/OwnerDashboard";
 import { ReviewPanel } from "./components/ReviewPanel";
+import { Avatar, AvatarPicker, useAvatarSettings } from "./components/Avatar";
 import { capabilities, type AccountMode, type OwnerAccount } from "./domain/account";
 import { clearAccountMode, loadAccountMode, saveAccountMode } from "./auth/accountMode";
 
@@ -99,7 +100,8 @@ export default function App() {
     setEditProfile(false);
   };
   // vendég fiókban az első belépéskor ízlésprofil-kérdések; kocsmáros fiókban nincs rá szükség
-  if (!profile && accountMode === "guest") return <Onboarding name={user.displayName} onDone={saveProfile} />;
+  if (!profile && accountMode === "guest")
+    return <Onboarding name={user.displayName} onDone={saveProfile} avatarSlot={<AvatarPicker repo={repo} user={user} />} />;
 
   return (
     <>
@@ -171,6 +173,8 @@ function Main({
   const [ownerAccount, setOwnerAccount] = useState<OwnerAccount | undefined>(undefined);
   /** „Válaszd ki a helyed” sáv a kocsmáros felületről indítva. */
   const [pickClaim, setPickClaim] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const avatarSettings = useAvatarSettings(repo, user.uid);
   const [reviewOpen, setReviewOpen] = useState(false);
   const reviewer = useMemo(() => repo.reviewer(user), [repo, user]);
   const followRef = useRef(true); // kézi megadás után nem írjuk felül a GPS-szel
@@ -328,13 +332,15 @@ function Main({
             </button>
           )}
           <button className="avatar" onClick={() => setMenu((m) => !m)} aria-label="Menü">
-            {user.displayName.slice(0, 1).toUpperCase()}
+            <Avatar user={user} settings={avatarSettings} size={34} />
           </button>
           {menu && (
             <div className="menu" onMouseLeave={() => setMenu(false)}>
-              <p>
+              <div className="menu-head">
+                <Avatar user={user} settings={avatarSettings} size={40} />
                 <strong>{user.displayName}</strong>
-                <br />
+              </div>
+              <p>
                 <span className={`mode-label ${accountMode}`}>{accountMode === "owner" ? "🏪 Kocsmáros fiók" : "🍺 Vendég fiók"}</span>
                 <br />
                 {accountMode === "guest" ? (
@@ -390,6 +396,14 @@ function Main({
                   Demó adatok visszaállítása
                 </button>
               )}
+              <button
+                onClick={() => {
+                  setMenu(false);
+                  setAvatarOpen(true);
+                }}
+              >
+                📷 Profilkép
+              </button>
               <button onClick={onSignOut}>Kijelentkezés</button>
             </div>
           )}
@@ -509,6 +523,22 @@ function Main({
           />
         )}
         {reviewOpen && reviewer && <ReviewPanel api={reviewer} onClose={() => setReviewOpen(false)} />}
+        {avatarOpen && (
+          <div className="sheet-backdrop" onClick={() => setAvatarOpen(false)}>
+            <div className="sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Profilkép">
+              <div className="sheet-head">
+                <div className="sheet-title">
+                  <h2>Profilkép</h2>
+                  <p className="muted small">Ha nem állítasz be képet, a neved kezdőbetűje látszik.</p>
+                </div>
+                <button className="icon-btn" onClick={() => setAvatarOpen(false)} aria-label="Bezárás">
+                  ✕
+                </button>
+              </div>
+              <AvatarPicker repo={repo} user={user} onMessage={toast} />
+            </div>
+          </div>
+        )}
         {toastMsg && <div className="toast">{toastMsg}</div>}
       </div>
     </Ctx.Provider>

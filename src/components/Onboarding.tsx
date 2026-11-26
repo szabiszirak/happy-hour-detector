@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { CategoryBudgets, TasteProfile } from "../domain/types";
 import { normalizePrefs } from "../domain/tasteProfile";
 import { normalizeBudgets } from "../domain/priceBudget";
@@ -79,8 +79,11 @@ export function Onboarding({
   initial,
   onDone,
   onCancel,
+  avatarSlot,
 }: {
   name: string;
+  /** Regisztrációkor: opcionális profilkép-választó a kérdések fölött. */
+  avatarSlot?: ReactNode;
   /** Meglévő profil (módosításkor előre kitöltve). */
   initial?: TasteProfile;
   onDone: (p: TasteProfile) => Promise<void>;
@@ -112,6 +115,7 @@ export function Onboarding({
         {step === 1 ? (
           <>
             <p className="muted">{initial ? "Ízlésprofil módosítása" : `Szia, ${name.split(" ")[0]}! Két gyors kérdés, és kész.`}</p>
+            {avatarSlot}
             <h2>Mit iszol legszívesebben?</h2>
             <p className="muted small">Több is választható. A kijelölt italnál pontosíthatod is, mit szeretsz – ez nem kötelező.</p>
             <TastePicker value={taste} onChange={setTaste} />

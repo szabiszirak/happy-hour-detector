@@ -319,7 +319,7 @@ export function PlacesTab() {
           const hh = happyHourStatus(p, now);
           return (
             <li key={p.id}>
-              <button className="place-row" onClick={() => openPlace(p.id)}>
+              <button className={`place-row ${hh.kind === "active" ? "led-hh" : st.kind === "open" ? "led-open" : ""}`} onClick={() => openPlace(p.id)}>
                 <PlaceIconTile icon={iconOf(p)} size={40} hh={hh.kind === "active"} />
                 <span className="place-main">
                   <strong>{p.name}</strong>
