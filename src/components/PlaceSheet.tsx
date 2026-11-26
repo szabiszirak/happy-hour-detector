@@ -63,7 +63,7 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
     <div className="sheet-backdrop" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={place.name}>
         <div className="sheet-head">
-          <PlaceIconTile icon={icon} size={52} hh={happyHourStatus(place, now).kind === "active"} />
+          <PlaceIconTile place={place} size={52} hh={happyHourStatus(place, now).kind === "active"} />
           <div className="sheet-title">
             {owner && <span className="verified-badge">✓ Kocsmáros által ellenőrzött</span>}
             <h2>{place.name}</h2>

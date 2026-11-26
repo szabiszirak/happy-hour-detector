@@ -59,6 +59,8 @@ export interface Repo {
   /** Csak kocsmáros fiókkal (a szabályok is ellenőrzik). */
   submitClaim(claim: OwnerClaim): Promise<void>;
   withdrawClaim(claimId: string, uid: string): Promise<void>;
+  /** A hely saját ikonja (négyzetes, 128 px) – csak az ellenőrzött kocsmáros. Visszaadja a megjeleníthető címet. */
+  uploadPlaceIcon(placeId: string, file: File, by: AppUser): Promise<string>;
   /** Csak a hely ellenőrzött kocsmárosa. */
   uploadPlacePhoto(placeId: string, file: File, by: AppUser): Promise<PlacePhoto>;
 

@@ -1,0 +1,45 @@
+name: Honlap-ikonok frissítése
+
+# A helyek honlapjáról letölti a saját ikont (favicon) a public/icons/places/ mappába,
+# az eredményt a data/place-favicons.json-ba írja, majd újra közzéteszi a demót.
+# Ahol nincs ikon vagy hiba van, ott az app a négyágú csillagot mutatja.
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "A már letöltött ikonokat is frissítse"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "17 3 1 * *" # havonta, 1-jén 03:17 UTC
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Ikonok letöltése
+        run: npm run icons:fetch ${{ inputs.force && '-- --force' || '' }}
+      - name: Eredmény commitolása és demó újraközzététele
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add data/place-favicons.json public/icons/places 2>/dev/null || git add data/place-favicons.json
+          if git diff --cached --quiet; then
+            echo "Nincs változás."
+          else
+            git commit -m "Honlap-ikonok frissítése"
+            git push
+            # a bot pusha nem indít új workflow-t, ezért a közzétételt kézzel indítjuk
+            gh workflow run deploy-pages.yml --ref main
+          fi

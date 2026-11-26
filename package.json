@@ -7,7 +7,8 @@
     "build:single": "tsc --noEmit && vite build --mode single",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "catalog:export": "vite-node scripts/export-catalog.ts"
+    "catalog:export": "vite-node scripts/export-catalog.ts",
+    "icons:fetch": "vite-node scripts/fetch-favicons.ts --"
   },
   "dependencies": {
     "@protomaps/basemaps": "^5.7.2",

@@ -1,0 +1,3 @@
+{
+  "_comment": "Generált fájl: npm run icons:fetch (scripts/fetch-favicons.ts) vagy a „Honlap-ikonok frissítése” GitHub Actions munkafolyamat. A képek a public/icons/places/ mappában vannak. Egy hely ikonja kikapcsolható: \"<hely-id>\": { \"status\": \"disabled\" }."
+}

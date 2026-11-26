@@ -91,10 +91,14 @@ npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutat�
 
 ## Hely-ikonok
 
-- Saját, beépített SVG ikonkészlet (`src/components/PlaceIcon.tsx`, 13 ikon) – nincs külső kép vagy ikon-URL.
-- Hozzárendelés: `src/domain/placeIcon.ts` → kézi beállítás (szerkesztő „Ikon / típus”) → `data/place-icons.json`
-  felülírás → kulcsszó a névben (pl. söröző, tap house, tiki, jazz, darts, bárszínház) → OSM-típus → alapikon.
-  Az „ellenőrizendő” helyek ikonja szaggatott sárga keretet és „típus ellenőrizendő” jelzést kap.
+- A csempén: a kocsmáros saját ikonja → a hely honlapjának ikonja → saját, négyágú színátmenetes csillag
+  (`src/components/PlaceIcon.tsx`, `src/domain/siteIcon.ts`). Ha egy kép nem töltődik be, a csillag jelenik meg.
+- Honlap-ikonok: `npm run icons:fetch` (internet kell; `-- --only <hely-id>`, `-- --force`, `-- --dry-run`) vagy a
+  „Honlap-ikonok frissítése” GitHub Actions munkafolyamat (kézzel / havonta). A képek a `public/icons/places/` mappába,
+  az eredmény a `data/place-favicons.json`-ba kerül; a felhasználók böngészője nem kér semmit a kocsmák oldaláról.
+  Egy hely ikonja kikapcsolható: `"<hely-id>": { "status": "disabled" }`.
+- A típus (söröző, koktélbár …) szövegként marad: `src/domain/placeIcon.ts`; az „ellenőrizendő” helyek csempéje
+  szaggatott sárga keretet és „?”-et kap.
 
 ## Felépítés
 

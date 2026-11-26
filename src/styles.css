@@ -659,3 +659,12 @@ body {
 .avatar-picker .avatar-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .avatar-picker .avatar-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .menu-head { display: flex; gap: 10px; align-items: center; }
+
+/* ---------- hely-ikon: honlap-ikon világos lapon, csillag fénnyel ---------- */
+.place-icon.has-img { background: #EEF4F2; border-color: rgba(var(--primary-rgb), 0.35); }
+.place-icon.has-img img { object-fit: contain; display: block; border-radius: 4px; }
+.place-icon.has-img.hh { border-color: var(--hh); box-shadow: var(--glow-hh); }
+.place-icon.has-spark { background: radial-gradient(circle at 50% 45%, rgba(91, 176, 255, 0.16), transparent 70%) var(--card); }
+.place-icon .spark { filter: drop-shadow(0 0 3px rgba(var(--primary-rgb), 0.45)) drop-shadow(0 0 6px rgba(var(--hh-rgb), 0.25)); }
+.place-icon.hh .spark { filter: drop-shadow(0 0 4px rgba(var(--hh-rgb), 0.6)); }
+.icon-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

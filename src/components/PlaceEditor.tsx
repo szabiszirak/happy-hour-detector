@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { PLACE_ICON_IDS, PLACE_ICON_LABELS } from "../domain/placeIcon";
 import { iconOf } from "../data/placeIcons";
+import { PlaceIconTile } from "./PlaceIcon";
 import { formatOpeningHours, parseOpeningHours } from "../domain/openingHours";
 import { useApp } from "../context";
 import { brandSuggestions, canonicalBrand, catalogHint, CATEGORY_LABELS, CATEGORY_OF, CATEGORY_ORDER, hintPatch } from "../domain/drinkCatalog";
@@ -40,6 +41,22 @@ export function PlaceEditor({ place, onClose, ownerMode = false }: { place: Plac
   const [err, setErr] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const photoRef = useRef<HTMLInputElement>(null);
+  const iconRef = useRef<HTMLInputElement>(null);
+
+  const addIcon = async (file: File | undefined) => {
+    if (iconRef.current) iconRef.current.value = "";
+    if (!file) return;
+    setUploading(true);
+    setErr(null);
+    try {
+      const url = await repo.uploadPlaceIcon(p.id, file, user);
+      setP((cur) => ({ ...cur, info: { ...(cur.info ?? {}), iconUrl: url } }));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "A feltöltés nem sikerült.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const addPhotos = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -103,9 +120,9 @@ export function PlaceEditor({ place, onClose, ownerMode = false }: { place: Plac
           <input value={p.name} onChange={(e) => setP({ ...p, name: e.target.value })} />
         </label>
         <label className="field">
-          <span>Ikon / típus</span>
+          <span>Típus</span>
           <select
-            aria-label="Ikon / típus"
+            aria-label="Típus"
             value={p.info?.icon ?? ""}
             onChange={(e) => setP({ ...p, info: { ...(p.info ?? {}), icon: (e.target.value || undefined) as PlaceIconId | undefined } })}
           >
@@ -134,6 +151,22 @@ export function PlaceEditor({ place, onClose, ownerMode = false }: { place: Plac
 
         {ownerMode && (
           <>
+            <div className="field">
+              <span>A hely saját ikonja</span>
+              <div className="icon-row">
+                <PlaceIconTile place={p} size={52} />
+                <button className="mini" disabled={uploading} onClick={() => iconRef.current?.click()}>
+                  {uploading ? "Feltöltés…" : "Ikon feltöltése"}
+                </button>
+                {p.info?.iconUrl && (
+                  <button className="mini" onClick={() => setP({ ...p, info: { ...(p.info ?? {}), iconUrl: undefined } })}>
+                    Visszaállítás
+                  </button>
+                )}
+              </div>
+              <span className="fine">Négyzetesre vágjuk (128 px). Ha nincs saját ikon, a honlapod ikonja vagy a csillag látszik.</span>
+              <input ref={iconRef} type="file" accept="image/jpeg,image/png,image/webp" hidden aria-label="Ikon feltöltése" onChange={(e) => addIcon(e.target.files?.[0])} />
+            </div>
             <label className="field">
               <span>Nyitvatartás (OSM formátum)</span>
               <input

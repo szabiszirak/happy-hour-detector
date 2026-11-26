@@ -222,6 +222,14 @@ export class LocalRepo implements Repo {
     this.set({ claims: this.state.claims.map((c) => (c.id === claimId ? withdrawClaim(c, uid, now) : c)) });
   }
 
+  async uploadPlaceIcon(placeId: string, file: File, by: AppUser): Promise<string> {
+    if (!isVerifiedOwner(by.uid, placeId, this.state.owners)) throw new Error("Ikont csak a hely ellenőrzött kocsmárosa tölthet fel.");
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Csak JPG, PNG vagy WebP kép.");
+    const url = await squareAvatar(file, 128, 0.85, "#FFFFFF");
+    if (!url) throw new Error("Nem sikerült beolvasni a képet.");
+    return url;
+  }
+
   async uploadPlacePhoto(placeId: string, file: File, by: AppUser): Promise<PlacePhoto> {
     if (!isVerifiedOwner(by.uid, placeId, this.state.owners)) throw new Error("Fotót csak a hely ellenőrzött kocsmárosa tölthet fel.");
     if (!file.type.startsWith("image/")) throw new Error("Csak kép tölthető fel.");

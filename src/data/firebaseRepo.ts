@@ -225,6 +225,17 @@ export class FirebaseRepo implements Repo {
     await updateDoc(ref, { status: next.status, reviewedAt: next.reviewedAt });
   }
 
+  async uploadPlaceIcon(placeId: string, file: File, by: AppUser): Promise<string> {
+    if (this.owners[placeId]?.uid !== by.uid) throw new Error("Ikont csak a hely ellenőrzött kocsmárosa tölthet fel.");
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Csak JPG, PNG vagy WebP kép.");
+    const dataUrl = await squareAvatar(file, 128, 0.85, "#FFFFFF");
+    if (!dataUrl) throw new Error("Nem sikerült beolvasni a képet.");
+    const { st, storage } = await this.storage();
+    const r = st.ref(storage, `places/${placeId}/photos/icon.jpg`);
+    await st.uploadBytes(r, dataUrlToBlob(dataUrl), { contentType: "image/jpeg" });
+    return st.getDownloadURL(r);
+  }
+
   async uploadPlacePhoto(placeId: string, file: File, by: AppUser): Promise<PlacePhoto> {
     if (this.owners[placeId]?.uid !== by.uid) throw new Error("Fotót csak a hely ellenőrzött kocsmárosa tölthet fel.");
     const { st, storage } = await this.storage();

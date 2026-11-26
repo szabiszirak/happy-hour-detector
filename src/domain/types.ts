@@ -93,8 +93,10 @@ export type PlaceIconId =
 export interface PlaceInfo {
   /** Hely típusa: pub, bar, restaurant, cafe, nightclub… */
   kind?: string;
-  /** Kézzel választott ikon (szerkesztő) – felülírja az automatikus feloldást. */
+  /** Kézzel választott típus (szerkesztő) – a típuscímkéhez. */
   icon?: PlaceIconId;
+  /** A hely saját ikonja: csak az ellenőrzött kocsmáros tölthet fel (saját tárhely / demóban data URL). */
+  iconUrl?: string;
   /** OSM opening_hours formátum, pl. "Mo-Fr 16:00-24:00". */
   openingHours?: string;
   website?: string;

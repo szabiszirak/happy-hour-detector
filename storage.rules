@@ -34,8 +34,8 @@ service firebase.storage {
           && firestore.get(/databases/(default)/documents/owners/$(placeId)).data.uid == request.auth.uid;
       }
       allow read: if true;
-      allow create: if isPlaceOwner() && isImage() && under5MB();
-      allow update: if false;
+      // az ikon (icon.jpg) cserélhető, ezért a feltöltés felülírást is enged
+      allow create, update: if isPlaceOwner() && isImage() && under5MB();
       allow delete: if isPlaceOwner() || isAdmin();
     }
   }
