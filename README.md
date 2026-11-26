@@ -75,6 +75,13 @@ npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutat�
   `logo` mezőbe (jogosult, hatály, lejárat); a `logoAllowed` dönti el, megjelenhet-e. Forrás-keresési sorrend partnerség előtt:
   hivatalos márkaoldal → sajtó-/médiaoldal → márkahasználati útmutató → írásos engedélykérés.
 
+## Hely-ikonok
+
+- Saját, beépített SVG ikonkészlet (`src/components/PlaceIcon.tsx`, 13 ikon) – nincs külső kép vagy ikon-URL.
+- Hozzárendelés: `src/domain/placeIcon.ts` → kézi beállítás (szerkesztő „Ikon / típus”) → `data/place-icons.json`
+  felülírás → kulcsszó a névben (pl. söröző, tap house, tiki, jazz, darts, bárszínház) → OSM-típus → alapikon.
+  Az „ellenőrizendő” helyek ikonja szaggatott sárga keretet és „típus ellenőrizendő” jelzést kap.
+
 ## Felépítés
 
 ```

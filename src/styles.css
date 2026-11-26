@@ -563,3 +563,18 @@ tr.promoted .tag-sponsored { display: inline-block; margin-bottom: 2px; }
 .brand-chips.suggest { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
 .brand-chips.suggest .muted { margin-left: 4px; font-size: 11px; }
 .hint-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--primary-text); }
+
+/* ---------- hely-ikonok (saját SVG) ---------- */
+.place-icon { position: relative; flex: none; display: inline-grid; place-items: center; color: var(--primary-text);
+  background: linear-gradient(160deg, rgba(124, 58, 237, 0.22), rgba(124, 58, 237, 0.06)) var(--card); border: 1px solid var(--line); }
+.place-icon.hh { border-color: var(--hh); color: var(--hh); background: linear-gradient(160deg, rgba(251, 113, 133, 0.2), rgba(251, 113, 133, 0.05)) var(--card); }
+.place-icon.uncertain { border: 1px dashed var(--warn); }
+.place-icon-q { position: absolute; right: -4px; top: -4px; width: 15px; height: 15px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 10px; font-weight: 800; color: var(--on-accent); background: var(--warn); }
+.place-row { gap: 12px; }
+.place-row .place-icon { align-self: center; }
+.card-top { align-items: center; gap: 10px; }
+.card-top strong { flex: 1; min-width: 0; }
+.sheet-head { gap: 12px; align-items: flex-start; }
+.sheet-head .sheet-title { flex: 1; min-width: 0; }
+.kind-chip.uncertain { border: 1px dashed var(--warn); color: var(--warn); }

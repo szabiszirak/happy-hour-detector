@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { useApp } from "../context";
+import { PlaceIconTile } from "./PlaceIcon";
+import { iconOf } from "../data/placeIcons";
 import { formatDistance, walkMinutes } from "../domain/geo";
 import { describeDays, formatMinutes, happyHourStatus } from "../domain/happyHour";
 import { cheapestBeer, formatFt, formatVolume, rankDrinkOffers } from "../domain/pricing";
@@ -113,6 +115,7 @@ function HHCard({
   return (
     <button className={`card ${status.kind}`} onClick={() => openPlace(place.id)}>
       <div className="card-top">
+        <PlaceIconTile icon={iconOf(place)} size={32} hh={status.kind === "active"} />
         <strong>{place.name}</strong>
         <MatchBadge place={place} />
       </div>
@@ -269,16 +272,6 @@ export function OpenBadge({ state }: { state: OpenState }) {
   return <span className="open-badge unknown">Nyitvatartás ismeretlen</span>;
 }
 
-const KIND_LABELS: Record<string, string> = {
-  pub: "Kocsma",
-  bar: "Bár",
-  restaurant: "Étterem-bár",
-  cafe: "Kávézó-bár",
-  nightclub: "Klub",
-  biergarten: "Sörkert",
-  brewery: "Főzde",
-};
-export const kindLabel = (k?: string) => (k ? KIND_LABELS[k] ?? k : "");
 
 type PlaceSort = "distance" | "name";
 
@@ -327,10 +320,11 @@ export function PlacesTab() {
           return (
             <li key={p.id}>
               <button className="place-row" onClick={() => openPlace(p.id)}>
+                <PlaceIconTile icon={iconOf(p)} size={40} hh={hh.kind === "active"} />
                 <span className="place-main">
                   <strong>{p.name}</strong>
                   <span className="muted small">
-                    {kindLabel(p.info?.kind)} · {p.address.replace(/^\d{4} Budapest, /, "").replace(/^Budapest, /, "")} · {formatDistance(d)}
+                    {iconOf(p).label} · {p.address.replace(/^\d{4} Budapest, /, "").replace(/^Budapest, /, "")} · {formatDistance(d)}
                   </span>
                   <span className="place-tags">
                     <OpenBadge state={st} />

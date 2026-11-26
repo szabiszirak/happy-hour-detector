@@ -11,7 +11,9 @@ import { matchScore } from "../domain/match";
 import { STYLE_LABELS, VIBE_LABELS, type Place } from "../domain/types";
 import { PlaceEditor } from "./PlaceEditor";
 import { formatOpeningHours, openState } from "../domain/openingHours";
-import { kindLabel, OpenBadge } from "./Lists";
+import { OpenBadge } from "./Lists";
+import { PlaceIconTile } from "./PlaceIcon";
+import { iconOf } from "../data/placeIcons";
 
 export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => void }) {
   const { repo, user, profile, reports, now, pos, toast, owners, livePromos, myClaims, openClaim, accountMode, ownerAccount, openOwnerDashboard } = useApp();
@@ -29,6 +31,7 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
   const canEdit = canEditPlaceAs(accountMode, user.uid, place.id, owners);
   const claimState = claimButtonState(accountMode, user.uid, ownerAccount, place.id, myClaims, owners);
   const menu = orderPlaceMenu(place, livePromos);
+  const icon = iconOf(place);
   const mapsUrl = place.googlePlaceId
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.googlePlaceId}`
     : `https://www.google.com/maps/search/?api=1&query=${place.location.lat},${place.location.lng}`;
@@ -60,7 +63,8 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
     <div className="sheet-backdrop" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={place.name}>
         <div className="sheet-head">
-          <div>
+          <PlaceIconTile icon={icon} size={52} hh={happyHourStatus(place, now).kind === "active"} />
+          <div className="sheet-title">
             {owner && <span className="verified-badge">✓ Kocsmáros által ellenőrzött</span>}
             <h2>{place.name}</h2>
             <p className="muted small">
@@ -74,7 +78,10 @@ export function PlaceSheet({ place, onClose }: { place: Place; onClose: () => vo
 
         <div className="sheet-badges">
           <OpenBadge state={openState(place.info?.openingHours, now)} />
-          {place.info?.kind && <span className="vibe">{kindLabel(place.info.kind)}</span>}
+          <span className={`vibe kind-chip ${icon.uncertain ? "uncertain" : ""}`}>
+            {icon.label}
+            {icon.uncertain ? " · típus ellenőrizendő" : ""}
+          </span>
           {place.drinks.length > 0 && (
             <span className={`match ${match >= 80 ? "hi" : match >= 50 ? "mid" : "lo"}`}>{match}%-ban passzol az ízlésedhez</span>
           )}

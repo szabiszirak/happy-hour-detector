@@ -74,9 +74,27 @@ export interface Sponsorship {
 export type Vibe = "chill" | "party" | "garden" | "sport";
 
 /** Forrásból (OpenStreetMap / web) jövő kiegészítő adatok. */
+/** A hely ikonja (saját SVG-készlet, lásd domain/placeIcon.ts és components/PlaceIcon.tsx). */
+export type PlaceIconId =
+  | "pub"
+  | "craft"
+  | "bar"
+  | "cocktail"
+  | "wine"
+  | "club"
+  | "music"
+  | "games"
+  | "culture"
+  | "cafe"
+  | "restaurant"
+  | "garden"
+  | "generic";
+
 export interface PlaceInfo {
   /** Hely típusa: pub, bar, restaurant, cafe, nightclub… */
   kind?: string;
+  /** Kézzel választott ikon (szerkesztő) – felülírja az automatikus feloldást. */
+  icon?: PlaceIconId;
   /** OSM opening_hours formátum, pl. "Mo-Fr 16:00-24:00". */
   openingHours?: string;
   website?: string;

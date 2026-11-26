@@ -1,9 +1,11 @@
 import { useRef, useState } from "react";
+import { PLACE_ICON_IDS, PLACE_ICON_LABELS } from "../domain/placeIcon";
+import { iconOf } from "../data/placeIcons";
 import { formatOpeningHours, parseOpeningHours } from "../domain/openingHours";
 import { useApp } from "../context";
 import { brandSuggestions, canonicalBrand, catalogHint, CATEGORY_LABELS, CATEGORY_OF, CATEGORY_ORDER, hintPatch } from "../domain/drinkCatalog";
 import { inferSubtype, SUBTYPE_CATEGORY, SUBTYPE_LABELS, SUBTYPE_OPTIONS, type SubtypeCategory } from "../domain/tasteProfile";
-import { STYLE_LABELS, VIBE_LABELS, type Drink, type DrinkStyle, type DrinkSubtype, type HappyHourSlot, type Place, type PlacePhoto, type Vibe } from "../domain/types";
+import { STYLE_LABELS, VIBE_LABELS, type Drink, type DrinkStyle, type DrinkSubtype, type HappyHourSlot, type Place, type PlaceIconId, type PlacePhoto, type Vibe } from "../domain/types";
 
 const DAYS = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
 const uid = (p: string) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
@@ -99,6 +101,21 @@ export function PlaceEditor({ place, onClose, ownerMode = false }: { place: Plac
         <label className="field">
           <span>Hely neve</span>
           <input value={p.name} onChange={(e) => setP({ ...p, name: e.target.value })} />
+        </label>
+        <label className="field">
+          <span>Ikon / típus</span>
+          <select
+            aria-label="Ikon / típus"
+            value={p.info?.icon ?? ""}
+            onChange={(e) => setP({ ...p, info: { ...(p.info ?? {}), icon: (e.target.value || undefined) as PlaceIconId | undefined } })}
+          >
+            <option value="">Automatikus ({iconOf({ ...p, info: { ...(p.info ?? {}), icon: undefined } }).label})</option>
+            {PLACE_ICON_IDS.map((id) => (
+              <option key={id} value={id}>
+                {PLACE_ICON_LABELS[id]}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="field">
           <span>Cím</span>
