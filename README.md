@@ -3,7 +3,7 @@
 Térképes webapp, amely megmutatja, hol van most happy hour, és hol a legolcsóbb egy adott ital.
 Első terület: **Budapest, Fővám tér – Kálvin tér – Corvin negyed – Boráros tér négyszöge**.
 
-Ötlettár és döntések: Google Docs – *Happy Hour Detector – Ötlettár*.
+Ötlettár és döntések: Google Docs – *Happy Hour Detector – Ötlettár*; a repóban: [docs/otlettar.md](docs/otlettar.md) (marketing és merch).
 
 ## Mit tud az MVP
 
