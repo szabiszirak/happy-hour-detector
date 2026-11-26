@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { buildCatalog, OTHER_BRAND, type BrandBadge, type CategoryNode, type DrinkCategory } from "../domain/drinkCatalog";
+import { useMemo, useState } from "react";
+import { buildCatalog, OTHER_BRAND, splitBrandList, type BrandBadge, type BrandEntry, type CategoryNode, type DrinkCategory } from "../domain/drinkCatalog";
 import type { DrinkFilter } from "../domain/search";
 import type { DrinkStyle, Place } from "../domain/types";
 
@@ -80,6 +80,23 @@ function CategoryPanel({
   const toggleStyle = (s: DrinkStyle) =>
     setFilter({ ...filter, styles: filter.styles.includes(s) ? filter.styles.filter((x) => x !== s) : [...filter.styles, s] });
   const pick = (brand: string | null) => setFilter({ ...filter, brand });
+  const [showMore, setShowMore] = useState(false);
+  const [q, setQ] = useState("");
+  // felül az árazott márkák; a még ár nélküli ismert márkák (a katalógusból akár 100+) összecsukva, kereshetően
+  const { shown, more, moreTotal } = splitBrandList(node.brands, filter.brand, q);
+  const row = (b: BrandEntry) => (
+    <li key={b.key}>
+      <button
+        className={`brand-row ${filter.brand === b.key ? "on" : ""} ${b.count ? "" : "no-price"}`}
+        aria-pressed={filter.brand === b.key}
+        onClick={() => pick(b.key)}
+      >
+        <BrandIcon badge={b.badge} />
+        <span className="brand-name">{b.label}</span>
+        <span className="brand-count">{b.count ? b.count : "még nincs ár"}</span>
+      </button>
+    </li>
+  );
 
   return (
     <div className="cat-panel" id={`cat-panel-${node.category}`}>
@@ -113,19 +130,7 @@ function CategoryPanel({
             <span className="brand-count">{node.count || ""}</span>
           </button>
         </li>
-        {node.brands.map((b) => (
-          <li key={b.key}>
-            <button
-              className={`brand-row ${filter.brand === b.key ? "on" : ""} ${b.count ? "" : "no-price"}`}
-              aria-pressed={filter.brand === b.key}
-              onClick={() => pick(b.key)}
-            >
-              <BrandIcon badge={b.badge} />
-              <span className="brand-name">{b.label}</span>
-              <span className="brand-count">{b.count ? b.count : "még nincs ár"}</span>
-            </button>
-          </li>
-        ))}
+        {shown.map(row)}
         <li>
           <button
             className={`brand-row ${filter.brand === OTHER_BRAND ? "on" : ""} ${node.otherCount ? "" : "no-price"}`}
@@ -140,6 +145,19 @@ function CategoryPanel({
           </button>
         </li>
       </ul>
+      {moreTotal > 0 && (
+        <div className="brand-more">
+          <button className="mini" aria-expanded={showMore} onClick={() => setShowMore(!showMore)}>
+            {showMore ? "▲ Kevesebb" : `▼ További ismert márkák (${moreTotal})`}
+          </button>
+          {showMore && (
+            <>
+              <input className="brand-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Márka keresése…" aria-label="Márka keresése" />
+              <ul className="brand-list">{more.length ? more.map(row) : <li className="muted small">Nincs ilyen márka.</li>}</ul>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

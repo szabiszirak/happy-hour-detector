@@ -65,6 +65,16 @@ npm run build:single # egyetlen HTML fájl (dist-single/index.html) – bemutat�
 - **Google**: a Google Places adataiból tartósan csak a `place_id` tárolható (`googlePlaceId` mező) – az útvonal gomb ezzel nyitja meg a helyet a Google Térképen.
 - **Árak és happy hour időpontok**: saját begyűjtés (a módszer az ötlettárban nyitott kérdés). Az appban szerkeszthetők.
 
+## Italkatalógus és logók
+
+- A budapesti italkatalógus (kb. 215 márka csoportokban, 35 koktél/long drink/fröccs, szőlőfajták, borvidékek) forrása
+  `src/domain/catalogData.ts`; ebből generálódik a `data/drink-catalog.json` (`npm run catalog:export`, egy teszt ellenőrzi,
+  hogy naprakész). Csak nevek és besorolás – ár, happy hour, szponzoráció nincs benne.
+- **Logók:** márkalogót nem töltünk le, nem tárolunk és nem linkelünk (védjegy + szerzői jog). A felület kategória-ikont,
+  márkanevet és saját monogram-jelvényt mutat. Valódi logó csak partner által, írásos engedéllyel átadott fájlból kerülhet a
+  `logo` mezőbe (jogosult, hatály, lejárat); a `logoAllowed` dönti el, megjelenhet-e. Forrás-keresési sorrend partnerség előtt:
+  hivatalos márkaoldal → sajtó-/médiaoldal → márkahasználati útmutató → írásos engedélykérés.
+
 ## Felépítés
 
 ```

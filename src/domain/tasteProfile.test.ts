@@ -136,6 +136,6 @@ describe("pontos preferencia a MatchScore-ban", () => {
       expect(s).toBeGreaterThanOrEqual(0);
       expect(s).toBeLessThanOrEqual(100);
     }
-    expect(Object.keys(CATEGORY_OF).length).toBe(11);
+    expect(Object.keys(CATEGORY_OF).length).toBe(12);
   });
 });

@@ -15,7 +15,7 @@ import type {
   TasteProfile,
   WineStyle,
 } from "./types";
-import { brandKey, canonicalBrand, CATEGORY_LABELS, CATEGORY_OF, CATEGORY_ORDER, compareHu, KNOWN_BRANDS } from "./drinkCatalog";
+import { brandKey, canonicalBrand, catalogHint, CATEGORY_LABELS, CATEGORY_OF, CATEGORY_ORDER, compareHu, KNOWN_BRANDS, popularBrands } from "./drinkCatalog";
 import { budgetsFromBand, normalizeBudgets } from "./priceBudget";
 
 /** A nem-sör kategóriák alfajtái, megjelenítési sorrendben. */
@@ -26,6 +26,7 @@ export const SUBTYPE_OPTIONS = {
     { value: "sweet", label: "Édes" },
     { value: "rose", label: "Rosé" },
     { value: "red", label: "Vörös" },
+    { value: "sparkling", label: "Pezsgő / habzóbor" },
   ] as { value: WineStyle; label: string }[],
   spirits: [
     { value: "palinka", label: "Pálinka" },
@@ -64,11 +65,15 @@ export const SUBTYPE_CATEGORY: Record<DrinkSubtype, SubtypeCategory> = Object.fr
 /** A kedvenc sörmárka-választó listája: a szótár sörmárkái magyar ABC-sorrendben. */
 export const beerBrandOptions = (): string[] => [...KNOWN_BRANDS.beer].sort(compareHu);
 
+/** Gyorsválasztó sörmárkák az ízlésprofilhoz (a többi kereséssel érhető el). */
+export const popularBeerBrands = (): string[] => popularBrands("beer");
+
 // ---------- alfajta felismerése az ital nevéből / márkájából ----------
 
 const RULES: Record<SubtypeCategory, [RegExp, DrinkSubtype][]> = {
   wine: [
-    [/ros[eé]/, "rose"],
+    [/pezsg|habz[oó]|prosecco|cava(\s|$)|champagne|frizzante/, "sparkling"],
+    [/ros[eé]|roz[eé]/, "rose"],
     [/f[eé]l[eé]des/, "semi_sweet"],
     [/(^|\s)[eé]des|tokaji|asz[uú]/, "sweet"],
     [/v[oö]r[oö]s|k[eé]kfrankos|cabernet|merlot|pinot noir|bikav[eé]r|kadarka|syrah|zweigelt/, "red"],
@@ -104,6 +109,9 @@ export function inferSubtype(drink: Drink): DrinkSubtype | undefined {
   if (drink.subtype && SUBTYPE_CATEGORY[drink.subtype] === cat) return drink.subtype;
   const text = `${drink.name} ${drink.brand ?? ""}`.toLocaleLowerCase("hu-HU");
   for (const [re, sub] of RULES[cat]) if (re.test(text)) return sub;
+  // a budapesti italkatalógusból (márka / koktél / szőlőfajta), ha a kategória egyezik
+  const hint = catalogHint(drink.name, drink.brand);
+  if (hint?.subtype && SUBTYPE_CATEGORY[hint.subtype] === cat) return hint.subtype;
   return undefined;
 }
 

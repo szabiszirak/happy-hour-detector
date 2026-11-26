@@ -56,9 +56,11 @@ describe("márkák: ABC-sorrend és egyesítés", () => {
     expect(canonicalBrand("fehér nyúl")).toBe("Fehér Nyúl");
     expect(canonicalBrand("MONYO")).toBe("MONYO");
   });
-  it("nincs két ugyanolyan kulcsú márka a szótárban", () => {
-    const keys = CATEGORY_ORDER.flatMap((c) => KNOWN_BRANDS[c].map(brandKey));
-    expect(new Set(keys).size).toBe(keys.length);
+  it("kategórián belül nincs két ugyanolyan kulcsú márka (a szeszmárkák a koktéloknál is szerepelhetnek)", () => {
+    for (const c of CATEGORY_ORDER) {
+      const keys = KNOWN_BRANDS[c].map(brandKey);
+      expect(new Set(keys).size, c).toBe(keys.length);
+    }
   });
 });
 

@@ -11,6 +11,7 @@ export type DrinkStyle =
   | "wheat"
   | "dark"
   | "craft"
+  | "cider"
   | "wine"
   | "spritzer"
   | "longdrink"
@@ -21,7 +22,7 @@ export type DrinkStyle =
 export type DrinkCategory = "beer" | "spirits" | "wine" | "cocktail" | "soft";
 
 /** Kategórián belüli alfajták (ízlésprofil és itallap „Fajta” mezője). */
-export type WineStyle = "dry_white" | "semi_sweet" | "sweet" | "rose" | "red";
+export type WineStyle = "dry_white" | "semi_sweet" | "sweet" | "rose" | "red" | "sparkling";
 export type SpiritType = "palinka" | "whiskey" | "gin" | "rum" | "tequila" | "vodka" | "liqueur";
 export type CocktailType = "gin_tonic" | "spritz" | "mojito" | "classic" | "longdrink";
 export type SoftType = "na_beer" | "tonic_soda" | "lemonade";
@@ -186,6 +187,7 @@ export const STYLE_LABELS: Record<DrinkStyle, string> = {
   wheat: "Búza",
   dark: "Barna / stout",
   craft: "Egyéb kézműves",
+  cider: "Cider",
   wine: "Bor",
   spritzer: "Fröccs",
   longdrink: "Long drink / koktél",

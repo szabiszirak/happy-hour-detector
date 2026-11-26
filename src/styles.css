@@ -555,3 +555,11 @@ tr.promoted .tag-sponsored { display: inline-block; margin-bottom: 2px; }
   .top .demo-badge, .top .mode-chip, .top .avatar { flex: none; }
   .top .mode-chip { margin-left: 6px; }
 }
+
+/* ---------- bővített italkatalógus ---------- */
+.brand-more { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+.brand-more > .mini { align-self: flex-start; }
+.brand-search { width: 100%; }
+.brand-chips.suggest { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+.brand-chips.suggest .muted { margin-left: 4px; font-size: 11px; }
+.hint-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--primary-text); }

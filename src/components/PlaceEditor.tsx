@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { formatOpeningHours, parseOpeningHours } from "../domain/openingHours";
 import { useApp } from "../context";
-import { brandSuggestions, canonicalBrand, CATEGORY_OF, CATEGORY_ORDER } from "../domain/drinkCatalog";
+import { brandSuggestions, canonicalBrand, catalogHint, CATEGORY_LABELS, CATEGORY_OF, CATEGORY_ORDER, hintPatch } from "../domain/drinkCatalog";
 import { inferSubtype, SUBTYPE_CATEGORY, SUBTYPE_LABELS, SUBTYPE_OPTIONS, type SubtypeCategory } from "../domain/tasteProfile";
 import { STYLE_LABELS, VIBE_LABELS, type Drink, type DrinkStyle, type DrinkSubtype, type HappyHourSlot, type Place, type PlacePhoto, type Vibe } from "../domain/types";
 
@@ -214,6 +214,27 @@ export function PlaceEditor({ place, onClose, ownerMode = false }: { place: Plac
                 ))}
               </select>
             </div>
+            {(() => {
+              // tipp a budapesti italkatalógusból (csak besorolás, árat nem érint)
+              const hint = catalogHint(d.name, d.brand);
+              const patch = hintPatch(d, hint);
+              if (!hint || !patch) return null;
+              const parts = [
+                CATEGORY_LABELS[hint.category],
+                STYLE_LABELS[patch.style ?? d.style],
+                hint.subtype && hint.category !== "beer" ? SUBTYPE_LABELS[hint.subtype] : null,
+                hint.brand ?? null,
+                patch.volumeL ? `${String(patch.volumeL).replace(".", ",")} l` : null,
+              ].filter(Boolean);
+              return (
+                <div className="hint-row">
+                  <span>💡 {parts.join(" · ")}</span>
+                  <button className="mini" onClick={() => setDrink(d.id, patch)}>
+                    Alkalmaz
+                  </button>
+                </div>
+              );
+            })()}
             <div className="row">
               <input
                 className="brand-input"

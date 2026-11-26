@@ -1,0 +1,2070 @@
+{
+  "note": "Generált fájl – a forrás: src/domain/catalogData.ts. Csak nevek és besorolás; logó, ár, happy hour nincs benne.",
+  "categories": [
+    {
+      "id": "beer",
+      "label": "Sör",
+      "styles": [
+        {
+          "id": "pilsner",
+          "label": "Pilsner"
+        },
+        {
+          "id": "lager",
+          "label": "Világos láger"
+        },
+        {
+          "id": "ipa",
+          "label": "IPA / APA"
+        },
+        {
+          "id": "wheat",
+          "label": "Búza"
+        },
+        {
+          "id": "dark",
+          "label": "Barna / stout"
+        },
+        {
+          "id": "craft",
+          "label": "Egyéb kézműves"
+        },
+        {
+          "id": "cider",
+          "label": "Cider"
+        }
+      ],
+      "groups": [
+        {
+          "id": "beer-hu-mass",
+          "label": "Hazai nagyüzemi",
+          "style": "lager",
+          "brands": [
+            {
+              "name": "Arany Ászok",
+              "origin": "hu",
+              "tier": "mass",
+              "popular": true
+            },
+            {
+              "name": "Borsodi",
+              "origin": "hu",
+              "tier": "mass",
+              "popular": true
+            },
+            {
+              "name": "Dreher",
+              "origin": "hu",
+              "tier": "mass",
+              "popular": true
+            },
+            {
+              "name": "Kőbányai",
+              "origin": "hu",
+              "tier": "mass",
+              "popular": true
+            },
+            {
+              "name": "Pécsi Szalon",
+              "origin": "hu",
+              "tier": "mass",
+              "aliases": [
+                "Pécsi",
+                "Szalon"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Soproni",
+              "origin": "hu",
+              "tier": "mass",
+              "popular": true
+            }
+          ]
+        },
+        {
+          "id": "beer-hu-craft",
+          "label": "Hazai kézműves",
+          "style": "craft",
+          "brands": [
+            {
+              "name": "Bors Sörmanufaktúra",
+              "origin": "hu",
+              "tier": "craft",
+              "aliases": [
+                "Bors"
+              ]
+            },
+            {
+              "name": "Brew Your Mind",
+              "origin": "hu",
+              "tier": "craft",
+              "aliases": [
+                "BYM"
+              ]
+            },
+            {
+              "name": "Dorozsmai",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Etyeki Sörmanufaktúra",
+              "origin": "hu",
+              "tier": "craft",
+              "aliases": [
+                "Etyeki"
+              ]
+            },
+            {
+              "name": "Fehér Nyúl",
+              "origin": "hu",
+              "tier": "craft",
+              "popular": true
+            },
+            {
+              "name": "Fóti Kézműves Sörfőzde",
+              "origin": "hu",
+              "tier": "craft",
+              "aliases": [
+                "Fóti"
+              ]
+            },
+            {
+              "name": "Hedon",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Hopfanatic",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Horizont",
+              "origin": "hu",
+              "tier": "craft",
+              "popular": true
+            },
+            {
+              "name": "Hübris",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Kalapos",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Kanyar",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Legenda",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Mad Scientist",
+              "origin": "hu",
+              "tier": "craft",
+              "popular": true
+            },
+            {
+              "name": "MONYO",
+              "origin": "hu",
+              "tier": "craft",
+              "popular": true
+            },
+            {
+              "name": "Reketye",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Rothbeer",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Szent András",
+              "origin": "hu",
+              "tier": "craft",
+              "popular": true
+            },
+            {
+              "name": "Ugar",
+              "origin": "hu",
+              "tier": "craft"
+            },
+            {
+              "name": "Zip's",
+              "origin": "hu",
+              "tier": "craft",
+              "aliases": [
+                "Zips"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "beer-cz",
+          "label": "Cseh",
+          "style": "pilsner",
+          "brands": [
+            {
+              "name": "Bernard",
+              "origin": "import",
+              "country": "CZ"
+            },
+            {
+              "name": "Budweiser Budvar",
+              "origin": "import",
+              "country": "CZ",
+              "aliases": [
+                "Budvar",
+                "Budějovický Budvar"
+              ]
+            },
+            {
+              "name": "Gambrinus",
+              "origin": "import",
+              "country": "CZ"
+            },
+            {
+              "name": "Kozel",
+              "origin": "import",
+              "country": "CZ",
+              "aliases": [
+                "Velkopopovický Kozel"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Krušovice",
+              "origin": "import",
+              "country": "CZ"
+            },
+            {
+              "name": "Pilsner Urquell",
+              "origin": "import",
+              "country": "CZ",
+              "aliases": [
+                "Urquell",
+                "Plzeň"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Radegast",
+              "origin": "import",
+              "country": "CZ"
+            },
+            {
+              "name": "Staropramen",
+              "origin": "import",
+              "country": "CZ",
+              "popular": true
+            }
+          ]
+        },
+        {
+          "id": "beer-de-at",
+          "label": "Német / osztrák",
+          "style": "lager",
+          "brands": [
+            {
+              "name": "Augustiner",
+              "origin": "import",
+              "country": "DE"
+            },
+            {
+              "name": "Beck's",
+              "origin": "import",
+              "country": "DE",
+              "aliases": [
+                "Becks"
+              ]
+            },
+            {
+              "name": "Edelweiss",
+              "origin": "import",
+              "country": "AT",
+              "styles": [
+                "wheat"
+              ]
+            },
+            {
+              "name": "Erdinger",
+              "origin": "import",
+              "country": "DE",
+              "styles": [
+                "wheat"
+              ]
+            },
+            {
+              "name": "Franziskaner",
+              "origin": "import",
+              "country": "DE",
+              "styles": [
+                "wheat"
+              ]
+            },
+            {
+              "name": "Gösser",
+              "origin": "import",
+              "country": "AT"
+            },
+            {
+              "name": "Hacker-Pschorr",
+              "origin": "import",
+              "country": "DE"
+            },
+            {
+              "name": "Krombacher",
+              "origin": "import",
+              "country": "DE",
+              "styles": [
+                "pilsner"
+              ]
+            },
+            {
+              "name": "Löwenbräu",
+              "origin": "import",
+              "country": "DE"
+            },
+            {
+              "name": "Paulaner",
+              "origin": "import",
+              "country": "DE",
+              "styles": [
+                "wheat"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Schöfferhofer",
+              "origin": "import",
+              "country": "DE",
+              "styles": [
+                "wheat"
+              ]
+            },
+            {
+              "name": "Spaten",
+              "origin": "import",
+              "country": "DE"
+            },
+            {
+              "name": "Warsteiner",
+              "origin": "import",
+              "country": "DE",
+              "styles": [
+                "pilsner"
+              ]
+            },
+            {
+              "name": "Weihenstephaner",
+              "origin": "import",
+              "country": "DE",
+              "styles": [
+                "wheat"
+              ]
+            },
+            {
+              "name": "Zipfer",
+              "origin": "import",
+              "country": "AT"
+            }
+          ]
+        },
+        {
+          "id": "beer-be",
+          "label": "Belga",
+          "style": "craft",
+          "brands": [
+            {
+              "name": "Chimay",
+              "origin": "import",
+              "country": "BE"
+            },
+            {
+              "name": "Delirium",
+              "origin": "import",
+              "country": "BE",
+              "aliases": [
+                "Delirium Tremens"
+              ]
+            },
+            {
+              "name": "Duvel",
+              "origin": "import",
+              "country": "BE"
+            },
+            {
+              "name": "Grimbergen",
+              "origin": "import",
+              "country": "BE"
+            },
+            {
+              "name": "Hoegaarden",
+              "origin": "import",
+              "country": "BE",
+              "styles": [
+                "wheat"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Kwak",
+              "origin": "import",
+              "country": "BE",
+              "aliases": [
+                "Pauwel Kwak"
+              ]
+            },
+            {
+              "name": "Leffe",
+              "origin": "import",
+              "country": "BE",
+              "popular": true
+            },
+            {
+              "name": "Lindemans",
+              "origin": "import",
+              "country": "BE"
+            },
+            {
+              "name": "Stella Artois",
+              "origin": "import",
+              "country": "BE",
+              "styles": [
+                "lager"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "beer-ie-uk",
+          "label": "Ír / brit",
+          "style": "dark",
+          "brands": [
+            {
+              "name": "BrewDog",
+              "origin": "import",
+              "country": "GB",
+              "styles": [
+                "ipa"
+              ]
+            },
+            {
+              "name": "Guinness",
+              "origin": "import",
+              "country": "IE",
+              "popular": true
+            },
+            {
+              "name": "Kilkenny",
+              "origin": "import",
+              "country": "IE"
+            },
+            {
+              "name": "Murphy's",
+              "origin": "import",
+              "country": "IE"
+            },
+            {
+              "name": "Newcastle Brown Ale",
+              "origin": "import",
+              "country": "GB",
+              "aliases": [
+                "Newcastle"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "beer-eu",
+          "label": "Egyéb európai",
+          "style": "lager",
+          "brands": [
+            {
+              "name": "Amstel",
+              "origin": "import",
+              "country": "NL"
+            },
+            {
+              "name": "Birra Moretti",
+              "origin": "import",
+              "country": "IT",
+              "aliases": [
+                "Moretti"
+              ]
+            },
+            {
+              "name": "Carlsberg",
+              "origin": "import",
+              "country": "DK"
+            },
+            {
+              "name": "Efes",
+              "origin": "import",
+              "country": "TR"
+            },
+            {
+              "name": "Grolsch",
+              "origin": "import",
+              "country": "NL"
+            },
+            {
+              "name": "Heineken",
+              "origin": "import",
+              "country": "NL",
+              "popular": true
+            },
+            {
+              "name": "Kronenbourg",
+              "origin": "import",
+              "country": "FR",
+              "aliases": [
+                "1664",
+                "Kronenbourg 1664"
+              ]
+            },
+            {
+              "name": "Lech",
+              "origin": "import",
+              "country": "PL"
+            },
+            {
+              "name": "Peroni",
+              "origin": "import",
+              "country": "IT"
+            },
+            {
+              "name": "Tuborg",
+              "origin": "import",
+              "country": "DK"
+            },
+            {
+              "name": "Tyskie",
+              "origin": "import",
+              "country": "PL"
+            },
+            {
+              "name": "Żywiec",
+              "origin": "import",
+              "country": "PL",
+              "aliases": [
+                "Zywiec"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "beer-asia",
+          "label": "Ázsiai",
+          "style": "lager",
+          "brands": [
+            {
+              "name": "Asahi",
+              "origin": "import",
+              "country": "JP"
+            },
+            {
+              "name": "Chang",
+              "origin": "import",
+              "country": "TH"
+            },
+            {
+              "name": "Kirin",
+              "origin": "import",
+              "country": "JP"
+            },
+            {
+              "name": "Sapporo",
+              "origin": "import",
+              "country": "JP"
+            },
+            {
+              "name": "Singha",
+              "origin": "import",
+              "country": "TH"
+            },
+            {
+              "name": "Tiger",
+              "origin": "import",
+              "country": "SG"
+            },
+            {
+              "name": "Tsingtao",
+              "origin": "import",
+              "country": "CN"
+            }
+          ]
+        },
+        {
+          "id": "beer-americas",
+          "label": "Amerikai / mexikói",
+          "style": "lager",
+          "brands": [
+            {
+              "name": "Brooklyn",
+              "origin": "import",
+              "country": "US",
+              "styles": [
+                "craft"
+              ]
+            },
+            {
+              "name": "Corona",
+              "origin": "import",
+              "country": "MX",
+              "aliases": [
+                "Corona Extra"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Desperados",
+              "origin": "import",
+              "country": "NL"
+            },
+            {
+              "name": "Samuel Adams",
+              "origin": "import",
+              "country": "US",
+              "styles": [
+                "craft"
+              ]
+            },
+            {
+              "name": "Sierra Nevada",
+              "origin": "import",
+              "country": "US",
+              "styles": [
+                "ipa"
+              ]
+            },
+            {
+              "name": "Sol",
+              "origin": "import",
+              "country": "MX"
+            }
+          ]
+        },
+        {
+          "id": "beer-cider",
+          "label": "Cider",
+          "style": "cider",
+          "brands": [
+            {
+              "name": "Kopparberg",
+              "origin": "import",
+              "country": "SE"
+            },
+            {
+              "name": "Magners",
+              "origin": "import",
+              "country": "IE"
+            },
+            {
+              "name": "Rekorderlig",
+              "origin": "import",
+              "country": "SE"
+            },
+            {
+              "name": "Somersby",
+              "origin": "import",
+              "country": "DK",
+              "popular": true
+            },
+            {
+              "name": "Strongbow",
+              "origin": "import",
+              "country": "GB"
+            }
+          ]
+        }
+      ],
+      "mixes": []
+    },
+    {
+      "id": "spirits",
+      "label": "Rövidital",
+      "styles": [
+        {
+          "id": "shot",
+          "label": "Rövidital"
+        }
+      ],
+      "groups": [
+        {
+          "id": "spirits-palinka",
+          "label": "Pálinka",
+          "style": "shot",
+          "subtype": "palinka",
+          "brands": [
+            {
+              "name": "Agárdi",
+              "origin": "hu",
+              "popular": true
+            },
+            {
+              "name": "Bolyhos",
+              "origin": "hu"
+            },
+            {
+              "name": "Brill",
+              "origin": "hu"
+            },
+            {
+              "name": "Gönci",
+              "origin": "hu"
+            },
+            {
+              "name": "Panyolai",
+              "origin": "hu"
+            },
+            {
+              "name": "Prekop",
+              "origin": "hu"
+            },
+            {
+              "name": "Rézangyal",
+              "origin": "hu"
+            },
+            {
+              "name": "Szicsek",
+              "origin": "hu"
+            },
+            {
+              "name": "Zwack",
+              "origin": "hu",
+              "aliases": [
+                "Zwack Kecskeméti",
+                "Kecskeméti"
+              ],
+              "popular": true
+            }
+          ]
+        },
+        {
+          "id": "spirits-whisky-scotch",
+          "label": "Whisky – skót",
+          "style": "shot",
+          "subtype": "whiskey",
+          "alsoIn": [
+            "cocktail"
+          ],
+          "brands": [
+            {
+              "name": "Ballantine's",
+              "origin": "import",
+              "country": "GB",
+              "aliases": [
+                "Ballantines"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Chivas Regal",
+              "origin": "import",
+              "country": "GB",
+              "aliases": [
+                "Chivas"
+              ]
+            },
+            {
+              "name": "Dewar's",
+              "origin": "import",
+              "country": "GB"
+            },
+            {
+              "name": "Famous Grouse",
+              "origin": "import",
+              "country": "GB"
+            },
+            {
+              "name": "Glenfiddich",
+              "origin": "import",
+              "country": "GB"
+            },
+            {
+              "name": "Grant's",
+              "origin": "import",
+              "country": "GB"
+            },
+            {
+              "name": "Johnnie Walker",
+              "origin": "import",
+              "country": "GB",
+              "popular": true
+            },
+            {
+              "name": "Laphroaig",
+              "origin": "import",
+              "country": "GB"
+            },
+            {
+              "name": "Monkey Shoulder",
+              "origin": "import",
+              "country": "GB"
+            },
+            {
+              "name": "Talisker",
+              "origin": "import",
+              "country": "GB"
+            }
+          ]
+        },
+        {
+          "id": "spirits-whiskey-irish",
+          "label": "Whiskey – ír",
+          "style": "shot",
+          "subtype": "whiskey",
+          "alsoIn": [
+            "cocktail"
+          ],
+          "brands": [
+            {
+              "name": "Bushmills",
+              "origin": "import",
+              "country": "IE"
+            },
+            {
+              "name": "Jameson",
+              "origin": "import",
+              "country": "IE",
+              "popular": true
+            },
+            {
+              "name": "Tullamore D.E.W.",
+              "origin": "import",
+              "country": "IE",
+              "aliases": [
+                "Tullamore Dew",
+                "Tullamore"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "spirits-bourbon",
+          "label": "Bourbon / amerikai whiskey",
+          "style": "shot",
+          "subtype": "whiskey",
+          "alsoIn": [
+            "cocktail"
+          ],
+          "brands": [
+            {
+              "name": "Bulleit",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Four Roses",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Jack Daniel's",
+              "origin": "import",
+              "country": "US",
+              "aliases": [
+                "Jack Daniels",
+                "JD"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Jim Beam",
+              "origin": "import",
+              "country": "US",
+              "popular": true
+            },
+            {
+              "name": "Maker's Mark",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Wild Turkey",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Woodford Reserve",
+              "origin": "import",
+              "country": "US"
+            }
+          ]
+        },
+        {
+          "id": "spirits-gin",
+          "label": "Gin",
+          "style": "shot",
+          "subtype": "gin",
+          "alsoIn": [
+            "cocktail"
+          ],
+          "brands": [
+            {
+              "name": "Beefeater",
+              "origin": "import",
+              "country": "GB",
+              "popular": true
+            },
+            {
+              "name": "Bombay Sapphire",
+              "origin": "import",
+              "country": "GB",
+              "aliases": [
+                "Bombay"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Bulldog",
+              "origin": "import",
+              "country": "GB"
+            },
+            {
+              "name": "Gordon's",
+              "origin": "import",
+              "country": "GB",
+              "aliases": [
+                "Gordons"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Hendrick's",
+              "origin": "import",
+              "country": "GB",
+              "aliases": [
+                "Hendricks"
+              ]
+            },
+            {
+              "name": "Malfy",
+              "origin": "import",
+              "country": "IT"
+            },
+            {
+              "name": "Monkey 47",
+              "origin": "import",
+              "country": "DE"
+            },
+            {
+              "name": "Roku",
+              "origin": "import",
+              "country": "JP"
+            },
+            {
+              "name": "Tanqueray",
+              "origin": "import",
+              "country": "GB"
+            }
+          ]
+        },
+        {
+          "id": "spirits-rum",
+          "label": "Rum",
+          "style": "shot",
+          "subtype": "rum",
+          "alsoIn": [
+            "cocktail"
+          ],
+          "brands": [
+            {
+              "name": "Bacardi",
+              "origin": "import",
+              "country": "PR",
+              "popular": true
+            },
+            {
+              "name": "Captain Morgan",
+              "origin": "import",
+              "country": "JM",
+              "popular": true
+            },
+            {
+              "name": "Diplomático",
+              "origin": "import",
+              "country": "VE",
+              "aliases": [
+                "Diplomatico"
+              ]
+            },
+            {
+              "name": "Don Papa",
+              "origin": "import",
+              "country": "PH"
+            },
+            {
+              "name": "Havana Club",
+              "origin": "import",
+              "country": "CU",
+              "popular": true
+            },
+            {
+              "name": "Kraken",
+              "origin": "import",
+              "country": "TT"
+            },
+            {
+              "name": "Plantation",
+              "origin": "import",
+              "country": "BB"
+            },
+            {
+              "name": "Zacapa",
+              "origin": "import",
+              "country": "GT",
+              "aliases": [
+                "Ron Zacapa"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "spirits-tequila",
+          "label": "Tequila / mezcal",
+          "style": "shot",
+          "subtype": "tequila",
+          "alsoIn": [
+            "cocktail"
+          ],
+          "brands": [
+            {
+              "name": "Del Maguey",
+              "origin": "import",
+              "country": "MX"
+            },
+            {
+              "name": "Don Julio",
+              "origin": "import",
+              "country": "MX"
+            },
+            {
+              "name": "El Jimador",
+              "origin": "import",
+              "country": "MX"
+            },
+            {
+              "name": "Espolòn",
+              "origin": "import",
+              "country": "MX",
+              "aliases": [
+                "Espolon"
+              ]
+            },
+            {
+              "name": "Jose Cuervo",
+              "origin": "import",
+              "country": "MX",
+              "aliases": [
+                "Cuervo"
+              ]
+            },
+            {
+              "name": "Olmeca",
+              "origin": "import",
+              "country": "MX",
+              "popular": true
+            },
+            {
+              "name": "Patrón",
+              "origin": "import",
+              "country": "MX",
+              "aliases": [
+                "Patron"
+              ]
+            },
+            {
+              "name": "Sierra",
+              "origin": "import",
+              "country": "MX",
+              "popular": true
+            }
+          ]
+        },
+        {
+          "id": "spirits-vodka",
+          "label": "Vodka",
+          "style": "shot",
+          "subtype": "vodka",
+          "alsoIn": [
+            "cocktail"
+          ],
+          "brands": [
+            {
+              "name": "Absolut",
+              "origin": "import",
+              "country": "SE",
+              "popular": true
+            },
+            {
+              "name": "Belvedere",
+              "origin": "import",
+              "country": "PL"
+            },
+            {
+              "name": "Finlandia",
+              "origin": "import",
+              "country": "FI",
+              "popular": true
+            },
+            {
+              "name": "Grey Goose",
+              "origin": "import",
+              "country": "FR"
+            },
+            {
+              "name": "Russian Standard",
+              "origin": "import",
+              "country": "RU"
+            },
+            {
+              "name": "Smirnoff",
+              "origin": "import",
+              "country": "GB",
+              "popular": true
+            },
+            {
+              "name": "Stolichnaya",
+              "origin": "import",
+              "country": "LV",
+              "aliases": [
+                "Stoli"
+              ]
+            },
+            {
+              "name": "Wyborowa",
+              "origin": "import",
+              "country": "PL"
+            },
+            {
+              "name": "Żubrówka",
+              "origin": "import",
+              "country": "PL",
+              "aliases": [
+                "Zubrowka"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "spirits-liqueur",
+          "label": "Likőr / keserű / vermut",
+          "style": "shot",
+          "subtype": "liqueur",
+          "alsoIn": [
+            "cocktail"
+          ],
+          "brands": [
+            {
+              "name": "Amaretto Disaronno",
+              "origin": "import",
+              "country": "IT",
+              "aliases": [
+                "Disaronno",
+                "Amaretto"
+              ]
+            },
+            {
+              "name": "Aperol",
+              "origin": "import",
+              "country": "IT",
+              "subtype": "liqueur",
+              "popular": true
+            },
+            {
+              "name": "Baileys",
+              "origin": "import",
+              "country": "IE"
+            },
+            {
+              "name": "Becherovka",
+              "origin": "import",
+              "country": "CZ"
+            },
+            {
+              "name": "Campari",
+              "origin": "import",
+              "country": "IT"
+            },
+            {
+              "name": "Cinzano",
+              "origin": "import",
+              "country": "IT"
+            },
+            {
+              "name": "Cointreau",
+              "origin": "import",
+              "country": "FR"
+            },
+            {
+              "name": "Fernet-Branca",
+              "origin": "import",
+              "country": "IT",
+              "aliases": [
+                "Fernet",
+                "Fernet Branca"
+              ]
+            },
+            {
+              "name": "Fütyülős",
+              "origin": "hu"
+            },
+            {
+              "name": "Hubertus",
+              "origin": "hu"
+            },
+            {
+              "name": "Jägermeister",
+              "origin": "import",
+              "country": "DE",
+              "aliases": [
+                "Jäger",
+                "Jager",
+                "Jagermeister"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Kahlúa",
+              "origin": "import",
+              "country": "MX",
+              "aliases": [
+                "Kahlua"
+              ]
+            },
+            {
+              "name": "Malibu",
+              "origin": "import",
+              "country": "BB"
+            },
+            {
+              "name": "Martini",
+              "origin": "import",
+              "country": "IT"
+            },
+            {
+              "name": "Ramazzotti",
+              "origin": "import",
+              "country": "IT"
+            },
+            {
+              "name": "Sambuca",
+              "origin": "import",
+              "country": "IT"
+            },
+            {
+              "name": "St-Germain",
+              "origin": "import",
+              "country": "FR",
+              "aliases": [
+                "St Germain"
+              ]
+            },
+            {
+              "name": "Unicum",
+              "origin": "hu",
+              "aliases": [
+                "Zwack Unicum"
+              ],
+              "popular": true
+            }
+          ]
+        }
+      ],
+      "mixes": [
+        {
+          "name": "B-52",
+          "aliases": [
+            "B52"
+          ],
+          "category": "spirits",
+          "style": "shot",
+          "subtype": "liqueur",
+          "base": [
+            "liqueur"
+          ]
+        },
+        {
+          "name": "Jägerbomb",
+          "aliases": [
+            "Jäger-bomba",
+            "Jagerbomb"
+          ],
+          "category": "spirits",
+          "style": "shot",
+          "subtype": "liqueur",
+          "base": [
+            "liqueur"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wine",
+      "label": "Bor / Fröccs",
+      "styles": [
+        {
+          "id": "wine",
+          "label": "Bor"
+        },
+        {
+          "id": "spritzer",
+          "label": "Fröccs"
+        }
+      ],
+      "groups": [
+        {
+          "id": "wine-producers",
+          "label": "Pincészetek és pezsgőházak",
+          "style": "wine",
+          "brands": [
+            {
+              "name": "BB",
+              "origin": "hu",
+              "aliases": [
+                "Balatonboglári",
+                "Balatonboglári Borgazdaság"
+              ]
+            },
+            {
+              "name": "Bock",
+              "origin": "hu"
+            },
+            {
+              "name": "Etyeki Kúria",
+              "origin": "hu"
+            },
+            {
+              "name": "Frittmann",
+              "origin": "hu"
+            },
+            {
+              "name": "Gál Tibor",
+              "origin": "hu"
+            },
+            {
+              "name": "Garamvári",
+              "origin": "hu",
+              "subtype": "sparkling"
+            },
+            {
+              "name": "Gere Attila",
+              "origin": "hu",
+              "aliases": [
+                "Gere"
+              ]
+            },
+            {
+              "name": "Hilltop",
+              "origin": "hu",
+              "aliases": [
+                "Hilltop Neszmély"
+              ]
+            },
+            {
+              "name": "Hungaria",
+              "origin": "hu",
+              "subtype": "sparkling",
+              "aliases": [
+                "Hungária"
+              ]
+            },
+            {
+              "name": "Konyári",
+              "origin": "hu"
+            },
+            {
+              "name": "Kreinbacher",
+              "origin": "hu",
+              "subtype": "sparkling"
+            },
+            {
+              "name": "Laposa",
+              "origin": "hu"
+            },
+            {
+              "name": "St. Andrea",
+              "origin": "hu",
+              "aliases": [
+                "St Andrea"
+              ]
+            },
+            {
+              "name": "Takler",
+              "origin": "hu"
+            },
+            {
+              "name": "Thummerer",
+              "origin": "hu"
+            },
+            {
+              "name": "Törley",
+              "origin": "hu",
+              "subtype": "sparkling",
+              "popular": true
+            },
+            {
+              "name": "Varga",
+              "origin": "hu",
+              "popular": true
+            }
+          ]
+        }
+      ],
+      "mixes": [
+        {
+          "name": "Házmester",
+          "category": "wine",
+          "style": "spritzer",
+          "wineDl": 3,
+          "sodaDl": 2
+        },
+        {
+          "name": "Hosszúlépés",
+          "category": "wine",
+          "style": "spritzer",
+          "wineDl": 1,
+          "sodaDl": 2
+        },
+        {
+          "name": "Kisfröccs",
+          "category": "wine",
+          "style": "spritzer",
+          "wineDl": 1,
+          "sodaDl": 1,
+          "popular": true
+        },
+        {
+          "name": "Krúdy-fröccs",
+          "category": "wine",
+          "style": "spritzer",
+          "wineDl": 9,
+          "sodaDl": 1,
+          "aliases": [
+            "Krúdy fröccs"
+          ]
+        },
+        {
+          "name": "Nagyfröccs",
+          "category": "wine",
+          "style": "spritzer",
+          "wineDl": 2,
+          "sodaDl": 1,
+          "popular": true
+        },
+        {
+          "name": "Sóherfröccs",
+          "category": "wine",
+          "style": "spritzer",
+          "wineDl": 1,
+          "sodaDl": 9,
+          "aliases": [
+            "Sóher fröccs"
+          ]
+        },
+        {
+          "name": "Viceházmester",
+          "category": "wine",
+          "style": "spritzer",
+          "wineDl": 2,
+          "sodaDl": 3
+        }
+      ]
+    },
+    {
+      "id": "cocktail",
+      "label": "Koktél / Long drink",
+      "styles": [
+        {
+          "id": "longdrink",
+          "label": "Long drink / koktél"
+        }
+      ],
+      "groups": [],
+      "mixes": [
+        {
+          "name": "Aperol Spritz",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "spritz",
+          "base": [
+            "liqueur"
+          ],
+          "aliases": [
+            "Aperol Fröccs"
+          ],
+          "popular": true
+        },
+        {
+          "name": "Bloody Mary",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "vodka"
+          ]
+        },
+        {
+          "name": "Caipirinha",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "classic",
+          "base": []
+        },
+        {
+          "name": "Campari Spritz",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "spritz",
+          "base": [
+            "liqueur"
+          ]
+        },
+        {
+          "name": "Cosmopolitan",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "classic",
+          "base": [
+            "vodka"
+          ],
+          "aliases": [
+            "Cosmo"
+          ]
+        },
+        {
+          "name": "Cuba Libre",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "mojito",
+          "base": [
+            "rum"
+          ],
+          "aliases": [
+            "Rum-kóla",
+            "Rum Cola"
+          ],
+          "popular": true
+        },
+        {
+          "name": "Daiquiri",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "mojito",
+          "base": [
+            "rum"
+          ]
+        },
+        {
+          "name": "Dark 'n' Stormy",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "mojito",
+          "base": [
+            "rum"
+          ],
+          "aliases": [
+            "Dark and Stormy"
+          ]
+        },
+        {
+          "name": "Espresso Martini",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "classic",
+          "base": [
+            "vodka"
+          ]
+        },
+        {
+          "name": "Gin Tonic",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "gin_tonic",
+          "base": [
+            "gin"
+          ],
+          "aliases": [
+            "Gin-tonik",
+            "G&T",
+            "Gin Tonik"
+          ],
+          "popular": true
+        },
+        {
+          "name": "Hugo",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "spritz",
+          "base": [
+            "liqueur"
+          ],
+          "popular": true
+        },
+        {
+          "name": "Long Island Iced Tea",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "vodka",
+            "gin",
+            "rum",
+            "tequila"
+          ],
+          "aliases": [
+            "Long Island"
+          ],
+          "popular": true
+        },
+        {
+          "name": "Mai Tai",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "mojito",
+          "base": [
+            "rum"
+          ]
+        },
+        {
+          "name": "Margarita",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "classic",
+          "base": [
+            "tequila"
+          ]
+        },
+        {
+          "name": "Mojito",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "mojito",
+          "base": [
+            "rum"
+          ],
+          "popular": true
+        },
+        {
+          "name": "Moscow Mule",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "vodka"
+          ]
+        },
+        {
+          "name": "Negroni",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "classic",
+          "base": [
+            "gin",
+            "liqueur"
+          ],
+          "popular": true
+        },
+        {
+          "name": "Old Fashioned",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "classic",
+          "base": [
+            "whiskey"
+          ]
+        },
+        {
+          "name": "Paloma",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "tequila"
+          ]
+        },
+        {
+          "name": "Piña Colada",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "mojito",
+          "base": [
+            "rum"
+          ],
+          "aliases": [
+            "Pina Colada"
+          ]
+        },
+        {
+          "name": "Screwdriver",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "vodka"
+          ],
+          "aliases": [
+            "Vodka-narancs",
+            "Vodka narancs"
+          ]
+        },
+        {
+          "name": "Sex on the Beach",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "vodka"
+          ],
+          "popular": true
+        },
+        {
+          "name": "Tequila Sunrise",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "tequila"
+          ]
+        },
+        {
+          "name": "Vodka-Red Bull",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "vodka"
+          ],
+          "aliases": [
+            "Vodka Red Bull",
+            "VRB"
+          ]
+        },
+        {
+          "name": "Whiskey Sour",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "classic",
+          "base": [
+            "whiskey"
+          ],
+          "aliases": [
+            "Whisky Sour"
+          ]
+        },
+        {
+          "name": "Whiskey-Cola",
+          "category": "cocktail",
+          "style": "longdrink",
+          "subtype": "longdrink",
+          "base": [
+            "whiskey"
+          ],
+          "aliases": [
+            "Whisky-kóla",
+            "Whiskey Cola",
+            "Whisky Cola",
+            "Jack-kóla"
+          ],
+          "popular": true
+        }
+      ]
+    },
+    {
+      "id": "soft",
+      "label": "Üdítő / Alkoholmentes",
+      "styles": [
+        {
+          "id": "nonalcoholic",
+          "label": "Alkoholmentes"
+        }
+      ],
+      "groups": [
+        {
+          "id": "soft-brands",
+          "label": "Üdítők, energiaitalok, víz",
+          "style": "nonalcoholic",
+          "brands": [
+            {
+              "name": "Cappy",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Club-Mate",
+              "origin": "import",
+              "country": "DE",
+              "aliases": [
+                "Club Mate"
+              ]
+            },
+            {
+              "name": "Coca-Cola",
+              "origin": "import",
+              "country": "US",
+              "aliases": [
+                "Coca Cola",
+                "Coke",
+                "Kóla"
+              ],
+              "popular": true
+            },
+            {
+              "name": "Fanta",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Fever-Tree",
+              "origin": "import",
+              "country": "GB",
+              "aliases": [
+                "Fever Tree"
+              ]
+            },
+            {
+              "name": "Hell",
+              "origin": "hu",
+              "aliases": [
+                "Hell Energy"
+              ]
+            },
+            {
+              "name": "Kinley",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Márka",
+              "origin": "hu",
+              "aliases": [
+                "Márka üdítő"
+              ]
+            },
+            {
+              "name": "NaturAqua",
+              "origin": "hu"
+            },
+            {
+              "name": "Pepsi",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Rauch",
+              "origin": "import",
+              "country": "AT"
+            },
+            {
+              "name": "Red Bull",
+              "origin": "import",
+              "country": "AT",
+              "popular": true
+            },
+            {
+              "name": "Schweppes",
+              "origin": "import",
+              "country": "CH",
+              "popular": true
+            },
+            {
+              "name": "Sprite",
+              "origin": "import",
+              "country": "US"
+            },
+            {
+              "name": "Szentkirályi",
+              "origin": "hu"
+            },
+            {
+              "name": "Theodora",
+              "origin": "hu"
+            },
+            {
+              "name": "Traubi",
+              "origin": "hu",
+              "aliases": [
+                "Traubisoda",
+                "Traubi Szóda"
+              ]
+            },
+            {
+              "name": "XIXO",
+              "origin": "hu"
+            }
+          ]
+        },
+        {
+          "id": "soft-na-beer",
+          "label": "Alkoholmentes sör",
+          "style": "nonalcoholic",
+          "subtype": "na_beer",
+          "brands": [
+            {
+              "name": "Clausthaler",
+              "origin": "import",
+              "country": "DE"
+            },
+            {
+              "name": "Dreher 24",
+              "origin": "hu",
+              "aliases": [
+                "Dreher 0,0",
+                "Dreher alkoholmentes"
+              ]
+            },
+            {
+              "name": "Erdinger Alkoholfrei",
+              "origin": "import",
+              "country": "DE",
+              "aliases": [
+                "Erdinger 0,0"
+              ]
+            },
+            {
+              "name": "Heineken 0.0",
+              "origin": "import",
+              "country": "NL",
+              "aliases": [
+                "Heineken 0,0",
+                "Heineken alkoholmentes"
+              ]
+            },
+            {
+              "name": "Paulaner 0,0",
+              "origin": "import",
+              "country": "DE",
+              "aliases": [
+                "Paulaner alkoholmentes"
+              ]
+            },
+            {
+              "name": "Soproni 0,0%",
+              "origin": "hu",
+              "aliases": [
+                "Soproni alkoholmentes"
+              ]
+            }
+          ]
+        }
+      ],
+      "mixes": []
+    }
+  ],
+  "grapes": [
+    {
+      "name": "Cabernet franc",
+      "subtype": "red"
+    },
+    {
+      "name": "Chardonnay",
+      "subtype": "dry_white"
+    },
+    {
+      "name": "Cserszegi fűszeres",
+      "subtype": "dry_white",
+      "aliases": [
+        "Cserszegi"
+      ]
+    },
+    {
+      "name": "Egri Bikavér",
+      "subtype": "red"
+    },
+    {
+      "name": "Furmint",
+      "subtype": "dry_white"
+    },
+    {
+      "name": "Hárslevelű",
+      "subtype": "dry_white"
+    },
+    {
+      "name": "Irsai Olivér",
+      "subtype": "dry_white",
+      "aliases": [
+        "Irsai"
+      ]
+    },
+    {
+      "name": "Juhfark",
+      "subtype": "dry_white"
+    },
+    {
+      "name": "Kadarka",
+      "subtype": "red"
+    },
+    {
+      "name": "Kékfrankos",
+      "subtype": "red"
+    },
+    {
+      "name": "Királyleányka",
+      "subtype": "dry_white"
+    },
+    {
+      "name": "Merlot",
+      "subtype": "red"
+    },
+    {
+      "name": "Olaszrizling",
+      "subtype": "dry_white"
+    },
+    {
+      "name": "Pinot noir",
+      "subtype": "red"
+    },
+    {
+      "name": "Portugieser",
+      "subtype": "red",
+      "aliases": [
+        "Kékoportó"
+      ]
+    },
+    {
+      "name": "Rozé",
+      "subtype": "rose",
+      "aliases": [
+        "Rosé"
+      ]
+    },
+    {
+      "name": "Sárgamuskotály",
+      "subtype": "dry_white",
+      "aliases": [
+        "Muskotály"
+      ]
+    },
+    {
+      "name": "Sauvignon blanc",
+      "subtype": "dry_white",
+      "aliases": [
+        "Sauvignon"
+      ]
+    },
+    {
+      "name": "Szekszárdi Bikavér",
+      "subtype": "red"
+    },
+    {
+      "name": "Zenit",
+      "subtype": "dry_white"
+    },
+    {
+      "name": "Zweigelt",
+      "subtype": "red"
+    }
+  ]
+}

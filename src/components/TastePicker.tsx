@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_ORDER, brandBadge, brandKey, canonicalBrand } from "../domain/drinkCatalog";
-import { beerBrandOptions, prefLabels, SUBTYPE_OPTIONS, type SubtypeCategory } from "../domain/tasteProfile";
+import { CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_ORDER, brandBadge, brandKey, canonicalBrand, searchCatalog } from "../domain/drinkCatalog";
+import { popularBeerBrands, prefLabels, SUBTYPE_OPTIONS, type SubtypeCategory } from "../domain/tasteProfile";
 import type { DrinkCategory, DrinkSubtype, TastePrefs } from "../domain/types";
 import { BrandIcon } from "./DrinkFilters";
 
@@ -77,19 +77,24 @@ function BeerPrefs({ value, onChange }: { value: TasteValue; onChange: (v: Taste
   const has = (b: string) => brands.some((x) => brandKey(x) === brandKey(b));
   const set = (list: string[]) => onChange({ ...value, prefs: { ...value.prefs, beerBrands: list } });
   const toggle = (b: string) => set(has(b) ? brands.filter((x) => brandKey(x) !== brandKey(b)) : [...brands, b]);
-  const known = beerBrandOptions();
-  const extra = brands.filter((b) => !known.some((k) => brandKey(k) === brandKey(b)));
+  // gyorsválasztó: a népszerű márkák + a már kiválasztottak; a többi (100+) kereséssel
+  const popular = popularBeerBrands();
+  const extra = brands.filter((b) => !popular.some((k) => brandKey(k) === brandKey(b)));
+  const matches = brandKey(custom)
+    ? searchCatalog(custom, { category: "beer", limit: 8 }).filter((r) => r.kind === "brand" && !has(r.name))
+    : [];
   const addCustom = () => {
     const b = canonicalBrand(custom);
     if (brandKey(b) && !has(b)) set([...brands, b]);
     setCustom("");
   };
+  const exact = matches.some((m) => brandKey(m.name) === brandKey(custom));
 
   return (
     <div className="taste-panel">
       <div className="cat-sub">Kedvenc márkák (több is lehet)</div>
       <div className="brand-chips">
-        {[...known, ...extra].map((b) => (
+        {[...popular, ...extra].map((b) => (
           <button key={b} className={`brand-chip ${has(b) ? "on" : ""}`} aria-pressed={has(b)} onClick={() => toggle(b)}>
             <BrandIcon badge={brandBadge(b)} size={22} />
             {b}
@@ -99,15 +104,34 @@ function BeerPrefs({ value, onChange }: { value: TasteValue; onChange: (v: Taste
       <div className="custom-brand">
         <input
           value={custom}
-          placeholder="Egyéb márka (pl. kézműves főzde)"
+          placeholder="Keress még márkát, vagy írd be a sajátod"
           onChange={(e) => setCustom(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && addCustom()}
           maxLength={40}
+          aria-label="Sörmárka keresése"
         />
-        <button className="mini" disabled={!brandKey(custom)} onClick={addCustom}>
-          + Hozzáad
+        <button className="mini" disabled={!brandKey(custom) || exact} onClick={addCustom}>
+          + Saját
         </button>
       </div>
+      {matches.length > 0 && (
+        <div className="brand-chips suggest" aria-label="Találatok">
+          {matches.map((m) => (
+            <button
+              key={m.name}
+              className="brand-chip"
+              onClick={() => {
+                set([...brands, m.name]);
+                setCustom("");
+              }}
+            >
+              <BrandIcon badge={brandBadge(m.name)} size={22} />
+              {m.name}
+              <span className="muted small">{m.group}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
