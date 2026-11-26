@@ -2,9 +2,10 @@
   "_comment": "Generált fájl: npm run icons:fetch (scripts/fetch-favicons.ts) vagy a „Honlap-ikonok frissítése” GitHub Actions munkafolyamat. A képek a public/icons/places/ mappában vannak. Egy hely ikonja kikapcsolható: \"<hely-id>\": { \"status\": \"disabled\" }.",
   "osm-node-11830299332": {
     "status": "not-found",
+    "errorKind": "http",
     "page": "https://gravitybp.com/",
     "error": "https://gravitybp.com/favicon.ico: HTTP 404",
-    "fetchedAt": "2026-11-26T17:36:36.718Z"
+    "fetchedAt": "2026-11-26T17:42:08.883Z"
   },
   "osm-node-12093728319": {
     "status": "ok",
@@ -17,9 +18,10 @@
   },
   "osm-node-1624491422": {
     "status": "error",
+    "errorKind": "unreachable",
     "page": "http://paristexaskavehaz.hu/",
-    "error": "oldal: fetch failed",
-    "fetchedAt": "2026-11-26T17:36:41.902Z"
+    "error": "oldal: http://paristexaskavehaz.hu/: fetch failed | https://paristexaskavehaz.hu/: fetch failed",
+    "fetchedAt": "2026-11-26T17:42:11.276Z"
   },
   "osm-node-2105368169": {
     "status": "ok",
@@ -68,9 +70,10 @@
   },
   "osm-node-2663224110": {
     "status": "not-found",
+    "errorKind": "http",
     "page": "http://www.corvinuscafe.com/",
     "error": "http://www.corvinuscafe.com/favicon.ico: HTTP 404",
-    "fetchedAt": "2026-11-26T17:36:35.979Z"
+    "fetchedAt": "2026-11-26T17:42:08.872Z"
   },
   "osm-node-2829269816": {
     "status": "ok",
@@ -83,15 +86,17 @@
   },
   "osm-node-4141518189": {
     "status": "error",
+    "errorKind": "unreachable",
     "page": "https://bacchusbp.com/",
-    "error": "oldal: fetch failed",
-    "fetchedAt": "2026-11-26T17:36:47.069Z"
+    "error": "oldal: https://bacchusbp.com/: fetch failed | http://bacchusbp.com/: fetch failed",
+    "fetchedAt": "2026-11-26T17:42:11.523Z"
   },
   "osm-node-418029723": {
     "status": "not-found",
+    "errorKind": "http",
     "page": "https://www.illegal.co.hu/",
     "error": "https://www.illegal.co.hu/favicon.ico: HTTP 404",
-    "fetchedAt": "2026-11-26T17:36:49.646Z"
+    "fetchedAt": "2026-11-26T17:42:14.633Z"
   },
   "osm-node-4290484184": {
     "status": "ok",
@@ -103,10 +108,15 @@
     "fetchedAt": "2026-11-26T17:36:32.058Z"
   },
   "osm-node-5922712294": {
-    "status": "error",
+    "status": "ok",
+    "file": "icons/places/osm-node-5922712294.png",
+    "source": "https://boardgamecafe.hu/sites/default/files/logo_1.png",
     "page": "https://boardgamecafe.hu/",
-    "error": "oldal: fetch failed",
-    "fetchedAt": "2026-11-26T17:36:48.097Z"
+    "bytes": 28072,
+    "width": 120,
+    "height": 120,
+    "sha256": "cb528b7f7cd31f2217bea9763baf646d7134750c8bdde7ec31d29852ee3abac1",
+    "fetchedAt": "2026-11-26T17:42:12.694Z"
   },
   "osm-node-738753846": {
     "status": "ok",
