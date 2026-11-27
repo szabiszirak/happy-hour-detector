@@ -61,3 +61,13 @@
 - Melyik a legjobb első helyszín?
 
 **Első lépés (pilot):** egy minta-alátétterv (QR + szlogen), kis széria 2–3 partner helyre, a QR-szkennelések mérése.
+
+## M3. Scan & Sip – QR-kódos asztali rendelés és fizetés (külön projekt)
+
+**Röviden:** a vendég beolvassa az asztali QR-kódot, app nélkül rendel, Barionnal fizet; a pénz közvetlenül a kocsma Barion-fiókjába megy, a pult csak a szerver által igazoltan kifizetett rendelést látja. Elfogyott tételnél automatikus visszatérítés. A londoni „scan-to-order” kocsmamodell mintájára, a HHD „Carbon Mint” stílusában.
+
+- Részletes koncepció (pénzáramlás, díjmodellek, adatmodell, kockázatok, jog): [`qr-order-barion-idea.md`](qr-order-barion-idea.md)
+- Kód és demó: közös repó, `scan-and-sip/` mappa (külön projekt, a HHD-t nem érinti).
+- Döntések (2026-11-27): azonnali fizetés + visszatérítés (a vendégnek gördülékenyebb); díjmodell: havidíj / jutalék / vegyes – később döntünk.
+- Kapcsolat a HHD-vel: közös helyazonosító; később „Rendelj QR-ral” jelzés az adatlapon.
+
